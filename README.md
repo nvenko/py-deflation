@@ -14,8 +14,8 @@ email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 #### Files' content:
 
 - samplers.py : 
-  - Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
-  - Assembles sampled operator $\mathbf{A}(\theta)$ ![](http://www.sciweavers.org/upload/Tex2Img_1560522909/render.png)for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
+  - Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)​$ proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
+  - Assembles sampled operator $\mathbf{A}(\theta)$  ![](http://www.sciweavers.org/upload/Tex2Img_1560523028/render.png) for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
 - solvers.py : 
   - Iterative solvers: Conjugate gradient (cg), preconditioned cg (pcg), deflated cg (dcg) and preconditioned dcg (pdcg).
 - recycling.py : 

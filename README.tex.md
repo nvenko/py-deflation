@@ -34,13 +34,13 @@ email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 #### Installation: 
 
 ```bash
-$ make -f Makefile CONF=Release
+make -f Makefile CONF=Release
 ```
 
 #### Usage:
 
 ```bash
-$ ./dist/GNU-Linux/npcf nx ny x0 y0 verb data.in
+./dist/GNU-Linux/npcf nx ny x0 y0 verb data.in
 ```
 
 data.in: 2D csv data file.
@@ -58,7 +58,7 @@ verb: Controls display settings.
 #### Example:
 
 ```bash
-$ ./dist/GNU-Linux/npcf 30 30 0 0 2 im00.csv
+./dist/GNU-Linux/npcf 30 30 0 0 2 im00.csv
 
 s2(0,0) = 0.668750, s2(1,0) = 0.626250, s2(2,0) = 0.590625
 s2(0,0) = 0.668750, s2(0,1) = 0.631250, s2(0,2) = 0.602500
@@ -197,7 +197,7 @@ npcf.get_anisotropic_map_s3(60,60,0,1,1,0,"im00.s3");
  - ERROR to fix when almost all data entries are equal. For example, try
 
     ```bash
-    $ ./dist/GNU-Linux/npcf 12 11 0 0 im00.csv
+    ./dist/GNU-Linux/npcf 12 11 0 0 im00.csv
     ```
 
  - Compute hs3 on minimum domain and copy values to other components instead of repeating calculations.

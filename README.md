@@ -6,6 +6,10 @@ Author: Nicolas Venkovic
 
 email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 
+
+
+_TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
+
 #### Dependencies:
 
  - Scipy-sparse (version)
@@ -14,12 +18,12 @@ email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 #### Files' content:
 
 - samplers.py : 
-  - Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
-  - Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
+  - Samples Karhunen-Loève (KL) representation of lognormal coefficient field <img src="/tex/4e923e372a3b20814e440dbab89a7369.svg?invert_in_darkmode&sanitize=true" align=middle width=47.13094649999999pt height=24.65753399999998pt/> proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
+  - Assembles sampled operator <img src="/tex/5fa09f7b56ca22a36927cd31898c37bf.svg?invert_in_darkmode&sanitize=true" align=middle width=35.25112634999999pt height=24.65753399999998pt/>  for the stochastic system <img src="/tex/6e9d068d7e25f913f84dcfaacf3ff1ef.svg?invert_in_darkmode&sanitize=true" align=middle width=99.13217159999998pt height=24.65753399999998pt/> coming from a P0-FE discretization of the SDE <img src="/tex/4f6673d7b4b130cf0e1a5e39aa117b67.svg?invert_in_darkmode&sanitize=true" align=middle width=204.04130339999995pt height=24.65753399999998pt/>. 
 - solvers.py : 
   - Iterative solvers: Conjugate gradient (cg), preconditioned cg (pcg), deflated cg (dcg) and preconditioned dcg (pdcg).
 - recycling.py : 
-  - Solves the sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  for a sample of $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ with:
+  - Solves the sequence of linear systems <img src="/tex/392bdf51092e90ac7adfc4fe70a64bdd.svg?invert_in_darkmode&sanitize=true" align=middle width=109.79427854999999pt height=24.65753399999998pt/>  for a sample of <img src="/tex/dfdd1736db6cf1ba2b6bb459252a9b95.svg?invert_in_darkmode&sanitize=true" align=middle width=78.63031109999999pt height=27.6567522pt/> with:
     - pcgmo: Preconditioned cg for a sequence with multiple operators.
       - $n_{b}$ : Number of blocks  
     - dcgmo: Deflated cg for a sequence with multiple operators.
@@ -34,13 +38,13 @@ email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 #### Installation: 
 
 ```bash
-$ make -f Makefile CONF=Release
+make -f Makefile CONF=Release
 ```
 
 #### Usage:
 
 ```bash
-$ ./dist/GNU-Linux/npcf nx ny x0 y0 verb data.in
+./dist/GNU-Linux/npcf nx ny x0 y0 verb data.in
 ```
 
 data.in: 2D csv data file.
@@ -58,7 +62,7 @@ verb: Controls display settings.
 #### Example:
 
 ```bash
-$ ./dist/GNU-Linux/npcf 30 30 0 0 2 im00.csv
+./dist/GNU-Linux/npcf 30 30 0 0 2 im00.csv
 
 s2(0,0) = 0.668750, s2(1,0) = 0.626250, s2(2,0) = 0.590625
 s2(0,0) = 0.668750, s2(0,1) = 0.631250, s2(0,2) = 0.602500
@@ -194,18 +198,20 @@ npcf.get_anisotropic_map_s3(60,60,0,1,1,0,"im00.s3");
 
 #### Pending tasks:
 
- -  ERROR to fix when almost all data entries are equal. For example, try
+ - ERROR to fix when almost all data entries are equal. For example, try
 
     ```bash
-    $ ./dist/GNU-Linux/npcf 12 11 0 0 im00.csv
+    ./dist/GNU-Linux/npcf 12 11 0 0 im00.csv
     ```
 
- -  Compute hs3 on minimum domain and copy values to other components instead of repeating calculations.
+ - Compute hs3 on minimum domain and copy values to other components instead of repeating calculations.
 
- -  Write subroutines to write output files.
+ - Write subroutines to write output files.
 
- -  Complete implementation of S4(dx1,dy1,dx2,dy2,dx3,dy3).
+ - Complete implementation of S4(dx1,dy1,dx2,dy2,dx3,dy3).
 
- -  Verify implementation for odd nx and ny.
+ - Verify implementation for odd nx and ny.
 
- -  Add inference subroutines.
+ - Add inference subroutines.
+
+ - <img src="/tex/44bc9d542a92714cac84e01cbbb7fd61.svg?invert_in_darkmode&sanitize=true" align=middle width=8.68915409999999pt height=14.15524440000002pt/>

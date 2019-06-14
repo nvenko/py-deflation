@@ -10,8 +10,9 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 #### Dependencies:
 
- - Scipy-sparse (version)
- - Numpy (version).
+ - *Python* (2.x >= 2.6)
+ - *SciPy* (>= 0.10)
+ - *NumPy* (>= 1.6)
 
 #### Files' content:
 

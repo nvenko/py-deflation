@@ -6,6 +6,10 @@ Author: Nicolas Venkovic
 
 email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 
+
+
+_TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
+
 #### Dependencies:
 
  - Scipy-sparse (version)

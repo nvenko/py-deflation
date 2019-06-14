@@ -14,9 +14,9 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
  - *SciPy* (>= 0.10)
  - *NumPy* (>= 1.6)
 
-### Files' content:
+### File contents:
 
-- samplers.py_ : 
+- _samplers.py_ : 
 
   Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
 

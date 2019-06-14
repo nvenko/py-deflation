@@ -18,12 +18,12 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 - _samplers.py_ : 
 
+  Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
+
   Samplers of Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ :
 
   - Monte Carlo (MC)
   - Markov chain Monte Carlo (MCMC)
-
-  Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
 
 - _solvers.py_ : 
 
@@ -36,31 +36,56 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 - _recycling.py_ : 
 
-  Solvers for sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  with $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ and median operator $\hat{\mathbf{A}}$ :
+  Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies.
+
+  Solvers for sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  with $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ and median operator $\hat{\mathbf{A}}$.
 
   - PCG for a sequence of systems with multiple operators (PCGMO) :
 
-    - Preconditioner ID (constant: 1-3, realization dependent: 4-6):
-      1. Median operator
-      2. Algebraic multi-grid (AMG) based on median operator
-      3. Block Jacobi (bJ) based on median operator with $n_b$ (non-overlapping) blocks
-      4. Block Jacobi (bJ) based on periodically selected operator in sampled sequence with $n_b$ (non-overlapping) blocks
+    - Preconditioner ID (none: 0, constant: 1-3, realization dependent: 4):
+
+      (1) Median operator
+
+      (2) Algebraic multi-grid (AMG) based on median operator
+
+      (3) Block Jacobi (bJ) based on median operator with _nb_ (non-overlapping) blocks
+
+      (4) Block Jacobi (bJ) based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
 
   - DCG for a sequence with multiple operators (DCGMO) :
 
-    Deflation subspace $\mathcal{W}:=\mathcal{R}([w_1,\dots,w_k])$.
+    _Rank of deflation subspace: _k_, Dimension of recycled Krylov subspace : _ell_
 
-    - $(k,\ell)$-strategy:
-      1. first strategy,
-      2. second strategy.
+    - (_k_, _ell_)-strategy:
 
-- DPCG for a sequence with multiple operators (DPCGMO) :
+      (1) First strategy
 
-  - c 
+      (2) Second strategy
 
-- Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies: 
+    - Current/previous
 
-  - Current/previous
+    - Stop updating
+
+    - HR vs RR
+
+  - DPCG for a sequence with multiple operators (DPCGMO) :
+
+    - Sequence (PD: 1, DP: 2)
+
+      (1) PD is preconditioning after deflating
+
+      (2) DP is deflating after preconditioning
+
+    - Preconditioner ID
+
+    - (_k_, _ell_)-strategy
+
+    - Current/Previous
+
+    - HR vs RR
+
+    - Stop updating
+
 - _post-recycling.py_ :
 
   - Plots results

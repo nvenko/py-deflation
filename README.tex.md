@@ -194,18 +194,20 @@ npcf.get_anisotropic_map_s3(60,60,0,1,1,0,"im00.s3");
 
 #### Pending tasks:
 
- -  ERROR to fix when almost all data entries are equal. For example, try
+ - ERROR to fix when almost all data entries are equal. For example, try
 
     ```bash
     $ ./dist/GNU-Linux/npcf 12 11 0 0 im00.csv
     ```
 
- -  Compute hs3 on minimum domain and copy values to other components instead of repeating calculations.
+ - Compute hs3 on minimum domain and copy values to other components instead of repeating calculations.
 
- -  Write subroutines to write output files.
+ - Write subroutines to write output files.
 
- -  Complete implementation of S4(dx1,dy1,dx2,dy2,dx3,dy3).
+ - Complete implementation of S4(dx1,dy1,dx2,dy2,dx3,dy3).
 
- -  Verify implementation for odd nx and ny.
+ - Verify implementation for odd nx and ny.
 
- -  Add inference subroutines.
+ - Add inference subroutines.
+
+ - $a$

@@ -1,6 +1,6 @@
-## deflation-precond-strategies-sde
+# deflation-precond-strategies-sde
 
-##### Enables testing and applications of deflation and preconditioning strategies to solve sequences of sampled finite element (FE) discretization of stochastic differential equations (SDE).
+#### Enables testing and applications of deflation and preconditioning strategies to solve sequences of sampled finite element (FE) discretization of stochastic differential equations (SDE).
 
 Author: Nicolas Venkovic
 
@@ -8,15 +8,15 @@ email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 
 _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
-#### Dependencies:
+### Dependencies:
 
  - *Python* (2.x >= 2.6)
  - *SciPy* (>= 0.10)
  - *NumPy* (>= 1.6)
 
-#### Files' content:
+### Files' content:
 
-- _samplers.py_ : 
+- samplers.py_ : 
 
   Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
 
@@ -90,13 +90,7 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
   - Plots results
 
-#### Installation: 
-
-```bash
-make -f Makefile CONF=Release
-```
-
-#### Usage:
+### Usage:
 
 ```bash
 ./dist/GNU-Linux/npcf nx ny x0 y0 verb data.in

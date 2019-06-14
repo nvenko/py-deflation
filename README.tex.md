@@ -20,20 +20,27 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
   - Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
   - Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
 - solvers.py : 
+
   - Iterative solvers: Conjugate gradient (CG), preconditioned CG (PCG), deflated CG (DCG) and preconditioned DCG (PDCG).
 - recycling.py : 
   - Solves the sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  for a sample $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ with:
     - PCG for a sequence of systems with multiple operators (PCGMO) :
       - Preconditioners: 
-        - Constant: Median operator $\hat{\mathbf{A}}$, Algebraic multi-grid (AMG) based on $\hat{\mathbf{A}}$, block Jacobi (bJ) based on $\hat{\mathbf{A}}$ with $n_b$ (non-overlapping) blocks.
-        - Realization dependent: Periodically selected operators in sampled sequence,
+
+  - Constant: Median operator $\hat{\mathbf{A}}$, Algebraic multi-grid (AMG) based on $\hat{\mathbf{A}}$, block Jacobi (bJ) based on $\hat{\mathbf{A}}$ with $n_b$ (non-overlapping) blocks.
+
+    - Realization dependent: Periodically selected operators in sampled sequence,
+
     - DCG for a sequence with multiple operators (DCGMO) :
       - b
     - DPCG for a sequence with multiple operators (DPCGMO) :
       - c 
+
   - Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies: 
+
     - Current/previous
 - post_recycling :
+
   - Plots results
 
 #### Installation: 

@@ -1,19 +1,18 @@
 ## deflation-precond-strategies-sde
 
-##### Python code to enable testing and applications of deflation and preconditioning strategies to solve sequences of sampled FE discretization of stochastic differential equations (SDE).
+##### Enables testing and applications of deflation and preconditioning strategies to solve sequences of sampled finite element (FE) discretization of stochastic differential equations (SDE).
 
 Author: Nicolas Venkovic
 
 email: [venkovic@cerfacs.fr](mailto:venkovic@cerfacs.fr)
 
-
-
 _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 #### Dependencies:
 
- - Scipy-sparse (version)
- - Numpy (version).
+ - *Python* (2.x >= 2.6)
+ - *SciPy* (>= 0.10)
+ - *NumPy* (>= 1.6)
 
 #### Files' content:
 
@@ -21,18 +20,27 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
   - Samples Karhunen-Loève (KL) representation of lognormal coefficient field <img src="/tex/4e923e372a3b20814e440dbab89a7369.svg?invert_in_darkmode&sanitize=true" align=middle width=47.13094649999999pt height=24.65753399999998pt/> proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
   - Assembles sampled operator <img src="/tex/5fa09f7b56ca22a36927cd31898c37bf.svg?invert_in_darkmode&sanitize=true" align=middle width=35.25112634999999pt height=24.65753399999998pt/>  for the stochastic system <img src="/tex/6e9d068d7e25f913f84dcfaacf3ff1ef.svg?invert_in_darkmode&sanitize=true" align=middle width=99.13217159999998pt height=24.65753399999998pt/> coming from a P0-FE discretization of the SDE <img src="/tex/4f6673d7b4b130cf0e1a5e39aa117b67.svg?invert_in_darkmode&sanitize=true" align=middle width=204.04130339999995pt height=24.65753399999998pt/>. 
 - solvers.py : 
-  - Iterative solvers: Conjugate gradient (cg), preconditioned cg (pcg), deflated cg (dcg) and preconditioned dcg (pdcg).
+
+  - Iterative solvers: Conjugate gradient (CG), preconditioned CG (PCG), deflated CG (DCG) and preconditioned DCG (PDCG).
 - recycling.py : 
-  - Solves the sequence of linear systems <img src="/tex/392bdf51092e90ac7adfc4fe70a64bdd.svg?invert_in_darkmode&sanitize=true" align=middle width=109.79427854999999pt height=24.65753399999998pt/>  for a sample of <img src="/tex/dfdd1736db6cf1ba2b6bb459252a9b95.svg?invert_in_darkmode&sanitize=true" align=middle width=78.63031109999999pt height=27.6567522pt/> with:
-    - pcgmo: Preconditioned cg for a sequence with multiple operators.
-      - $n_{b}$ : Number of blocks  
-    - dcgmo: Deflated cg for a sequence with multiple operators.
+  - Solves the sequence of linear systems <img src="/tex/392bdf51092e90ac7adfc4fe70a64bdd.svg?invert_in_darkmode&sanitize=true" align=middle width=109.79427854999999pt height=24.65753399999998pt/>  for a sample <img src="/tex/dfdd1736db6cf1ba2b6bb459252a9b95.svg?invert_in_darkmode&sanitize=true" align=middle width=78.63031109999999pt height=27.6567522pt/> with:
+    - PCG for a sequence of systems with multiple operators (PCGMO) :
+      - Preconditioners: 
+
+  - Constant: Median operator <img src="/tex/01470c7d9dc1c9d0a9462973bbded215.svg?invert_in_darkmode&sanitize=true" align=middle width=14.29216634999999pt height=31.23293909999999pt/>, Algebraic multi-grid (AMG) based on <img src="/tex/01470c7d9dc1c9d0a9462973bbded215.svg?invert_in_darkmode&sanitize=true" align=middle width=14.29216634999999pt height=31.23293909999999pt/>, block Jacobi (bJ) based on <img src="/tex/01470c7d9dc1c9d0a9462973bbded215.svg?invert_in_darkmode&sanitize=true" align=middle width=14.29216634999999pt height=31.23293909999999pt/> with <img src="/tex/1b59df1ffb5656ef316bdd6b2bdc2dfb.svg?invert_in_darkmode&sanitize=true" align=middle width=15.647713949999991pt height=14.15524440000002pt/> (non-overlapping) blocks.
+
+    - Realization dependent: Periodically selected operators in sampled sequence,
+
+    - DCG for a sequence with multiple operators (DCGMO) :
       - b
-    - pdcgmo: Deflated preconditioned cg  for a sequence with multiple operators.
+    - DPCG for a sequence with multiple operators (DPCGMO) :
       - c 
+
   - Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies: 
+
     - Current/previous
 - post_recycling :
+
   - Plots results
 
 #### Installation: 

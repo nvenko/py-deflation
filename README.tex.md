@@ -18,7 +18,7 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 - _samplers.py_ : 
 
-  Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ by
+  Samplers of Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ :
 
   - Monte Carlo (MC)
   - Markov chain Monte Carlo (MCMC)
@@ -36,32 +36,31 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 - _recycling.py_ : 
 
-  Solves the sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  for a sample $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ by 
+  Solvers for sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  with $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ and median operator $\hat{\mathbf{A}}$ :
 
   - PCG for a sequence of systems with multiple operators (PCGMO) :
 
-    - Preconditioner ID (constant 1-3, realization dependent 4-6): 
-
-    (1) Median operator $\hat{\mathbf{A}}$
-
-    (2) Algebraic multi-grid (AMG) based on $\hat{\mathbf{A}}$
-
-    (3) Block Jacobi (bJ) based on $\hat{\mathbf{A}}$ with $n_b$ (non-overlapping) blocks.
-
-    (4) Periodically selected operators in sampled sequence.
+    - Preconditioner ID (constant: 1-3, realization dependent: 4-6):
+      1. Median operator
+      2. Algebraic multi-grid (AMG) based on median operator
+      3. Block Jacobi (bJ) based on median operator with $n_b$ (non-overlapping) blocks
+      4. Block Jacobi (bJ) based on periodically selected operator in sampled sequence with $n_b$ (non-overlapping) blocks
 
   - DCG for a sequence with multiple operators (DCGMO) :
 
-    - Method
+    Deflation subspace $\mathcal{W}:=\mathcal{R}([w_1,\dots,w_k])$.
 
-  - DPCG for a sequence with multiple operators (DPCGMO) :
+    - $(k,\ell)$-strategy:
+      1. first strategy,
+      2. second strategy.
 
-    - c 
+- DPCG for a sequence with multiple operators (DPCGMO) :
 
-  - Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies: 
+  - c 
 
-    - Current/previous
+- Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies: 
 
+  - Current/previous
 - _post-recycling.py_ :
 
   - Plots results

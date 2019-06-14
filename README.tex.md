@@ -17,25 +17,38 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 #### Files' content:
 
 - _samplers.py_ : 
-  - Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ proceeding either by (1) Monte Carlo (MC), or by (2) Markov chain Monte Carlo (MCMC). 
-  - Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
+
+  Samples Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ by
+
+  - Monte Carlo (MC)
+  - Markov chain Monte Carlo (MCMC)
+
+  Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
 
 - _solvers.py_ : 
 
-  - Iterative solvers: Conjugate gradient (CG), preconditioned CG (PCG), deflated CG (DCG) and preconditioned DCG (PDCG).
+  Iterative solvers: 
+
+  - Conjugate gradient (CG)
+  - Preconditioned CG (PCG)
+  - Deflated CG (DCG)
+  - Preconditioned DCG (PDCG)
 
 - _recycling.py_ : 
 
-  Solves the sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  for a sample $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ by :
+  Solves the sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  for a sample $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ by 
 
   - PCG for a sequence of systems with multiple operators (PCGMO) :
 
     - Preconditioner ID (constant 1-3, realization dependent 4-6): 
 
-    1. Median operator $\hat{\mathbf{A}}$
-    2. Algebraic multi-grid (AMG) based on $\hat{\mathbf{A}}$
-    3. block Jacobi (bJ) based on $\hat{\mathbf{A}}$ with $n_b$ (non-overlapping) blocks.
-    4. Periodically selected operators in sampled sequence.
+    (1) Median operator $\hat{\mathbf{A}}$
+
+    (2) Algebraic multi-grid (AMG) based on $\hat{\mathbf{A}}$
+
+    (3) Block Jacobi (bJ) based on $\hat{\mathbf{A}}$ with $n_b$ (non-overlapping) blocks.
+
+    (4) Periodically selected operators in sampled sequence.
 
   - DCG for a sequence with multiple operators (DCGMO) :
 

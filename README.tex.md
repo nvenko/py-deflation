@@ -14,18 +14,20 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
  - *SciPy* (>= 0.10)
  - *NumPy* (>= 1.6)
 
-### File contents:
+### Files' content:
+
+Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
 - _samplers.py_ : 
 
-  A _sampler_ assembles sampled operator $\mathbf{A}(\theta)$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
+  A _sampler_ assembles sampled operator $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
 
   Available samplers for the Karhunen-Loève (KL) representation of the coefficient field :
 
   - Monte Carlo (MC)
   - Markov chain Monte Carlo (MCMC)
 
-- _solvers.py_ : 
+- _solvers.py_ :
 
   A _solver_ solves a linear system iteratively.
 
@@ -40,9 +42,13 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
   A _recycler_ interfaces a _sampler_ with a _solver_ in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with the sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or Krylov subspace deflation. 
 
-  The preconditioners available are either: (i) constant throughout the sampled sequence and defined on the basis of a median operator denoted by $\hat{\mathbf{A}}$, or (ii) realization-dependent and redefined periodically throughout the sampled sequence. 
+  The available sequences of preconditioners $\{\mathbf{M}(\theta_t)\}_{t=1}^M$ are either: (1) constant, i.e.  $\mathbf{M}(\theta_t):=\mathbf{M}$ for all $t$, and defined on the basis of a median operator denoted by $\hat{\mathbf{A}}$, or (2) realization-dependent and redefined periodically throughout the sampled sequence, i.e. $\mathbf{M}(\theta_t):=\mathbf{M}(\theta_t)$ for all $t_1<t<t_2$.
 
-  Krylov subspace deflation is carried over by W, P, A, exact and approximate eigenvectors after different strategies.
+  Krylov subspace deflation is carried over at each $t$ either (1) throughout the sequence, or (2) up to some $t_{stop}<M$. The $t$-th Krylov subspace in the sequence  is deflated by a subspace $\mathcal{W}(\theta_t):=\mathcal{R}(W(\theta_t))$ spanned by the columns of $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$ which are approximate eigenvectors either of $A(\theta_{t-1})$, $A(\theta_t)$, $M^{-1}(\theta_{t-1})A(\theta_{t-1})$, $M^{-1}(\theta_{t})A(\theta_{t})$, $M^{-1}(\theta_{t-1})A(\theta_{t-1})$ or $M^{-1}(\theta_{t})A(\theta_{t})$ depending on the strategy adopted and whether a preconditioner is applied or not.
+
+  The approximated eigenvectors $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$  are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis.
+
+  The approxomiation subspace recycles parts of the previously generated Kylov subspace.
 
   Available recyclers :
 

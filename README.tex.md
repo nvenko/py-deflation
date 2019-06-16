@@ -18,29 +18,35 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 - _samplers.py_ : 
 
-  Assembles sampled operator $\mathbf{A}(\theta)$  for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ coming from a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. 
+  A _sampler_ assembles sampled operator $\mathbf{A}(\theta)$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
 
-  Samplers of Karhunen-Loève (KL) representation of lognormal coefficient field $\kappa(x;\theta)$ :
+  Available samplers for the Karhunen-Loève (KL) representation of the coefficient field :
 
   - Monte Carlo (MC)
   - Markov chain Monte Carlo (MCMC)
 
 - _solvers.py_ : 
 
-  Iterative solvers: 
+  A _solver_ solves a linear system iteratively.
+
+  Available solvers : 
 
   - Conjugate gradient (CG)
   - Preconditioned CG (PCG)
   - Deflated CG (DCG)
   - Preconditioned DCG (PDCG)
 
-- _recycling.py_ : 
+- _recyclers.py_ : 
 
-  Interfaces sampler and solver while handling W, P, A, exact and approximate eigenvectors after different strategies.
+  A _recycler_ interfaces a _sampler_ with a _solver_ in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with the sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or Krylov subspace deflation. 
 
-  Solvers for sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  with $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ and median operator $\hat{\mathbf{A}}$.
+  The preconditioners available are either: (i) constant throughout the sampled sequence and defined on the basis of a median operator denoted by $\hat{\mathbf{A}}$, or (ii) realization-dependent and redefined periodically throughout the sampled sequence. 
 
-  - PCG for a sequence of systems with multiple operators (PCGMO) :
+  Krylov subspace deflation is carried over by W, P, A, exact and approximate eigenvectors after different strategies.
+
+  Available recyclers :
+
+  - PCG for a sequence with multiple operators (PCGMO) :
 
     - Preconditioner ID (none: 0, constant: 1-3, realization dependent: 4):
 
@@ -86,7 +92,7 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
     - Stop updating
 
-- _post-recycling.py_ :
+- _post-recyclers.py_ :
 
   - Plots results
 

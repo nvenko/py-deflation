@@ -46,9 +46,9 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   Krylov subspace deflation is carried over at each $t$ either (1) throughout the sequence, or (2) up to some $t_{stop}<M$. The $t$-th Krylov subspace in the sequence  is deflated by a subspace $\mathcal{W}(\theta_t):=\mathcal{R}(W(\theta_t))$ spanned by the columns of $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$ which are approximate eigenvectors either of $A(\theta_{t-1})$, $A(\theta_t)$, $M^{-1}(\theta_{t-1})A(\theta_{t-1})$, $M^{-1}(\theta_{t})A(\theta_{t})$, $M^{-1}(\theta_{t-1})A(\theta_{t-1})$ or $M^{-1}(\theta_{t})A(\theta_{t})$ depending on the strategy adopted and whether a preconditioner is applied or not.
 
-  The approximated eigenvectors $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$  are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis.
+  The approximated eigenvectors $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$ are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis.
 
-  The approxomiation subspace recycles parts of the previously generated Kylov subspace.
+  The approximation subspace recycles parts of the previously generated Kylov subspace.
 
   Available recyclers :
 

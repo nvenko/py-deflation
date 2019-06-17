@@ -52,15 +52,15 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   - PCG for a sequence with multiple operators (`pcgmo`) :
 
-    - `precond_id` (int) : 
+    - `precond_id` (int, default value : `0`) : 
 
-      (0) None,
+      `0` : None,
 
-      (1) Median operator,
+      `1` : Median operator,
 
-      (2) Algebraic multi-grid (AMG) based on median operator,
+      `2` : Algebraic multi-grid (AMG) based on median operator,
 
-      (3) Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks.
+      `3` : Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks.
 
     - `real_dep_precond` (bool, default value : `False`) : It `True`, based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
 
@@ -68,7 +68,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     Dimension of recycled.
 
-    - ($\mathtt{kdim}​$, $\mathtt{ell}​$)-strategy:
+    - `kdim_ell_strategy` (int, default value : `0`)
 
       (1) First strategy
 
@@ -80,7 +80,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     - HR vs RR
 
-  - DPCG for a sequence with multiple operators (DPCGMO) :
+  - DPCG for a sequence with multiple operators (`dpcgmo`) :
 
     - Sequence (PD: 1, DP: 2)
 

@@ -26,7 +26,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   - Monte Carlo sampler, `mc` :
 
-    Signature : `mc`(`model`=`"SExp"`, `delta`=`1e-3`)
+    Signature : `mc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `delta`=`1e-3`)
 
     - `model` (`string`, {`"SExp"`, `"Exp"`}) : Covariance model.
 
@@ -34,11 +34,19 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
       `"Exp"` : Exponential model.
 
+    - `sig2` (`float`, `sig2`>`0`) : Variance.
+
+    - `mu` (`float`) : Mean.
+
+    - `L` (`float`, `L`>`0`) : Correlation length.
+
     - `delta` (`float`, `0`<`delta`<`1`) : Tolerance for truncated KL representation.
 
   - Markov chain Monte Carlo sampler, `mcmc` :
 
-    Signature : `mcmc`(`model`=`"SExp"`, `delta`=`1e-3`)
+    Signature : `mcmc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`, `delta`=`1e-3`)
+
+    - `vsig2` (`float`, `vsig2`>`0`) : Scaling variance for random walk proposal.
 
 - _solvers.py_ :
 

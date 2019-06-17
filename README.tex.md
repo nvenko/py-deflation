@@ -50,9 +50,9 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `recycler` available :
 
-  - `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) :
+  - PCG for a sequence with multiple operators.
 
-    PCG for a sequence with multiple operators.
+    Signature : `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
 
     - `precond_id` (`int`) : 
 

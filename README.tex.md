@@ -24,7 +24,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `sampler` for the Karhunen-Loève (KL) representation of the coefficient field :
 
-  - Monte Carlo sampler, `mc`.
+  - Monte Carlo sampler, `mc` :
 
     Signature : `mc`(`model`=`"SExp"`, `delta`=`1e-3`)
 
@@ -32,7 +32,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     - `delta` (`float`) : Tolerance for truncated KL representation.
 
-  - Markov chain Monte Carlo sampler, `mcmc`.
+  - Markov chain Monte Carlo sampler, `mcmc` :
 
     Signature : `mcmc`(`model`=`"SExp"`, `delta`=`1e-3`)
 
@@ -59,7 +59,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `recycler` available :
 
-  - PCG for a sequence with multiple operators, `pcgmo`.
+  - PCG for a sequence with multiple operators, `pcgmo` :
 
     Signature : `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`, `dt`=`1`) 
 
@@ -79,7 +79,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     - `dt` (`int`) : Period.
 
-  - DCG for a sequence with multiple operators, `dcgmo`.
+  - DCG for a sequence with multiple operators, `dcgmo` :
 
     Signature : `dcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
 
@@ -99,7 +99,9 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     - HR vs RR
 
-  - DPCG for a sequence with multiple operators (`dpcgmo`) :
+  - DPCG for a sequence with multiple operators, `dpcgmo` :
+
+    Signature : `dpcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
 
     - Sequence (PD: 1, DP: 2)
 

@@ -7,16 +7,15 @@ def CovExp(dx, L, sig2):
 def CovSExp(dx, L, sig2):
   return sig2*np.exp(-(dx/L)**2)
 
-def get_fname
+def get_fname_of_KL():
+  return None
 
-def KL_already_computed()
+def load_KL():
   return None
 
 
 
-
-
-def load_KL(nEl,nKL,sig2,ell,xa=0.,xb=1.):
+def old_load_KL(nEl,nKL,sig2,ell,xa=0.,xb=1.):
   h=(xb-xa)/nEl
   root_KL=get_root_KL(nEl,nKL,sig2,ell)
   fname=glob.glob(data_path+'kappa'+root_KL+'.KL.npy')

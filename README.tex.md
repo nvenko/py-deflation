@@ -16,11 +16,11 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 ### Files' content:
 
-Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
+Files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _samplers.py_ : 
 
-  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$, where the coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
+  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ in which the coefficient field $\kappa(x;\theta)$ is stationary lognormal.
 
   List of `sampler` for the Karhunen-Loève (KL) representation of the coefficient field :
 
@@ -46,7 +46,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     Signature : `mcmc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`, `delta`=`1e-3`)
 
-    - `vsig2` (`float`, `vsig2`>`0`) : Scaling variance for random walk proposal.
+    - `vsig2` (`float`, `vsig2`>`0`) : Variance for the random walk of the proposal. If `None`, eventually set to `2.38*sig2/sqrt(nKL)`.
 
 - _solvers.py_ :
 

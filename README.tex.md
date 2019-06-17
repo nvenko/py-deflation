@@ -20,7 +20,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
 - _samplers.py_ : 
 
-  A _sampler_ assembles sampled operator $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
+  A _sampler_ assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$, where the coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
 
   Available samplers for the Karhunen-Loève (KL) representation of the coefficient field :
 
@@ -40,13 +40,13 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
 - _recyclers.py_ : 
 
-  A _recycler_ interfaces a _sampler_ with a _solver_ in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with the sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or deflation of Krylov subspaces. 
+  A _recycler_ interfaces a _sampler_ with a _solver_ in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with a sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or deflation of Krylov subspaces. 
 
-  The available sequences of preconditioners $\{\mathbf{M}(\theta_t)\}_{t=1}^M$ are either: (1) constant, i.e.  $\mathbf{M}(\theta_t)=\mathbf{M}(\hat{\mathbf{A}})$ for all $t$, and defined on the basis of the median operator denoted by $\hat{\mathbf{A}}$, or (2) realization-dependent and redefined periodically throughout the sampled sequence, i.e. $\mathbf{M}(\theta_t):=\mathbf{M}(\theta_{t_1})$ for all $t_1<t<t_1+\Delta t$.
+  The available sequences of preconditioners $\{\mathbf{M}(\theta_t)\}_{t=1}^M$ are either: (1) constant, i.e.  $\mathbf{M}(\theta_t)=\mathbf{M}(\hat{\mathbf{A}})$ for all $t$, where $\hat{\mathbf{A}}$ denotes the median operator, or (2) realization-dependent and redefined periodically throughout the sampled sequence, i.e. $\mathbf{M}(\theta_t):=\mathbf{M}(\theta_{t_j})$ for all $t_j\leq t<t_{j+1}$ with $t_j:=1+j\Delta t$ and $0\leq j<M/\Delta t$ for some period $\Delta t$.  All the preconditioners available are SPD so that for each $\mathbf{M}(\theta_t)$, there exists $\mathbf{L}(\theta_t)$ such that $\mathbf{M}(\theta_t)=\mathbf{L}(\theta_{t})\mathbf{L}(\theta_{t})^{T}$.
 
-  Deflation is performed either (1) throughout the sequence, or (2) for all $t$ up to some $t_{stop}<M$. A Krylov subspace, denoted by $\mathcal{K}^{(t)}$, is deflated by a subspace $\mathcal{W}(\theta_t):=\mathcal{R}(W(\theta_t))$ spanned by $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$, the approximate eigenvectors of either $A(\theta_{t-1})$, $A(\theta_t)$, $M^{-1}(\theta_{t-1})A(\theta_{t-1})$, $M^{-1}(\theta_{t})A(\theta_{t})$, $M^{-1}(\theta_{t-1})A(\theta_{t-1})$ or $M^{-1}(\theta_{t})A(\theta_{t})$ depending on the deflation strategy adopted and whether a preconditioner is used or not.
+  Deflation is performed either: (1) throughout the sequence, or (2) for all $t\leq t_{stop}$ for some $t_{stop}\leq M$. The Krylov subspace $\mathcal{K}^{(t)}$ associated with the iterative resolution of $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  is deflated by a subspace $\mathcal{W}(\theta_t):=\mathcal{R}(\mathbf{W}(\theta_t))$ spanned by $\mathbf{W}(\theta_t):=[\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_t)]$. $\{\mathbf{w}_k(\theta_t)\}_{j=1}^k$ are approximate eigenvectors of either $\mathbf{A}(\theta_{t-1})$, $\mathbf{A}(\theta_t)$, $\mathbf{M}^{-1}(\theta_{t-1})\mathbf{A}(\theta_{t-1})$ or $\mathbf{M}^{-1}(\theta_{t})\mathbf{A}(\theta_{t})$ depending on the deflation strategy adopted and whether a preconditioner is used or not.
 
-  The approximated eigenvectors $W(\theta_t):=[w_1(\theta_t),\dots,w_k(\theta_t)]$ are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis over an approximation subspace $\mathcal{R}([W,P])$ spanned by the basis $P\in\mathbb{R}^{n\times\ell}$ of the recycled Krylov subspace $\mathcal{K}^{(t-1)}$, and the basis $W$ of an orthogonal deflation subspace, i.e.  $\mathcal{W}^{(t-1)}\perp\mathcal{K}^{(t-1)}$. The dimensions  $k$ and $\ell$ are respectively denoted by $kdim$ and _ell_ throughout the code.
+  The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_t)$ are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis over an approximation subspace $\mathcal{R}([\mathbf{W}(\theta_{t-1}),\mathbf{P}(\theta_{t-1})])$ spanned by a basis $\mathbf{P}(\theta_{t-1})\in\mathbb{R}^{n\times\ell}$ of the Krylov subspace $\mathcal{K}^{(t-1)}_{\ell}\subseteq\mathcal{K}^{(t-1)}$, and a basis $\mathbf{W}(\theta_{t-1})\in\mathbb{R}^{n\times k}$ of a deflation subspace $\mathcal{W}^{(t-1)}\perp\mathcal{K}^{(t-1)}$. The dimensions $k$ and $\ell$ are respectively denoted by $kdim$ and _ell_ throughout the code.
 
   Available recyclers :
 

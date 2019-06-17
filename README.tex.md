@@ -20,31 +20,29 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _samplers.py_ : 
 
-  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ in which the coefficient field $\kappa(x;\theta)$ is stationary lognormal.
+  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ in which the coefficient field $\kappa(x;\theta)$ is stationary lognormal. Karhunen-Loève (KL) representation of the coefficient field.
 
-  List of `sampler` for the Karhunen-Loève (KL) representation of the coefficient field :
+  Signature : `sampler`(`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `delta`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
 
-  - Monte Carlo sampler, `mc` :
+  - `smp_type` (`string`, {`"mc"` , `"mcmc"`}) : Sampling strategy of the KL expansion.
 
-    Signature : `mc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `delta`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
+  - `model` (`string`, {`"SExp"`, `"Exp"`}) : Covariance model.
 
-    - `model` (`string`, {`"SExp"`, `"Exp"`}) : Covariance model.
+    `"SExp"` : Square exponential model.
 
-      `"SExp"` : Square exponential model.
+    `"Exp"` : Exponential model.
 
-      `"Exp"` : Exponential model.
+  - `sig2` (`float`, `sig2`>`0`) : Variance.
 
-    - `sig2` (`float`, `sig2`>`0`) : Variance.
+  - `mu` (`float`) : Mean.
 
-    - `mu` (`float`) : Mean.
+  - `L` (`float`, `L`>`0`) : Correlation length.
 
-    - `L` (`float`, `L`>`0`) : Correlation length.
+  - `delta` (`float`, `0`<`delta`<`1`) : Tolerance for truncated KL representation.
 
-    - `delta` (`float`, `0`<`delta`<`1`) : Tolerance for truncated KL representation.
+  - `seed` (`int`, `seed`>=`0`) : RNG seed.
 
-    - `seed` (`int`, `seed`>=`0`) : RNG seed.
-
-    - `verb` (`int`, {`0`, `1`, `2`}) : Verbose parameter.
+  - `verb` (`int`, {`0`, `1`, `2`}) : Verbose parameter.
 
   - Markov chain Monte Carlo sampler, `mcmc` :
 

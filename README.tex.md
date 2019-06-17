@@ -68,9 +68,11 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     - `real_dep_precond` (`bool`) : If `True`, based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
 
-  - DCG for a sequence with multiple operators (`dcgmo`) :
+  - DCG for a sequence with multiple operators, `dcgmo`.
 
-    Dimension of recycled.
+    Signature : `dcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
+
+  - Dimension of recycled.
 
     - `kdim_ell_strategy` (int, default value : `0`)
 

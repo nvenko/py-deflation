@@ -24,8 +24,8 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `sampler` for the Karhunen-Loève (KL) representation of the coefficient field :
 
-  - Monte Carlo (MC)
-  - Markov chain Monte Carlo (MCMC)
+  - Monte Carlo (`mc`)
+  - Markov chain Monte Carlo (`mcmc`)
 
 - _solvers.py_ :
 
@@ -50,19 +50,23 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `recycler` available :
 
-  - PCG for a sequence with multiple operators (`pcgmo`) :
+  - `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) :
 
-    - `precond_id` (int, default value : `0`) : 
+    PCG for a sequence with multiple operators.
 
-      `0` : None,
+    - `precond_id` (`int`) : 
 
-      `1` : Median operator,
+      `0` : No preconditioner
 
-      `2` : Algebraic multi-grid (AMG) based on median operator,
+      `1` : Median operator
 
-      `3` : Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks.
+      `2` : Algebraic multi-grid (AMG) based on median operator
 
-    - `real_dep_precond` (bool, default value : `False`) : It `True`, based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
+      `3` : Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks
+
+    - `nb` (`int`) : Number blocks for the bJ preconditioner
+
+    - `real_dep_precond` (`bool`) : If `True`, based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
 
   - DCG for a sequence with multiple operators (`dcgmo`) :
 
@@ -70,9 +74,9 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     - `kdim_ell_strategy` (int, default value : `0`)
 
-      (1) First strategy
+      `0` : First strategy
 
-      (2) Second strategy
+      `1` : Second strategy
 
     - Current/previous
 

@@ -13,7 +13,7 @@ class sampler:
 
   xa, xb = 0., 1.
 
-  def __init__(self, nEl=500, smp_type="mc", model="SExp", sig2=1, mu=0, L=0.1, vsig2=None, delta=1e-3, seed=123456789, verb=1):
+  def __init__(self, nEl=500, smp_type="mc", model="SExp", sig2=1, mu=0, L=0.1, vsig2=None, t_burn=200, delta=1e-3, seed=123456789, verb=1):
   	self.nEl = int(abs(nEl))
   	if (self.nEl <= 0):
   	  self.nEl = 500
@@ -51,6 +51,7 @@ class sampler:
   	self.KL = None
   	self.nKL = nEl/3
   	self.kappa = None
+  	self.reals = 0
 
   	if (self.verb):
   	  print("Sampler created.")
@@ -62,6 +63,7 @@ class sampler:
   	  KL_fname = samplers_etc.get_fname_of_KL()
   	  if (KL_fname):
   	  	self.KL = samplers_etc.load_KL()
+  	  	self.nKL = 
   	  else:
   	  	K_mat = np.zeros((self.nEl, self.nEl))
         for k in range(self.nEl):
@@ -76,18 +78,41 @@ class sampler:
           self.nKL = N
         else:
           print('Need to compute more eigenpairs. Truncature error: %g fraction of variance' %(1-energy[-1]/self.sig2))
-        self.KL = {"vals":Eigvals[-self.nKL:], "vecs":Eigvecs[:, -self.nKL:], "nKL":self.nKL}
-
+        self.KL = {"vals":Eigvals[-self.nKL:], "vecs":Eigvecs[:, -self.nKL:]}
         #fname=data_path+'kappa'+root_KL+'.KL'
         #np.save(fname,tmp)
         #print('Saved in %s.npy' %fname)
-        
+      if (self.type == "mcmc"):
+        if not (self.vsig2):
+          self.vsig2 = 2.38**2/self.nKL        
 
   def draw_realization(self):
   	if not self.KL:
   	  self.compute_KL()
-  	xi = np.random.normal(size=self.KL["nKL"])
-  	self.kappa = self.KL["vecs"].dot(self.KL["vals"]**.5*xi)
+  	if (self.type == "mc"):
+  	  xi = np.random.normal(size=self.nKL)
+  	else:
+  	  if not self.reals:
+  	    xi = np.random.normal(size=self.nKL)
+        xitxi = xi.dot(xi)
+      else:
+      	chi = xi+np.random.normal(scale=self.vsig2**.5, size=self.nKL)
+        chitchi = chi.dot(chi)
+        alpha=min(np.exp((xitxi-chitchi)/2.), 1)
+        if (np.random.uniform()<alpha):
+          self.proposal_accepted = True
+          self.cnt_accepted_proposals += 1 
+          xi = np.copy(chi)
+          xitxi = np.copy(chitchi)
+
+    self.reals += 1
+    if (self.type == "mc") | (self.proposal_accepted):
+  	  self.kappa = np.exp(self.mu+self.KL["vecs"].dot(self.KL["vals"]**.5*xi))
+      self.A = 1.
 
   def get_kappa(self):
+  	if (self.reals):
+  	  return self.kappa
+  	self.compute_KL()
+  	self.draw_realization()
   	return self.kappa

@@ -4,7 +4,7 @@ from samplers import sampler
 
 import pylab as pl
 
-nsmp = 1000
+nsmp = 100
 mc = sampler(nEl=1000, smp_type="mc", model="SExp", sig2=.357, L=0.1, delta=1e-3)
 mc.compute_KL()
 

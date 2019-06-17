@@ -24,8 +24,17 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `sampler` for the Karhunen-Loève (KL) representation of the coefficient field :
 
-  - Monte Carlo (`mc`)
-  - Markov chain Monte Carlo (`mcmc`)
+  - Monte Carlo sampler, `mc`.
+
+    Signature : `mc`(`model`=`"SExp"`, `delta`=`1e-3`)
+
+    - `model` (`string`) : Covariance model. 
+
+    - `delta` (`float`) : Tolerance for truncated KL representation.
+
+  - Markov chain Monte Carlo sampler, `mcmc`.
+
+    Signature : `mcmc`(`model`=`"SExp"`, `delta`=`1e-3`)
 
 - _solvers.py_ :
 
@@ -50,27 +59,31 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   List of `recycler` available :
 
-  - PCG for a sequence with multiple operators.
+  - PCG for a sequence with multiple operators, `pcgmo`.
 
-    Signature : `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
+    Signature : `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`, `dt`=`1`) 
 
     - `precond_id` (`int`) : 
 
-      `0` : No preconditioner
+      `0` : No preconditioner.
 
-      `1` : Median operator
+      `1` : Median operator.
 
-      `2` : Algebraic multi-grid (AMG) based on median operator
+      `2` : Algebraic multi-grid (AMG) based on median operator.
 
-      `3` : Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks
+      `3` : Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks.
 
-    - `nb` (`int`) : Number blocks for the bJ preconditioner
+    - `nb` (`int`) : Number of blocks for the bJ preconditioner.
 
-    - `real_dep_precond` (`bool`) : If `True`, based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
+    - `real_dep_precond` (`bool`) : If `True`, the preconditoner is redefined every `dt` realizations in the sampled sequence.
+
+    - `dt` (`int`) : Period.
 
   - DCG for a sequence with multiple operators, `dcgmo`.
 
     Signature : `dcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
+
+    - kdim_ell_strategy (int) : Strategy
 
   - Dimension of recycled.
 

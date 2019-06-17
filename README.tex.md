@@ -26,7 +26,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - Monte Carlo sampler, `mc` :
 
-    Signature : `mc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `delta`=`1e-3`, `seed`=`123456789`)
+    Signature : `mc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `delta`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
 
     - `model` (`string`, {`"SExp"`, `"Exp"`}) : Covariance model.
 
@@ -41,13 +41,16 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
     - `L` (`float`, `L`>`0`) : Correlation length.
 
     - `delta` (`float`, `0`<`delta`<`1`) : Tolerance for truncated KL representation.
+
     - `seed` (`int`, `seed`>=`0`) : RNG seed.
+
+    - `verb` (`int`, {`0`, `1`, `2`}) : Verbose parameter.
 
   - Markov chain Monte Carlo sampler, `mcmc` :
 
     Signature : `mcmc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`, `delta`=`1e-3`, `seed`=`123456789`)
 
-    - `vsig2` (`float`, `vsig2`>`0`) : Variance for the random walk of the proposal. If `None`, eventually set to `2.38*sig2/sqrt(nKL)`.
+    - `vsig2` (`float`, `vsig2`>`0`) : Variance for the random walk of the proposal. If `None`, eventually set to `2.38**2/nKL`.
 
 - _solvers.py_ :
 

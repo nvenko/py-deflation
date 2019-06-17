@@ -52,7 +52,9 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   - PCG for a sequence with multiple operators (PCGMO) :
 
-    - Preconditioner ID (none: 0, constant: 1-3, realization dependent: 4):
+    - $\mathtt{precond\_id}$ (int) : Preconditioner ID (none: 0, constant: 1-3, realization dependent: 4):
+
+      (0) None
 
       (1) Median operator
 
@@ -62,11 +64,13 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
       (4) Block Jacobi (bJ) based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
 
+    - $\mathtt{real\_dep\_precond}$ (bool, optional) : 
+
   - DCG for a sequence with multiple operators (DCGMO) :
 
     Dimension of recycled.
 
-    - (<span style="font-family:Courier">kdim</span>, <span style="font-family:Courier">ell</span>)-strategy:
+    - ($\mathtt{kdim}$, $\mathtt{ell}$)-strategy:
 
       (1) First strategy
 

@@ -20,27 +20,27 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
 - _samplers.py_ : 
 
-  A _sampler_ assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$, where the coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
+  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$, where the coefficient field $\kappa(x;\theta)$ is stationary lognormal. 
 
-  Available samplers for the Karhunen-Loève (KL) representation of the coefficient field :
+  List of `sampler` for the Karhunen-Loève (KL) representation of the coefficient field :
 
   - Monte Carlo (MC)
   - Markov chain Monte Carlo (MCMC)
 
 - _solvers.py_ :
 
-  A _solver_ solves a linear system iteratively.
+  A `solver` solves a linear system iteratively.
 
-  Available solvers : 
+  List of `solver` available : 
 
-  - Conjugate gradient (CG)
-  - Preconditioned CG (PCG)
-  - Deflated CG (DCG)
-  - Preconditioned DCG (PDCG)
+  - Conjugate gradient (`cg`)
+  - Preconditioned CG (`pcg`)
+  - Deflated CG (`dcg`)
+  - Preconditioned DCG (`pdcg`)
 
 - _recyclers.py_ : 
 
-  A _recycler_ interfaces a _sampler_ with a _solver_ in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with a sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or deflation of Krylov subspaces. 
+  A `recycler` interfaces a `sampler` with a `solver` in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with a sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or deflation of Krylov subspaces. 
 
   The available sequences of preconditioners $\{\mathbf{M}(\theta_t)\}_{t=1}^M$ are either: (1) constant, i.e.  $\mathbf{M}(\theta_t)=\mathbf{M}(\hat{\mathbf{A}})$ for all $t$, where $\hat{\mathbf{A}}$ denotes the median operator, or (2) realization-dependent and redefined periodically throughout the sampled sequence, i.e. $\mathbf{M}(\theta_t):=\mathbf{M}(\theta_{t_j})$ for all $t_j\leq t<t_{j+1}$ with $t_j:=1+j\Delta t$ and $0\leq j<M/\Delta t$ for some period $\Delta t$.  All the preconditioners available are SPD so that for each $\mathbf{M}(\theta_t)$, there exists $\mathbf{L}(\theta_t)$ such that $\mathbf{M}(\theta_t)=\mathbf{L}(\theta_{t})\mathbf{L}(\theta_{t})^{T}$.
 
@@ -48,7 +48,7 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_t)$ are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis over an approximation subspace $\mathcal{R}([\mathbf{W}(\theta_{t-1}),\mathbf{P}(\theta_{t-1})])$ spanned by a (recycled) basis $\mathbf{P}(\theta_{t-1})\in\mathbb{R}^{n\times\ell}$ of the Krylov subspace $\mathcal{K}^{(t-1)}_{\ell}\subseteq\mathcal{K}^{(t-1)}$, and the basis $\mathbf{W}(\theta_{t-1})\in\mathbb{R}^{n\times k}$ of a deflation subspace $\mathcal{W}^{(t-1)}\perp\mathcal{K}^{(t-1)}$. The dimensions $k$ and $\ell$ are respectively denoted by `kdim` and `ell` throughout the code.
 
-  Available recyclers :
+  List of `recycler` available :
 
   - PCG for a sequence with multiple operators (`pcgmo`) :
 
@@ -99,6 +99,10 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
     - Stop updating
 
 - _post-recyclers.py_ :
+
+  A `post_recycler` is *.
+
+  List of `post_recycler` available:
 
   - Plots results
 

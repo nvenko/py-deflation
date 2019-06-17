@@ -50,27 +50,25 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
   Available recyclers :
 
-  - PCG for a sequence with multiple operators (PCGMO) :
+  - PCG for a sequence with multiple operators (`pcgmo`) :
 
     - `precond_id` (int) : 
 
-      (0) None
+      (0) None,
 
-      (1) Median operator
+      (1) Median operator,
 
-      (2) Algebraic multi-grid (AMG) based on median operator
+      (2) Algebraic multi-grid (AMG) based on median operator,
 
-      (3) Block Jacobi (bJ) based on median operator with _nb_ (non-overlapping) blocks
+      (3) Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks.
 
-      (4) Block Jacobi (bJ) based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
+    - `real_dep_precond` (bool, default value : `False`) : It `True`, based on periodically selected operator in sampled sequence with _nb_ (non-overlapping) blocks
 
-    - `real_dep_precond` (bool, default value : `True`) : 
-
-  - DCG for a sequence with multiple operators (DCGMO) :
+  - DCG for a sequence with multiple operators (`dcgmo`) :
 
     Dimension of recycled.
 
-    - ($\mathtt{kdim}$, $\mathtt{ell}$)-strategy:
+    - ($\mathtt{kdim}​$, $\mathtt{ell}​$)-strategy:
 
       (1) First strategy
 

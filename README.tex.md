@@ -11,7 +11,7 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 ### Dependencies:
 
  - *Python* (2.x >= 2.6)
- - *SciPy* (>= 0.10)
+ - *SciPy* (>= 0.11)
  - *NumPy* (>= 1.6)
 
 ### Files' content:
@@ -28,9 +28,13 @@ Files: samplers.py, solvers.py, recyclers.py, post-recyclers.py
 
     Signature : `mc`(`model`=`"SExp"`, `delta`=`1e-3`)
 
-    - `model` (`string`) : Covariance model. 
+    - `model` (`string`, {`"SExp"`, `"Exp"`}) : Covariance model.
 
-    - `delta` (`float`) : Tolerance for truncated KL representation.
+      `"SExp"` : Square exponential model.
+
+      `"Exp"` : Exponential model.
+
+    - `delta` (`float`, `0`<`delta`<`1`) : Tolerance for truncated KL representation.
 
   - Markov chain Monte Carlo sampler, `mcmc` :
 

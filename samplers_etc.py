@@ -1,75 +1,18 @@
 import numpy as np
 import scipy
-import samplers_etc
 
-class sampler:
-  """ Assembles sampled operators in a sequence {A}(theta_t)_{t=1}^M for the 
-      stochastic system A(theta).u(theta) = b of a P0-FE discretization of the SDE 
-      d[kappa(x;theta)d(u)/dx(x;theta)]/dx = -f(x) in which the coefficient field 
-      kappa(x;theta) is stationary lognormal. """
+def CovExp(dx, L, sig2):
+  return sig2*np.exp(-np.abs(dx)/L)
 
-  xa, xb = 0., 1.
+def CovSExp(dx, L, sig2):
+  return sig2*np.exp(-(dx/L)**2)
 
-  def __init__(self, nEl=500, smp_type="mc", model="SExp", sig2=1, mu=0, L=0.1, vsig2=None, delta=1e-3, seed=123456789, verb=1):
-  	self.type = str(smp_type)
-  	if (self.type not in ("mc", "mcmc")):
-  	  self.type = "mc"
-  	self.model = str(model)
-  	if (self.model not in ("SExp", "Exp")):
-  	  self.model = "SExp"
-  	if (self.model == "Exp"):
-  	  self.eval_cov = sampler_etc.CovExp
-  	else:
-  	  self.eval_cov = sampler_etc.CovSExp
-  	self.sig2 = float(abs(sig2))
-  	if (self.sig2 <= 0):
-  	  self.sig2 = 1.
-  	self.mu = float(mu)
-  	self.L = float(abs(L))
-  	if (self.L <= 0):
-  	  self.L = 0.1
-  	self.delta = float(delta)
-  	if not (True):
-  	  self.delta = 1e-3
-  	self.seed = int(seed)
-  	if (self.type == "mcmc"):
-  	  if (vsig2 != None):  	
-  	  	self.vsig2 = float(abs(vsig2))
-  	  	if (self.vsig2 <= 0):
-  	  	  self.vsig2 = None
-  	self.verb = int(verb)
-  	if (self.verb not in (0, 1, 2)):
-  	  self.verb = 1
+def get_fname
 
-    self.h = (xb-xa)/nEl
-    self.KL = None
-
-  	if (self.verb):
-  	  print("Sampler created.")
-    
-  def get_KL(self):
-  	if (self.KL):
-  	  pass
-    else:
-      KL_fname = samplers_etc.get_fname_of_KL()
-      if (KL_fname):
-        self.KL = samplers_etc.load_KL()
-      else:
-        # Compute KL
-        KL = {"vals":vals , "vecs":vecs}
-
-  def draw_realization(self):
-  	return None
-
-  def get_A(self):
-  	return None
+def KL_already_computed()
+  return None
 
 
-
-
-
-mc = sampler(nEL=1000, smp_type="mc", sig2=1., )
-mc.draw_realization()
 
 
 

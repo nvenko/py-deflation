@@ -1,15 +1,15 @@
 import numpy as np
-import scipy
 from scipy import sparse
 import scipy.sparse.linalg
 import samplers_etc
-import time
 
 class sampler:
   """ Assembles sampled operators in a sequence {A(theta_t)}_{t=1}^M for the 
       stochastic system A(theta).u(theta) = b of a P0-FE discretization of the SDE 
-      d[kappa(x;theta)d(u)/dx(x;theta)]/dx = -f(x) in which the coefficient field 
-      kappa(x;theta) is stationary lognormal. """
+      d[kappa(x;theta)d(u)/dx(x;theta)]/dx = -f(x) for all x in (xa,xb) and u(xa) = 0.
+      The stationary lognormal coefficient field kappa(x;theta) is represented by a
+      truncated Karhunen-Loeve (KL) expansion later sampled either by Monte Carlo (MC) 
+      or by Markov chain Monte Carlo (MCMC). """
 
   data_path = './'
 

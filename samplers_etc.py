@@ -1,5 +1,4 @@
 import numpy as np
-import scipy
 import glob
 
 def CovExp(dx, L, sig2):

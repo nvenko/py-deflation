@@ -22,7 +22,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion.
 
-  Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
+  Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta2`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
 
   - `nEl` (`int`, `nEl`>`0`) : Number of elements.
 
@@ -40,7 +40,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - `L` (`float`, `L`>`0`) : Correlation length.
 
-  - `delta` (`float`, `0`<`delta`<`1`) : Tolerance for truncated KL representation.
+  - `delta2` (`float`, `0`<`delta`<`1`) : Tolerance for the relative error in variance of the truncated KL representation. Used to evaluate the number `nKL`<`nEL` of terms kept in the expansion.
 
   - `seed` (`int`, `seed`>=`0`) : RNG seed.
 

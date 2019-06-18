@@ -20,9 +20,9 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _samplers.py_ : 
 
-  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion.
+  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ and $u(x_a)=0$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion. 
 
-  Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta2`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
+  Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta2`=`1e-3`, `seed`=`123456789`, `verb`=`1`, `xa`=`0`, `xb`=`1`, `u_xb`=`None`, `du_xb`=`0`)
 
   - `nEl` (`int`, `nEl`>`0`) : Number of elements.
 
@@ -40,13 +40,21 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - `L` (`float`, `L`>`0`) : Correlation length.
 
-  - `delta2` (`float`, `0`<`delta`<`1`) : Tolerance for the relative error in variance of the truncated KL representation. Used to evaluate the number `nKL`<`nEL` of terms kept in the expansion.
+  - `delta2` (`float`, `0`<`delta2`<`1`) : Tolerance for the relative error in variance of the truncated KL representation. Used to evaluate the number `nKL`<`nEL` of terms kept in the expansion.
 
   - `seed` (`int`, `seed`>=`0`) : RNG seed.
 
-  - `verb` (`int`, {`0`, `1`, `2`}) : Verbose parameter.
+  - `verb` (`int`, {`0`,`1`, `2`}) : Verbose parameter.
+
+    - `0` : No standard output, new KL expansion not saved.
+    - `1` : No standard output, new KL expansion saved in file.
+    - `2` : Basic standard output, new KL expansion saved in file.
 
   - `vsig2` (`float`, `vsig2`>`0`) : Variance of the random walk for the proposal of the MCMC sampler. If `None`, eventually set to `2.38**2/nKL`.
+
+  - `xa`, `xb` (`float`, `xa`<`xb`) : Domain extent.
+
+  - `u_xb`, `du_xb` (`float`) : $u(x_b)$ and $\partial_xu(x_b)$. `u_xb` must be `None` if `du_xb`!=`None`. `du_xb` must be `None` if `u_xb`!=`None`.
 
 - _solvers.py_ :
 

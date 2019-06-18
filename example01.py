@@ -4,15 +4,15 @@ from samplers import sampler
 
 import pylab as pl
 
-nsmp = 5
-mc = sampler(nEl=1000, smp_type="mc", model="Exp", 
+nsmp = 1000
+mcmc = sampler(nEl=1000, smp_type="mcmc", model="Exp", 
 	        sig2=.357, L=0.1, delta2=1e-3)
-mc.compute_KL()
+mcmc.compute_KL()
 
 kappa = []
 ax = pl.subplot()
 for i_smp in range(nsmp):
-  mc.draw_realization()
-  kappa += [mc.get_kappa()]
-  ax.plot(mc.get_kappa())
+  mcmc.draw_realization()
+  kappa += [mcmc.get_kappa()]
+  ax.plot(mcmc.get_kappa())
 pl.show()

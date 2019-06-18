@@ -20,9 +20,11 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _samplers.py_ : 
 
-  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ in which the coefficient field $\kappa(x;\theta)$ is stationary lognormal. Karhunen-Loève (KL) representation of the coefficient field.
+  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion.
 
-  Signature : `sampler`(`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `delta`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
+  Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta`=`1e-3`, `seed`=`123456789`, `verb`=`1`)
+
+  - `nEl` (`int`, `nEl`>`0`) : Number of elements.
 
   - `smp_type` (`string`, {`"mc"` , `"mcmc"`}) : Sampling strategy of the KL expansion.
 
@@ -44,17 +46,13 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - `verb` (`int`, {`0`, `1`, `2`}) : Verbose parameter.
 
-  - Markov chain Monte Carlo sampler, `mcmc` :
-
-    Signature : `mcmc`(`model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`, `delta`=`1e-3`, `seed`=`123456789`)
-
-    - `vsig2` (`float`, `vsig2`>`0`) : Variance for the random walk of the proposal. If `None`, eventually set to `2.38**2/nKL`.
+  - `vsig2` (`float`, `vsig2`>`0`) : Variance of the random walk for the proposal of the MCMC sampler. If `None`, eventually set to `2.38**2/nKL`.
 
 - _solvers.py_ :
 
   A `solver` solves a linear system iteratively.
 
-  List of `solver` available : 
+  Signature : `solver`()
 
   - Conjugate gradient (`cg`)
   - Preconditioned CG (`pcg`)

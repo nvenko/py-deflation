@@ -1,41 +1,27 @@
 from samplers import sampler
 from solvers import solver
 import pylab as pl
+import numpy as np
 
-nsmp = 500
-mcmc = sampler(nEl=1000, smp_type="mcmc", model="Exp",
-	        sig2=.357, L=0.1, delta2=1e-3)
-mcmc.compute_KL()
+nEl = 1000
+nsmp = 50
+sig2, L = .357, 0.05
+model = "Exp"
 
-pcg  = solver()
+mc = sampler(nEl=nEl, smp_type="mc", model=model, sig2=sig2, L=L)
+mc.compute_KL()
 
-#pcgmo = recycler()
+A_median = mc.get_median_A()
+pcg = solver(A_median.shape[0], solver_type="cg")
+#pcg.set_precond(Mat=A_median, precond_id=3)
 
-#for ismp in range(nsmp):
-#  sampler.draw_realization()
-#  sampler.do_assembly()
-#  recycler.build_new_deflation_subspace()
-#  recyler.solve_current_system()
-  
-"""
-kappa = []
-ax = pl.subplot()
+fig, ax = pl.subplots(1, 2, figsize=(8,3.5))
 for i_smp in range(nsmp):
-  mcmc.draw_realization()
-  kappa += [mcmc.get_kappa()]
-  ax.plot(mcmc.get_kappa(), lw=.4)
+  mc.draw_realization()
+  mc.do_assembly()
+  pcg.solve(A=mc.A, b=mc.b, x0=np.zeros(pcg.n))
+  ax[0].plot(mc.get_kappa(), lw=.1)
+  ax[1].plot(pcg.x, lw=.1)
+ax[0].set_title("kappa(x)")
+ax[1].set_title("u(x)")
 pl.show()
-"""
-
-
-# Define sampler (smp_type, ...)
-# Define solver (eps, precond, ...)
-# Define recyler(sampler, solver, recycler_type, ...)
-# For ismp in (1, nsmp):
-#   sampler.draw_realization()
-#   sampler.do_assembly()
-#   recycler.solve()
-# 
-
-
-

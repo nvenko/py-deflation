@@ -202,3 +202,16 @@ class sampler:
     self.compute_KL()
     self.draw_realization()
     return self.kappa
+
+  def get_median_A(self):
+    Ann = np.zeros(self.nEl+1)
+    Ann[:self.nEl] += 1.
+    Ann[1:self.nEl+1] += 1.
+    if (self.u_xb == None) & (self.du_xb != None):
+      # Neumann BC @ xb
+      return self.h**-1*sparse.diags([-np.ones(self.nEl-1), Ann[1:], -np.ones(self.nEl-1)], [-1,0,1])
+    elif (self.u_xb != None) & (self.du_xb == None):
+      # Dirichlet BC @ xb
+      return self.h**-1*sparse.diags([-np.ones(self.nEl-2), Ann[1:-1], -np.ones(self.nEl-2)], [-1,0,1])
+    else:
+      print 'Error: BC not properly prescribed @ xb.'

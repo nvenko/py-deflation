@@ -60,7 +60,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   A `solver` solves a linear system iteratively.
 
-  Signature : `solver`()
+  Signature : `solver`(`n`, `solver_type`=`"cg"`, `eps`=`1e-7`, `itmax`=`2000`)
 
   - Conjugate gradient (`cg`)
   - Preconditioned CG (`pcg`)

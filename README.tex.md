@@ -20,7 +20,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _samplers.py_ : 
 
-  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ and $u(x_a)=0$. The stationary lognormal coefficient field $\kappa(x;\theta)​$ is represented by a truncated Karhunen-Loève (KL) expansion later sampled either by Monte Carlo (MC) or by Markov chain Monte Carlo (MCMC).
+  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ and $u(x_a)=0$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion later sampled either by Monte Carlo (MC) or by Markov chain Monte Carlo (MCMC).
 
   Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta2`=`1e-3`, `seed`=`123456789`, `verb`=`1`, `xa`=`0`, `xb`=`1`, `u_xb`=`None`, `du_xb`=`0`)
 
@@ -149,9 +149,46 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 ### Usage:
 
-```bash
-./dist/GNU-Linux/npcf nx ny x0 y0 verb data.in
+Example01:
+
+```python
+from samplers import sampler
+import pylab as pl
+
+nEl = 1000
+nsmp = 50
+sig2, L = .357, 0.05
+model = "Exp"
+
+mc = sampler(nEl=nEl, smp_type="mc", model=model, sig2=sig2, L=L)
+mc.compute_KL()
+
+mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L)
+mcmc.compute_KL()
+
+fig, ax = pl.subplots(1, 2, sharey=True, figsize=(8,3.5))
+for i_smp in range(nsmp):
+  mc.draw_realization()
+  ax[0].plot(mc.get_kappa(), lw=.1)
+del mc
+while (mcmc.cnt_accepted_proposals < nsmp):
+  mcmc.draw_realization()
+  if (mcmc.proposal_accepted):
+    ax[1].plot(mcmc.get_kappa(), lw=.1)
+ax[0].set_title("MC sampler")
+ax[1].set_title("MCMC sampler")
+pl.show()
 ```
+
+Output :
+
+![example01_sampler](/space/venkovic/Dropbox/Research_at_CERFACS/Codes/misc/deflation-precond-strategies-sde/example01_sampler.png)
+
+Example02:
+
+
+
+
 
 data.in: 2D csv data file.
 

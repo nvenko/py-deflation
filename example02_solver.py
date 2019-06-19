@@ -1,7 +1,5 @@
 from samplers import sampler
 from solvers import solver
-from recyclers import recycler
-
 import pylab as pl
 
 nsmp = 500
@@ -10,6 +8,7 @@ mcmc = sampler(nEl=1000, smp_type="mcmc", model="Exp",
 mcmc.compute_KL()
 
 pcg  = solver()
+
 #pcgmo = recycler()
 
 #for ismp in range(nsmp):
@@ -37,3 +36,6 @@ pl.show()
 #   sampler.do_assembly()
 #   recycler.solve()
 # 
+
+
+

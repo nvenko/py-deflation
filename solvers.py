@@ -3,7 +3,7 @@ import numpy as np
 class solver:
   """ Solves. """
 
-  def __init__(self, solver_type="cg", eps=1e-7):
+  def __init__(self, solver_type="cg", eps=1e-7, precond_id=0):
     self.type = solver_type
     self.eps = eps
     self.P = None
@@ -12,7 +12,7 @@ class solver:
     self.b = None
     self.x0 = None
     self.x = None
-    self.xstar = None
+    self.x_sol = None
     self.bnorm = 0
     self.iterated_res_norm = None
     self.error_Anorm = None
@@ -31,11 +31,12 @@ class solver:
     r = self.b-self.A.dot(self.x)
     rTr = r.dot(r)
     p = np.copy(r)
-    self.iterated_res_norm = [np.sqrt(rtr)]
+    self.iterated_res_norm = [np.sqrt(rTr)]
     if (Error):
-      err = self.x-self.xstar
+      err = self.x-self.x_sol
       self.error_Anorm += [np.sqrt(err.dot(A.dot(err)))]
-    while (self.it < self.itmax) & (self.iterated_res_norm[-1] > self.eps*self.bnorm):
+    tol = self.eps*self.bnorm
+    while (self.it < self.itmax) & (self.iterated_res_norm[-1] > tol):
       Ap = self.A.dot(p)
       d = Ap.dot(p)
       alpha = rTr/d
@@ -43,7 +44,7 @@ class solver:
       self.x += alpha*p
       r -= alpha*Ap
       if (Error):
-  	    err = self.x-self.xstar
+  	    err = self.x-self.x_sol
   	    self.error_Anorm += [np.sqrt(err.dot(A.dot(err)))]
       rTr = r.dot(r)
       beta *= rTr

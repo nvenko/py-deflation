@@ -16,7 +16,7 @@ fig, ax = pl.subplots(1, 2, sharey=True, figsize=(8,3.7))
 for i_smp in range(nsmp):
   mc.draw_realization()
   ax[0].plot(mc.get_kappa(), lw=.1)
-del mc
+
 while (mcmc.cnt_accepted_proposals < nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):

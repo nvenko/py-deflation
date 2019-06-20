@@ -182,7 +182,7 @@ mc.compute_KL()
 mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L)
 mcmc.compute_KL()
 
-fig, ax = pl.subplots(1, 2, sharey=True, figsize=(8,3.5))
+fig, ax = pl.subplots(1, 2, sharey=True, figsize=(8,3.7))
 for i_smp in range(nsmp):
   mc.draw_realization()
   ax[0].plot(mc.get_kappa(), lw=.1)

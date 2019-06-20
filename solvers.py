@@ -4,16 +4,14 @@ import solvers_etc
 from pyamg.aggregation import smoothed_aggregation_solver 
 
 class solver:
-  """ Solves. 
+  """ Solves a linear system iteratively. 
 
-      Parameters:
+      Public parameters:
         n, type, ...
 
-      Methods:
-        set_precond, apply_invM, apply_invWtAW, solve cg, pcg, dcg, dpcg.
-
+      Public methods:
+        set_precond, solve.
   """
-
   def __init__(self, n, solver_type, eps=1e-7, itmax=2000, W=None):
     self.n = n
     self.type = solver_type
@@ -30,7 +28,7 @@ class solver:
       self.AW = None
       self.WtAW = None
 
-  def set_precond(self, precond_id=0, Mat=None, nb=2, application_type=1):
+  def set_precond(self, Mat=None, precond_id=0, nb=2, application_type=1):
     self.precond_id = precond_id
     if (precond_id == 0):
       self.M = sparse.eye(self.n)
@@ -71,23 +69,6 @@ class solver:
       else:
         print('Warning: Invalid application_type.')
 
-  def apply_invM(self, x):
-    if (self.precond_id == 2):
-      return self.amg_op(x)
-    else:
-      if (self.type_invM_application == 0):
-        return x
-      elif (self.type_invM_application == 1):
-        if (sparse.issparse(self.M)):
-          return self.M_fac(x)
-        else:
-          return scipy.linalg.cho_solve(self.M_chol, x)
-      elif (self.type_invM_application == 2):
-        return self.inv_M.dot(x)
-
-  def apply_invWtAW(self, x):
-    return solve(self.WtAW, x)
-
   def solve(self, A, b, x0, ell=0, x_sol=None):
     self.A = A
     self.b = b
@@ -106,15 +87,32 @@ class solver:
       self.error_Anorm = None
       Error = True
     if (self.type == "cg"):
-      self.cg(Error=Error)
+      self.__cg(Error=Error)
     elif (self.type == "pcg"):
-      self.pcg(Error=Error)
+      self.__pcg(Error=Error)
     elif (self.type == "dcg"):
-      self.dcg(Error=Error)
+      self.__dcg(Error=Error)
     elif (self.type == "dpcg"):
-      self.dpcg(Error=Error)
+      self.__dpcg(Error=Error)
 
-  def cg(self, Error=False):
+  def __apply_invM(self, x):
+    if (self.precond_id == 2):
+      return self.amg_op(x)
+    else:
+      if (self.type_invM_application == 0):
+        return x
+      elif (self.type_invM_application == 1):
+        if (sparse.issparse(self.M)):
+          return self.M_fac(x)
+        else:
+          return scipy.linalg.cho_solve(self.M_chol, x)
+      elif (self.type_invM_application == 2):
+        return self.inv_M.dot(x)
+
+  def __apply_invWtAW(self, x):
+    return solve(self.WtAW, x)
+
+  def __cg(self, Error=False):
     self.it = 0
     self.x = np.copy(self.x0)
     r = self.b-self.A.dot(self.x)
@@ -146,12 +144,12 @@ class solver:
       self.P = self.P[:,:self.it]
       self.ell = self.it
 
-  def pcg(self, Error=False):
+  def __pcg(self, Error=False):
     self.it = 0
     self.x = np.copy(self.x0)
     r = self.b-self.A.dot(self.x)
     rTr = r.dot(r)
-    z = self.apply_invM(r)
+    z = self.__apply_invM(r)
     rTz = r.dot(z)
     p = np.copy(z)
     self.iterated_res_norm = [np.sqrt(rTr)]
@@ -170,7 +168,7 @@ class solver:
         err = self.x-self.x_sol
         self.error_Anorm += [np.sqrt(err.dot(A.dot(err)))]
       rTr = r.dot(r)
-      z = self.apply_invM(r)
+      z = self.__apply_invM(r)
       rTz = r.dot(z)
       beta *= rTz
       if (0 < self.it < self.ell): 
@@ -182,7 +180,7 @@ class solver:
       self.P = self.P[:,:self.it]
       self.ell = self.it
 
-  def dcg(self, Error=False, Reortho=False):
+  def __dcg(self, Error=False, Reortho=False):
     self.it = 0
     self.x = np.copy(x0)
     r = self.b-self.A.dot(self.x)
@@ -190,7 +188,7 @@ class solver:
       R = (self.W.dot(np.linalg.inv(self.W.T.dot(self.W)))).dot(self.W.T)
       r -= R.dot(r)
     rTr = r.dot(r)
-    hmu = self.apply_invWtAW(self.AW.T.dot(r))
+    hmu = self.__apply_invWtAW(self.AW.T.dot(r))
     p = r-self.W.dot(hmu)
     self.iterated_res_norm = [np.sqrt(rTr)]
     if (Error):
@@ -211,7 +209,7 @@ class solver:
         r -= R.dot(r)
       rTr = r.dot(r)  
       beta *= rTr
-      hmu = self.apply_invWtAW(self.AW.T.dot(r))
+      hmu = self.__apply_invWtAW(self.AW.T.dot(r))
       if (self.it < self.ell):
         self.P[:,it] = p
       p = beta*p+r-self.W.dot(hmu)
@@ -221,7 +219,7 @@ class solver:
       self.P = self.P[:,:self.it]
       self.ell = self.it
 
-  def dpcg(self, Error=False, Reortho=False):
+  def __dpcg(self, Error=False, Reortho=False):
     self.it = 0
     self.x = np.copy(x0)
     r = self.b-self.A.dot(self.x)
@@ -229,9 +227,9 @@ class solver:
       R = (self.W.dot(np.linalg.inv(self.W.T.dot(self.W)))).dot(self.W.T)
       r -= R.dot(r)
     rTr = r.dot(r)
-    z = self.apply_invM(r)
+    z = self.__apply_invM(r)
     rTr = r.dot(z)
-    hmu = self.apply_invWtAW(self.AW.T.dot(z))
+    hmu = self.__apply_invWtAW(self.AW.T.dot(z))
     p = z-self.W.dot(hmu)
     self.iterated_res_norm = [np.sqrt(rTr)]
     if (Error):
@@ -251,10 +249,10 @@ class solver:
       if (Reortho): 
         r -= R.dot(r)
       rTr = r.dot(r)  
-      z = self.apply_invM(r)
+      z = self.__apply_invM(r)
       rTz = r.dot(z)
       beta *= rTz
-      hmu = self.apply_invWtAW(self.AW.T.dot(z))
+      hmu = self.__apply_invWtAW(self.AW.T.dot(z))
       if (self.it < self.ell):
         self.P[:,it] = p
       p = beta*p+z-self.W.dot(hmu)

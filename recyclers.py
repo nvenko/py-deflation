@@ -1,6 +1,6 @@
-import numpy as np
 from solvers import solver
 from samplers import sampler
+import numpy as np
 
 class recycler:
   """ Recycles. """
@@ -14,7 +14,7 @@ class recycler:
     if (sampler.type == "mcmc") & (solver.type == "pcg") & (self.type == "pcgmo"):
       self.dt = int(dt)
       if (self.dt < 0):
-  	    self.dt = 10
+  	    self.dt = 0
       return
 
     elif (solver.type == "cg") & (self.type == "dcgmo"):

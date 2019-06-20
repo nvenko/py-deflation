@@ -60,7 +60,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   A `solver` solves a linear system iteratively.
 
-  Signature : `solver`(`n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`)
+  Signature : `solver`( `n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`, `W`=`None`)
 
   - `n` (`int`, `n`>`1`) : System size.
   - `solver_type` (`string`, {`"cg"`, `"pcg"`, `"dcg"`, `"dpcg"`}) : Type of iterative solver.
@@ -70,6 +70,11 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
     - `pdcg` : Preconditioned deflated conjugate gradient.
   - `eps` (`float`, `0`<`eps`<`1`) : Tolerance.
   - `itmax` (`int`, `itmax`>`1`) : Maximum number of iterations.
+  - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace.
+
+  Public parameters : `set_precond`, `solve`.
+
+  Public methods : `set_precond`, `solve`.
 
 - _recyclers.py_ : 
 
@@ -81,7 +86,9 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_t)$ are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis over an approximation subspace $\mathcal{R}([\mathbf{W}(\theta_{t-1}),\mathbf{P}(\theta_{t-1})])$ spanned by a (recycled) basis $\mathbf{P}(\theta_{t-1})\in\mathbb{R}^{n\times\ell}$ of the Krylov subspace $\mathcal{K}^{(t-1)}_{\ell}\subseteq\mathcal{K}^{(t-1)}$, and the basis $\mathbf{W}(\theta_{t-1})\in\mathbb{R}^{n\times k}$ of a deflation subspace $\mathcal{W}^{(t-1)}\perp\mathcal{K}^{(t-1)}$. The dimensions $k$ and $\ell$ are respectively denoted by `kdim` and `ell` throughout the code.
 
-  List of `recycler` available :
+  A `recycler` recycles.
+
+  Signature : `recycler`(`sampler`, `solver`, `recycler_type`, `dt`=`0`, `t_end_def`=`0`, `kl`=`5`, `kl_strategy`=`0`, `dp_seq`=`"pd"`, `which_op`=`"previous"`, `approx`=`"HR"`)
 
   - PCG for a sequence with multiple operators, `pcgmo` :
 
@@ -143,6 +150,10 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
     - Stop updating
 
+  Public parameters : a, b, c.
+
+  Public methods : a, b, c.
+
 - _post-recyclers.py_ :
 
   A `post_recycler` is *.
@@ -150,6 +161,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   List of `post_recycler` available:
 
   - Plots results
+
 
 ### Usage:
 
@@ -186,7 +198,7 @@ pl.show()
 
 Output :
 
-![example01_sampler](/space/venkovic/Dropbox/Research_at_CERFACS/Codes/misc/deflation-precond-strategies-sde/example01_sampler.png)
+![example01_sampler](./example01_sampler.png)
 
 Example02:
 

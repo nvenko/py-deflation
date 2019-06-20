@@ -9,7 +9,15 @@ class sampler:
       d[kappa(x;theta)d(u)/dx(x;theta)]/dx = -f(x) for all x in (xa,xb) and u(xa) = 0.
       The stationary lognormal coefficient field kappa(x;theta) is represented by a
       truncated Karhunen-Loeve (KL) expansion later sampled either by Monte Carlo (MC) 
-      or by Markov chain Monte Carlo (MCMC). """
+      or by Markov chain Monte Carlo (MCMC). 
+
+      Parameters:
+        nEl, type, model, sig2, mu, L, delta2, ...
+
+      Methods:
+         eval_cov, compute_KL, draw_realization, do_assembly, set_b, get_kappa, get_median_A.
+
+      """
 
   data_path = './'
 
@@ -70,6 +78,12 @@ class sampler:
     self.kappa = None
     self.A = None
     self.b = None
+    if (self.u_xb == None) & (self.du_xb != None):
+      self.n = self.nEl
+    elif (self.u_xb != None) & (self.du_xb == None):
+      self.n = self.nEl-1
+    else:
+      print 'Error: BC not properly prescribed @ xb.'
 
     if (self.verb == 2):
       print("Sampler created with following parameters:")
@@ -152,7 +166,6 @@ class sampler:
       if (self.du_xb == 0):
         if (type(self.b) == type(None)):
           self.set_b()
-        return
       else:
         self.set_b()
     elif (self.u_xb != None) & (self.du_xb == None):
@@ -161,13 +174,10 @@ class sampler:
       if (self.u_xb == 0):
         if (type(self.b) == type(None)):
           self.set_b()
-        return
       else:
         self.set_b()
     else:
       print 'Error: BC not properly prescribed @ xb.'
-    if (True):
-      self.set_b()
 
   def set_b(self):
     M = self.h/6.*sparse.eye(self.nEl+1)

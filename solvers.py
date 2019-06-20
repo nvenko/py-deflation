@@ -4,9 +4,17 @@ import solvers_etc
 from pyamg.aggregation import smoothed_aggregation_solver 
 
 class solver:
-  """ Solves. """
+  """ Solves. 
 
-  def __init__(self, n, solver_type="cg", eps=1e-7, itmax=2000):
+      Parameters:
+        n, type, ...
+
+      Methods:
+        set_precond, apply_invM, apply_invWtAW, solve cg, pcg, dcg, dpcg.
+
+  """
+
+  def __init__(self, n, solver_type, eps=1e-7, itmax=2000):
     self.n = n
     self.type = solver_type
     self.eps = eps

@@ -60,12 +60,16 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   A `solver` solves a linear system iteratively.
 
-  Signature : `solver`(`n`, `solver_type`=`"cg"`, `eps`=`1e-7`, `itmax`=`2000`)
+  Signature : `solver`(`n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`)
 
-  - Conjugate gradient (`cg`)
-  - Preconditioned CG (`pcg`)
-  - Deflated CG (`dcg`)
-  - Preconditioned DCG (`pdcg`)
+  - `n` (`int`, `n`>`1`) : System size.
+  - `solver_type` (`string`, {`"cg"`, `"pcg"`, `"dcg"`, `"dpcg"`}) : Type of iterative solver.
+    - `cg` : Conjugate gradient.
+    - `pcg` : Preconditioned conjugate gradient.
+    - `dcg` : Deflated conjugate gradient.
+    - `pdcg` : Preconditioned deflated conjugate gradient.
+  - `eps` (`float`, `0`<`eps`<`1`) : Tolerance.
+  - `itmax` (`int`, `itmax`>`1`) : Maximum number of iterations.
 
 - _recyclers.py_ : 
 

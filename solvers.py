@@ -14,17 +14,19 @@ class solver:
 
   """
 
-  def __init__(self, n, solver_type, eps=1e-7, itmax=2000):
+  def __init__(self, n, solver_type, eps=1e-7, itmax=2000, W=None):
     self.n = n
     self.type = solver_type
     self.eps = eps
     self.itmax = itmax
-    self.ell = 0
-    self.P = None
-    
+        
     if (self.type == "dcg") | (self.type == "dpcg"):
-      self.kdim = 0
-      self.W = None
+      if (type(W) != type(None)):
+        self.W = W
+        self.kdim = self.W.shape[1]
+      else:
+        self.W = None
+        self.kdim = 0
       self.AW = None
       self.WtAW = None
 
@@ -33,7 +35,7 @@ class solver:
     if (precond_id == 0):
       self.M = sparse.eye(self.n)
     elif (precond_id == 1):
-      self.M = scipy.copy(Mat)
+      self.M = Mat
     elif (precond_id == 2):
       if (sparse.issparse(Mat)):
         ml = smoothed_aggregation_solver(sparse.csr_matrix(Mat))
@@ -86,7 +88,7 @@ class solver:
   def apply_invWtAW(self, x):
     return solve(self.WtAW, x)
 
-  def solve(self, A, b, x0, x_sol=None):
+  def solve(self, A, b, x0, ell=0, x_sol=None):
     self.A = A
     self.b = b
     self.bnorm = np.linalg.norm(self.b)
@@ -94,6 +96,9 @@ class solver:
     self.x = None
     self.iterated_res_norm = None
     self.it = 0
+    self.ell = int(ell)
+    if (self.ell > 0):
+      self.P = np.zeros((self.n,self.ell))
     if (type(x_sol) == type(None)):
       Error = False
     else:
@@ -139,6 +144,7 @@ class solver:
       self.it += 1
     if (self.it < self.ell):
       self.P = self.P[:,:self.it]
+      self.ell = self.it
 
   def pcg(self, Error=False):
     self.it = 0
@@ -174,6 +180,7 @@ class solver:
       self.it += 1
     if (self.it < self.ell):
       self.P = self.P[:,:self.it]
+      self.ell = self.it
 
   def dcg(self, Error=False, Reortho=False):
     self.it = 0
@@ -212,6 +219,7 @@ class solver:
       self.it += 1
     if (self.it < self.ell): 
       self.P = self.P[:,:self.it]
+      self.ell = self.it
 
   def dpcg(self, Error=False, Reortho=False):
     self.it = 0
@@ -254,3 +262,4 @@ class solver:
       self.it += 1
     if (self.it < self.ell): 
       self.P = self.P[:,:self.it]
+      self.ell = self.it

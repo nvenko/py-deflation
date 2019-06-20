@@ -11,12 +11,12 @@ model = "Exp"
 mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L)
 mcmc.compute_KL()
 
-pcg  = solver(solver_type="pcg", precond_id=1)
-pcg.set_precond()
+pcg  = solver(n=mcmc.n, solver_type="pcg")
+pcg.set_precond(Mat=mcmc.get_median_A(), precond_id=1)
 
-pcgmo = recycler(sampler=mcmc, solver=pcg, recylcer_type="pcgmo")
+pcgmo = recycler(sampler=mcmc, solver=pcg, recycler_type="pcgmo")
 
 for i_smp in range(nsmp):
-  recycler.draw_realization()
-  recycler.prepare()
-  recycler.solve()
+  pcgmo.draw_realization()
+  pcgmo.prepare()
+  pcgmo.solve()

@@ -11,9 +11,8 @@ model = "Exp"
 mc = sampler(nEl=nEl, smp_type="mc", model=model, sig2=sig2, L=L)
 mc.compute_KL()
 
-A_median = mc.get_median_A()
 pcg = solver(n=mc.n, solver_type="pcg")
-pcg.set_precond(Mat=A_median, precond_id=3, nb=10)
+pcg.set_precond(Mat=mc.get_median_A(), precond_id=3, nb=10)
 
 fig, ax = pl.subplots(1, 2, figsize=(8,3.5))
 for i_smp in range(nsmp):

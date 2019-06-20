@@ -41,5 +41,5 @@ while (mcmc.cnt_accepted_proposals < nsmp):
 ax[1,0].set_xlabel("x"); ax[1,1].set_xlabel("x"); ax[1,2].set_xlabel("Solver iteration, j")
 ax[1,0].set_ylabel("MCMC sampler")
 
-#pl.show()
-pl.savefig("example02_solver.png", bbox_inches='tight')
+pl.show()
+#pl.savefig("example02_solver.png", bbox_inches='tight')

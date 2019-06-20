@@ -165,7 +165,9 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 ### Usage:
 
-Example #1: example01_sampler.py
+#### Example #1: example01_sampler.py
+
+Draws and plots realizations of the lognormal coefficient field $\kappa(x;\theta)$ with an exponential covariance sampled both by Monte Carle and Markov chain Monte Carlo.  
 
 ```python
 from samplers import sampler
@@ -202,7 +204,11 @@ Output :
 
 ![example01_sampler](./example01_sampler.png)
 
-Example #2: example02_solver.py
+
+
+#### Example #2: example02_solver.py
+
+Solves $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ with $u(x_a)=0$ and $u(x_b)=0.005$. The sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$ is sampled both by Monte Carle and Markov chain Monte Carlo.  In both cases, the corresponding sequence $\{u(x;\theta_t)\}_{t=1}^M$ is obtained after FE discretization and PCG resolutions using a block Jacobi (bJ) preconditioner based on the median operator with 10 blocks.
 
 ```python
 from samplers import sampler
@@ -255,4 +261,45 @@ Output :
 
 ![example01_sampler](./example02_solver.png)
 
-Example #3: example03_recycler.py
+
+
+#### Example #3: example03_recycler.py
+
+Solves $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ with $u(x_a)=0$ and $u(x_b)=0.005$. The sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$ is sampled both by Monte Carle and Markov chain Monte Carlo.  In both cases, the corresponding sequence $\{u(x;\theta_t)\}_{t=1}^M$ is obtained after FE discretization and PCG resolutions using a block Jacobi (bJ) preconditioner based on the median operator with 10 blocks.
+
+```python
+from samplers import sampler
+from solvers import solver
+import numpy as np
+import pylab as pl
+
+
+
+pl.show()
+```
+
+Output :
+
+![example01_sampler](./example03_recycler.png)
+
+
+
+#### Example #4: example04_recycler.py
+
+Solves using a block Jacobi (bJ) preconditioner  *. Draws and plots realizations of the lognormal coefficient field $\kappa(x;\theta)$ with an exponential covariance sampled both by Monte Carle and Markov chain Monte Carlo.  
+
+```python
+from samplers import sampler
+from solvers import solver
+import numpy as np
+import pylab as pl
+
+
+
+pl.show()
+```
+
+Output :
+
+![example01_sampler]()
+

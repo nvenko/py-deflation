@@ -59,10 +59,14 @@ class recycler:
     else:
       print 'Error: recycler_type not compatible with solver and/or sampler.'
 
-  def draw_realization(self):
-    self.sampler.draw_realization()
-    self.sampler.do_assembly()
-    self.solver.A = self.sampler.A
+  def do_assembly(self):
+    if (self.sampler.type == "mc"):
+      self.sampler.do_assembly()
+      self.solver.A = self.sampler.A
+    elif (self.sampler.type == "mcmc"):
+      if (self.sampler.proposal_accepted):
+        self.sampler.do_assembly()
+        self.solver.A = self.sampler.A
 
   def approx_eigvecs(self, G, F):
     if (self.approx == "HR"):
@@ -163,14 +167,14 @@ class recycler:
 
   def prepare(self):
     if (self.type == "pcgmo"):
-      if (self.dt) & (self.sampler.reals > 1):
+      if (self.dt > 0) & (self.sampler.reals > 1):
         if (self.sampler.cnt_accepted_proposals%self.dt == 0):
           if (self.solver.precond_id == 1):
-            self.solver.set_precond(Mat=self.sampler.A, precond_id=1, application_type=self.sampler.application_type)
+            self.solver.set_precond(Mat=self.sampler.A, precond_id=1, application_type=self.solver.application_type)
           elif (self.solver.precond_id == 2):
             self.solver.set_precond(Mat=self.sampler.A, precond_id=2)
           elif (self.solver.precond_id == 3):
-            self.solver.set_precond(Mat=self.sampler.A, precond_id=3, nb=self.sampler.nb, application_type=self.sampler.application_type)
+            self.solver.set_precond(Mat=self.sampler.A, precond_id=3, nb=self.solver.nb, application_type=self.solver.application_type)
 
     elif (self.type == "dcgmo") | (self.type == "dpcgmo"):
       if not (self.t_end_def):

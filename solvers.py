@@ -49,17 +49,17 @@ class solver:
       print('Warning: Invalid preconditioner ID.')
 
     if (self.precond_id != 2):
-      self.type_invM_application = application_type
-      if (self.type_invM_application == 0):
+      self.application_type = application_type
+      if (self.application_type == 0):
         return 
-      elif (self.type_invM_application == 1):
+      elif (self.application_type == 1):
         if (sparse.issparse(self.M)):
           self.M_fac = sparse.linalg.factorized(sparse.csc_matrix(self.M))
           # Preconditioner application: self.M_fac(x)
         else:
           self.M_chol = scipy.linalg.cho_factor(self.M)
           # Preconditioner application: scipy.linalg.cho_solve(self.M_chol, x)
-      elif (self.type_invM_application == 2):
+      elif (self.application_type == 2):
         if (sparse.issparse(self.M)):
           self.inv_M = sparse.linalg.inv(sparse.csc_matrix(self.M))
           # Preconditioner application: self.inv_M.dot(x)
@@ -99,14 +99,14 @@ class solver:
     if (self.precond_id == 2):
       return self.amg_op(x)
     else:
-      if (self.type_invM_application == 0):
+      if (self.application_type == 0):
         return x
-      elif (self.type_invM_application == 1):
+      elif (self.application_type == 1):
         if (sparse.issparse(self.M)):
           return self.M_fac(x)
         else:
           return scipy.linalg.cho_solve(self.M_chol, x)
-      elif (self.type_invM_application == 2):
+      elif (self.application_type == 2):
         return self.inv_M.dot(x)
 
   def __apply_invWtAW(self, x):

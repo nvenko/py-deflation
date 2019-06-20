@@ -63,10 +63,13 @@ class recycler:
   	self.sampler.draw_realization()
 
   def approx_eigvecs(self, y):
-  	self.solver 
+  	eigvecs = None
+  	self.solver.W = self.solver.W.dot(eigvecs)
 
   def update_W(self):
   	if (self.type == "dcgmo"):
+  		if (self.which_op == "previous"):
+  		elif (self.which_op == "previous"):
   	  self.solver.W = None
 
   	elif (self.type == "dpcgmo"):
@@ -78,24 +81,29 @@ class recycler:
   def prepare(self):
   	if (self.type == "pcgmo"):
       if (self.sampler.cnt_accepted_proposals%self.dt == 0):
-        self.solver.set_precond()
+      	if (self.sampler.precond_id == 1):
+          self.solver.set_precond(Mat=self.sampler.A, precond_id=1, application_type=self.sampler.application_type)
+      	if (self.sampler.precond_id == 2):
+          self.solver.set_precond(Mat=self.sampler.A, precond_id=2)
+        elif (self.sampler.precond_id == 3):
+          self.solver.set_precond(Mat=self.sampler.A, precond_id=3, nb=self.sampler.nb, application_type=self.sampler.application_type)
 
   	elif (self.type == "dcgmo"):
   	  if not (self.t_end_def):
   	    self.update_W()
   	  else:
-  	    if (self.sampler.type == "mc") & (self.sampler.reals <= self.t_end_def):
+  	    if (self.sampler.type == "mc") & (self.sampler.reals < self.t_end_def):
           self.update_W()
-  	    elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals <= self.t_end_def):
+  	    elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals < self.t_end_def):
           self.update_W()
 
   	elif (self.type == "dpcgmo"):
   	  if not (self.t_end_def):
   	    self.update_W()
   	  else:
-  	    if (self.sampler.type == "mc") & (self.sampler.reals <= self.t_end_def):
+  	    if (self.sampler.type == "mc") & (self.sampler.reals < self.t_end_def):
           self.update_W()
-  	    elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals <= self.t_end_def):
+  	    elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals < self.t_end_def):
           self.update_W()
 
   def solve(self):

@@ -331,7 +331,7 @@ Output :
 
 #### Example #4: example04_recycler.py
 
-Solves using a block Jacobi (bJ) preconditioner  *. Draws and plots realizations of the lognormal coefficient field $\kappa(x;\theta)$ with an exponential covariance sampled both by Monte Carle and Markov chain Monte Carlo.  
+Solves using a block Jacobi (bJ) preconditioner.  
 
 ```python
 from samplers import sampler

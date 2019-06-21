@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from scipy import sparse
 import solvers_etc
 from pyamg.aggregation import smoothed_aggregation_solver 
@@ -100,7 +101,10 @@ class solver:
       return self.amg_op(x)
     else:
       if (self.application_type == 0):
-        return x
+        if (sparse.issparse(self.M)):
+          return sparse.linalg.spsolve(self.M, x)
+        else:
+          return scipy.linalg.solve(self.M, x)
       elif (self.application_type == 1):
         if (sparse.issparse(self.M)):
           return self.M_fac(x)

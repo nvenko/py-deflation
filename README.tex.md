@@ -56,6 +56,10 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - `u_xb`, `du_xb` (`float`) : $u(x_b)$ and $\partial_xu(x_b)$. `u_xb` must be `None` if `du_xb`!=`None`. `du_xb` must be `None` if `u_xb`!=`None`.
 
+  Public parameters : *, *, *.
+
+  Public methods : *, *.
+
 - _solvers.py_ :
 
   A `solver` solves a linear system iteratively and potentially recycles some information about a Krylov subspace.
@@ -76,13 +80,11 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   Public methods : `set_precond`, `solve`.
 
-  Signature : `set_precond`(`self`, `Mat`=`None`, `precond_id`=`0`, `nb`=`2`, `application_type`=`1`)
+  Signature : `set_precond`(`self`, `Mat`, `precond_id`, `nb`=`2`, `application_type`=`1`)
 
   - `Mat` ({`ndarray`, `sparse`}, `Mat.shape`=`(n, n)`) : Array used to define a preconditioner.
 
-  - `precond_id` (`int`, {`0,` `1`, `2`, `3`}) : Preconditioner ID: 
-
-    `0` : No preconditioner.
+  - `precond_id` (`int`, {`1`, `2`, `3`}) : Preconditioner ID: 
 
     `1` : Preconditioner is `Mat`.
 
@@ -90,15 +92,21 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
     `3` : Preconditioner is Block Jacobi (bJ) based on `Mat` with `nb` (non-overlapping) blocks.
 
-  - `nb` (`int`, `0`<`nb`<`n`) : Number of blocks for the bJ preconditioner.
+  - `nb` (`int`, `0`<`nb`<`n`) : Number of blocks for the bJ preconditioner, only used for `precond_id`=`3`.
 
   - `application_type` (`int`, {`0`, `1`, `2`}) : Way the inverse preconditioner is applied. Does not apply for `precond_id` =`2`.
 
-    `0` : Resolution of a linear system from scratch using numpy.linalg.solve each time the inverse preconditoner is applied.
+    `0` : Resolution of a linear system from scratch using an appropriate solver each time the inverse preconditoner is applied. Apply inverse preconditioner to `x` as follows:
 
-    `1` : A factorization is computed and stored when set_precond is called. Then, the factorization is used each time the inverse preconditoner is applied. If `Mat` is `ndarray`, the factorization used is *. If `Mat` is `sparse`, the factorization used is *.  
+    - `Mat` is `ndarray` : `scipy.sparse.linalg.spsolve`(`M`, `x`).
+    - `Mat` is `sparse` : `scipy.sparse.linalg.spsolve`(`M`, `x`).
 
-    `2` : The array of the inverse preconditioner is explicitly computed and later applied at each application.
+    `1` : An appropriate  factorization is computed and stored when `set_precond` is called. Then, the factorization is used each time the inverse preconditoner is applied.
+
+    - `Mat` is `ndarray` : Factorize `M` with `scipy.linalg.cho_factor`(`M`, `x`).
+    - `Mat` is `sparse` : Factorize `M` with `scipy.sparse.linalg.factorized`(`M`, `x`).
+
+    `2` : The array of the inverse preconditioner is explicitly computed when `set_precond` is called. The computed inverse is later applied as a matrix-vector product at each application.
 
   Signature : `solve`(`self`, `A`, `b`, `x0`, `ell`=`0,` `x_sol`=`None`)
 
@@ -122,20 +130,27 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   Signature : `recycler`(`sampler`, `solver`, `recycler_type`, `dt`=`0`, `t_end_def`=`0`, `kl`=`5`, `kl_strategy`=`0`, `dp_seq`=`"pd"`, `which_op`=`"previous"`, `approx`=`"HR"`)
 
-  - sampler (sampler) : *.
-  - solver (solver) : *.
-  - recycler_type (string, {pcgmo, dcgmo, dpcgmo}) : Type of recycling.
-  - dt (int, dt>=0) : Renewal period.
-  - t_end_def (int, t_end_def>=0) : Time.
-  - kl (int, kl>=0) : kdim+ell
-  - kl_strategy (int, {0, 1}) : Strategy.
-  - dp_seq (string, {"pd", "dp"}) : Sequence.
-  - which_op (string, {"previous", "current"}) : Operator used.
-  - approx (string, {"HR", "RR"}) : Approximation.
+  - `sampler` (`sampler`) 
+  - `solver` (`solver`) 
+  - `recycler_type` (`string`, {`"pcgmo"`, `"dcgmo"`, `"dpcgmo"`}) : Type of recycling/preconditioning strategy used to solve the sampled sequence of linear systems. Needs to be compatible with `solver.type` and `sampler.type`. Valid combinations are : 
+    - `"mcmc"` - `"pcg"` - `"pcgmo"`.
+    - {`"mc"`, `"mcmc"`} - `"dcg"` - `"dcgmo"`.
+    - {`"mc"`, `"mcmc"`} - `"dpcg"` - `"dpcgmo"`.
+  - `dt` (`int`, `dt`>=`0`) : Renewal period of the preconditioner used for `"pcgmo"`.  If `dt`=`0`, there is no renewal, i.e. the preconditioner is constant throughout the sequence.
+  - `t_end_def` (`int`, `t_end_def`>=`0`) : Time.
+  - `kl` (`int`, `kl`>=`0`) : `kdim`+`ell`.
+  - `kl_strategy` (`int`, {`0`, `1`}) : Strategy.
+  - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflating/preconditioning sequence for `"dpcgmo"` :
+    - `"pd"` : Precondition after deflating.
+    - `"dp"` : Deflate after preconditioning.
+  - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator used.
+  - `approx` (`string`, {`"HR"`, `"RR"`}) : Approximation.
+    - `"HR"` : Harmonic Ritz analysis.
+    - `"RR"` : Rayleigh Ritz analysis.
 
-  Public parameters : a, b, c.
+  Public parameters : *, *, *.
 
-  Public methods : a, b, c.
+  Public methods : `do_assembly`, `prepare`, `solve`.
 
 - _post-recyclers.py_ :
 

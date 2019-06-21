@@ -286,7 +286,7 @@ mcmc.draw_realization()
 mcmc.do_assembly()
 
 nb = 5
-dt = [50, 100, 200, 500, 1000]
+dt = [50, 100, 250, 500, 1000]
 pcg_dtbJ = []
 pcgmo_dtbJ = []
 
@@ -323,8 +323,9 @@ ax[0].plot(pcgmo_medbJ_it, label="med-bJ#%d" %(nb))
 for i, dt_i in enumerate(dt):
   ax[0].plot(pcgmo_dtbJ_it[i], label="%d-bJ#%d" %(dt_i,nb), lw=.4)
 av_pcgmo_medbJ_it = np.mean(pcgmo_medbJ_it)
+av_pcgmo_dtbJ_it = np.array([np.mean(pcgmo_it)/av_pcgmo_medbJ_it for pcgmo_it in pcgmo_dtbJ_it])
 ax[1].plot(dt, av_pcgmo_dtbJ_it, "k")
-ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Precond. renewal period, dt")
+ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Renewal period of preconditioner, dt")
 ax[0].set_ylabel("Number of solver iterations, n_it")
 ax[1].set_ylabel("Average relative number of solver iterations")
 ax[0].legend(frameon=False, ncol=2)

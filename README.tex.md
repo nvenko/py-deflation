@@ -142,15 +142,15 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   - `kl_strategy` (`int`, {`0`, `1`}) : Specifies the strategy used to update the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively, at each (resp. distinct) realizations in the sampled sequence.
     - `0` : `kdim`=`kl`/2, `ell`=`kl`-`kdim`.
     - `1` : kdim increases while ell decreases.
-  - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflating/preconditioning sequence for `"dpcgmo"` :
+  - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflation/preconditioning sequence for `"dpcgmo"` :
     - `"pd"` : Precondition after deflating.
     - `"dp"` : Deflate after preconditioning.
-  - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator used for the construction of the deflation subspace :
-    - `"previous"` : this.
-    - `"current"` : that.
-  - `approx` (`string`, {`"HR"`, `"RR"`}) : Projection methods used for eigenvector approximation used in to turn to generate the deflation subspace :
-    - `"HR"` : Harmonic Ritz analysis, best suited for least dominant LD eigenpairs.
-    - `"RR"` : Rayleigh Ritz analysis, best suited for the most dominant MD eigenpairs.
+  - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator whose eigenvectors are approximated to construct a deflation subspace to be used for a current linear system : 
+    - `"previous"` : Previous (resp. last distinct) operator in the sequence.
+    - `"current"` : Current operator.
+  - `approx` (`string`, {`"HR"`, `"RR"`}) : Projection methods used for the eigenvector approximation :
+    - `"HR"` : Harmonic Ritz analysis---best suited to approximate least dominant LD eigenpairs.
+    - `"RR"` : Rayleigh Ritz analysis---best suited to approximate most dominant MD eigenpairs.
 
   Public parameters : *, *, *.
 
@@ -271,7 +271,7 @@ Output :
 
 #### Example #3: example03_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with both constant and realization-dependent bJ#5 preconditioners. The constant preconditioner is built on the basis of the median operator while the realization-dependent preconditioners are redefined periodically every `dt`={`200`,`500`} distinct realizations (i.e. discarding steps with rejected proposal) on the basis of the current operator in the sequence.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with both constant and realization-dependent bJ#5 preconditioners. The constant preconditioner is built on the basis of the median operator while the realization-dependent preconditioners are redefined periodically every `dt`={`50`, `100`, `250`, `500`, `1000`} distinct realizations (i.e. discarding realizations corresponding to rejected proposals) on the basis of the current operator in the sequence.
 
 ```python
 from samplers import sampler

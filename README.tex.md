@@ -265,7 +265,7 @@ Output :
 
 #### Example #3: example03_recycler.py
 
-Solves $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ with $u(x_a)=0$ and $u(x_b)=0.005$. The sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$ is sampled both by Monte Carle and Markov chain Monte Carlo.  In both cases, the corresponding sequence $\{u(x;\theta_t)\}_{t=1}^M$ is obtained after FE discretization and PCG resolutions using a block Jacobi (bJ) preconditioner based on the median operator with 10 blocks.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with both constant and realization-dependent bJ#5 preconditioners. The constant preconditioner is built on the basis of the median operator while the realization-dependent preconditioners are redefined periodically every `dt`={`200`,`500`} distinct realizations (i.e. discarding steps with rejected proposal) on the basis of the current operator in the sequence.
 
 ```python
 from samplers import sampler
@@ -286,38 +286,48 @@ mcmc.do_assembly()
 
 nb = 5
 
-pcg_bJdt  = solver(n=mcmc.n, solver_type="pcg")
-pcg_bJdt.set_precond(Mat=mcmc.A, precond_id=3, nb=nb)
+pcg_dt1bJ  = solver(n=mcmc.n, solver_type="pcg")
+pcg_dt1bJ.set_precond(Mat=mcmc.A, precond_id=3, nb=nb)
 
-pcg_med  = solver(n=mcmc.n, solver_type="pcg")
-pcg_med.set_precond(Mat=mcmc.get_median_A(), precond_id=3, nb=nb)
+pcg_dt2bJ  = solver(n=mcmc.n, solver_type="pcg")
+pcg_dt2bJ.set_precond(Mat=mcmc.A, precond_id=3, nb=nb)
 
-dt = 400
+pcg_medbJ  = solver(n=mcmc.n, solver_type="pcg")
+pcg_medbJ.set_precond(Mat=mcmc.get_median_A(), precond_id=3, nb=nb)
 
-pcgmo_bJdt = recycler(sampler=mcmc, solver=pcg_bJdt, recycler_type="pcgmo", dt=dt)
-pcgmo_med = recycler(sampler=mcmc, solver=pcg_med, recycler_type="pcgmo")
+dt1, dt2 = 200, 500
+pcgmo_dt1bJ = recycler(sampler=mcmc, solver=pcg_dt1bJ, recycler_type="pcgmo", dt=dt1)
+pcgmo_dt2bJ = recycler(sampler=mcmc, solver=pcg_dt2bJ, recycler_type="pcgmo", dt=dt2)
+pcgmo_medbJ = recycler(sampler=mcmc, solver=pcg_medbJ, recycler_type="pcgmo")
 
-pcgmo_bJdt_it, pcgmo_med_it = [], []
+pcgmo_dt1bJ_it, pcgmo_dt2bJ_it, pcgmo_medbJ_it = [], [], []
 while (mcmc.cnt_accepted_proposals < nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):
-    pcgmo_bJdt.do_assembly()
-    pcgmo_bJdt.prepare()
-    pcgmo_bJdt.solve()
-    
-    pcgmo_med.do_assembly()
-    pcgmo_med.prepare()
-    pcgmo_med.solve()
+    pcgmo_dt1bJ.do_assembly()
+    pcgmo_dt1bJ.prepare()
+    pcgmo_dt1bJ.solve()
 
-    pcgmo_bJdt_it += [pcg_bJdt.it]
-    pcgmo_med_it += [pcg_med.it]
+    pcgmo_dt2bJ.do_assembly()
+    pcgmo_dt2bJ.prepare()
+    pcgmo_dt2bJ.solve()
+    
+    pcgmo_medbJ.do_assembly()
+    pcgmo_medbJ.prepare()
+    pcgmo_medbJ.solve()
+
+    pcgmo_dt1bJ_it += [pcg_dt1bJ.it]
+    pcgmo_dt2bJ_it += [pcg_dt2bJ.it]
+    pcgmo_medbJ_it += [pcg_medbJ.it]
 
 ax = pl.subplot()
-ax.plot(pcgmo_bJdt_it, label="med-bJ#%d" %(nb))
-ax.plot(pcgmo_med_it, label="%d-bJ#%d" %(dt,nb))
-ax.set_xlabel("Solver iteration, j")
-ax.set_xlabel("Solver iteration, j")
+ax.plot(pcgmo_medbJ_it, label="med-bJ#%d" %(nb))
+ax.plot(pcgmo_dt1bJ_it, label="%d-bJ#%d" %(dt1,nb), lw=.4)
+ax.plot(pcgmo_dt2bJ_it, label="%d-bJ#%d" %(dt2,nb), lw=.4)
+ax.set_xlabel("Realization index, t")
+ax.set_ylabel("Number of solver iterations, n_it")
 pl.legend(frameon=False)
+ax.set_title("MCMC / PCGMO / Realization dep. vs median bJ preconditioner")
 pl.show()
 ```
 

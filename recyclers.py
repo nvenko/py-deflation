@@ -1,6 +1,7 @@
 from solvers import solver
 from samplers import sampler
 import numpy as np
+import scipy
 
 class recycler:
   """ Recycles. """
@@ -17,7 +18,7 @@ class recycler:
   	    self.dt = 0
       return
 
-    elif (solver.type == "cg") & (self.type == "dcgmo"):
+    elif (solver.type == "dcg") & (self.type == "dcgmo"):
       self.t_end_def = int(t_end_def)
       if (self.t_end_def < 0):
   	    self.t_end_def = 0
@@ -68,12 +69,17 @@ class recycler:
         self.sampler.do_assembly()
         self.solver.A = self.sampler.A
 
-  def approx_eigvecs(self, G, F):
+  def approx_eigvecs(self, G, F, new_kdim):
     if (self.approx == "HR"):
-      eigvecs, _ = scipy.linalg.eigsh(G, F, self.solver.kdim)
+      _, eigvecs = scipy.linalg.eigh(G, F, eigvals=(0, new_kdim-1))
     elif (self.approx == "RR"):
-      eigvecs, _ = scipy.linalg.eigsh(G, F, self.solver.kdim)
-    self.solver.W = self.solver.W.dot(eigvecs)
+      _, eigvecs = scipy.linalg.eigh(G, F, eigvals=(self.solver.kdim+self.solver.ell-new_kdim, self.solver.kdim+self.solver.ell-1))
+    
+    if (self.solver.kdim > 0):
+      self.solver.W = self.solver.W.dot(eigvecs[:self.solver.kdim,:]) \
+                      + self.solver.P.dot(eigvecs[self.solver.kdim:,:])
+    else:
+      self.solver.W = self.solver.P.dot(eigvecs)
 
   def update_W(self):
     G = np.zeros((self.solver.kdim+self.solver.ell,self.solver.kdim+self.solver.ell))
@@ -83,54 +89,55 @@ class recycler:
       # Compute/get AW and AP for eigenvector approximation
       if (self.which_op == "previous"):
         #AW = self.solver.A.dot(self.solver.W)
-        if (self.solver.kdim):
+        if (self.solver.kdim > 0):
           AW = self.solver.AW                    # Computed for last solver call
-        if (self.solver.ell):
+        if (self.solver.ell > 0):
           AP = self.solver.A.dot(self.solver.P)  # Recyclable from last solver call
       elif (self.which_op == "current"):
-        if (self.solver.kdim):
+        if (self.solver.kdim > 0):
           AW = self.sampler.A.dot(self.solver.W)
-        if (self.solver.ell):
+        if (self.solver.ell > 0):
           AP = self.sampler.A.dot(self.solver.P)
 
       # Build (G, F) for G.hw = theta*F.hw
       if (self.approx == "HR"):
         # Harmonic-Ritz approximation
         # Build F:
-        if (self.solver.kdim):
-          F[:self.solver.kdim,:self.solver.kdim] = self.W.T.dot(AW)
-          if (self.solver.ell):
-            F[self.solver.kdim:,self.solver.kdim:] = self.W.T.dot(AP)
+        if (self.solver.kdim > 0):
+          F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
+          if (self.solver.ell > 0):
+            F[self.solver.kdim:,self.solver.kdim:] = self.solver.W.T.dot(AP)
             if (self.which_op == "current"):
-              F[:self.kdim,self.kdim:] = self.W.T.dot(AP)
-              F[self.kdim:,:self.kdim] = F[:self.kdim,self.kdim:].T
-        if (self.solver.ell):
-          F[self.solver.kdim:,self.solver.kdim:] = self.P.T.dot(AP)
+              F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
+              F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+        if (self.solver.ell > 0):
+          F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
         # Build G:
-        if (self.solver.kdim):
-          G[:self.kdim,:self.kdim] = AW.T.dot(AW)
-          if (self.solver.ell):
-            G[:self.kdim,self.kdim:] = AW.T.dot(AP)
-            G[self.kdim:,:self.kdim] = G[:self.kdim,self.kdim:].T
-        if (self.solver.ell):
-          G[self.kdim:,self.kdim:] = AP.T.dot(AP)
+        if (self.solver.kdim > 0):
+          G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(AW)
+          if (self.solver.ell > 0):
+            G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(AP)
+            G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
+        if (self.solver.ell > 0):
+          G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(AP)
 
       elif (self.approx == "RR"):
         # Rayleigh-Ritz approximation
-        F[:self.solver.kdim,:self.solver.kdim] = self.W.T.dot(AW)
-        F[self.solver.kdim:,self.solver.kdim:] = self.W.T.dot(AP)
+        F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
+        F[self.solver.kdim:,self.solver.kdim:] = self.solver.W.T.dot(AP)
         if (self.which_op == "current"):
-          F[:self.kdim,self.kdim:] = self.W.T.dot(AP)
-          F[self.kdim:,:self.kdim] = F[:self.kdim,self.kdim:].T
-        G[:self.kdim,:self.kdim] = AW.T.dot(AW)
-        G[:self.kdim,self.kdim:] = AW.T.dot(AP)
-        G[self.kdim:,:self.kdim] = G[:self.kdim,self.kdim:].T
-        G[self.kdim:,self.kdim:] = AP.T.dot(AP)
+          F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
+          F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+        G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(AW)
+        G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(AP)
+        G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
+        G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(AP)
 
       # Solve approximate eigenvalue problem
-      self.set_kdim()
+      new_kdim = self.get_new_kdim()
       if (self.solver.kdim+self.solver.ell > 0):
-        self.approx_eigvecs(G, F)
+        self.approx_eigvecs(G, F, new_kdim)
+        self.solver.kdim = self.solver.W.shape[1]
       self.set_attempted_ell()
 
     elif (self.type == "dpcgmo"):
@@ -152,12 +159,13 @@ class recycler:
       self.approx_eigvecs(G, F)
       self.set_attempted_ell()
 
-  def set_kdim(self):
+  def get_new_kdim(self):
     if (self.solver.kdim == 0) & (self.solver.ell == 0):
-      self.solver.kdim = 0
+      new_kdim = 0
     else:
       if (self.kl_strategy == 0):
-        self.solver.kdim = min(self.kl/2, self.solver.kdim+self.solver.ell)
+        new_kdim = min(self.kl/2, self.solver.kdim+self.solver.ell)
+    return new_kdim
 
   def set_attempted_ell(self):
     if (self.sampler.reals == 1):
@@ -189,5 +197,5 @@ class recycler:
 
   def solve(self):
     x0 = np.zeros(self.sampler.n)
-    self.solver.solve(self.sampler.A, self.sampler.b, x0)
+    self.solver.solve(self.sampler.A, self.sampler.b, x0, ell=self.solver.ell)
     # self.solver.ell was updated here

@@ -13,12 +13,15 @@ class solver:
       Public methods:
         set_precond, solve.
   """
-  def __init__(self, n, solver_type, eps=1e-7, itmax=2000, W=None):
+  def __init__(self, n, solver_type, eps=1e-7, itmax=2000, W=None, ell=0):
     self.n = n
     self.type = solver_type
     self.eps = eps
     self.itmax = itmax
-        
+    
+    self.ell = int(ell)
+    if (self.ell < 0):
+      self.ell = 0
     if (self.type == "dcg") | (self.type == "dpcg"):
       if (type(W) != type(None)):
         self.W = W
@@ -92,9 +95,19 @@ class solver:
     elif (self.type == "pcg"):
       self.__pcg(Error=Error)
     elif (self.type == "dcg"):
-      self.__dcg(Error=Error)
+      if (type(self.W) == type(None)):
+        self.__cg(Error=Error)
+      else:
+        self.AW = self.A.dot(self.W)
+        self.WtAW = self.W.T.dot(self.AW)
+        self.__dcg(Error=Error)
     elif (self.type == "dpcg"):
-      self.__dpcg(Error=Error)
+      if (type(self.W) == type(None)):
+        self.__pcg(Error=Error)
+      else:
+        self.AW = self.A.dot(self.W)
+        self.WtAW = self.W.T.dot(self.AW)
+        self.__dpcg(Error=Error)
 
   def __apply_invM(self, x):
     if (self.precond_id == 2):
@@ -114,7 +127,10 @@ class solver:
         return self.inv_M.dot(x)
 
   def __apply_invWtAW(self, x):
-    return solve(self.WtAW, x)
+    #
+    # Precompute a factorization in solve()
+    #
+    return scipy.linalg.solve(self.WtAW, x)
 
   def __cg(self, Error=False):
     self.it = 0
@@ -139,7 +155,7 @@ class solver:
   	    self.error_Anorm += [np.sqrt(err.dot(A.dot(err)))]
       rTr = r.dot(r)
       beta *= rTr
-      if (0 < self.it < self.ell): 
+      if (self.it < self.ell): 
         self.P[:,self.it] = p
       p = r+beta*p
       self.iterated_res_norm += [np.sqrt(rTr)]
@@ -175,7 +191,7 @@ class solver:
       z = self.__apply_invM(r)
       rTz = r.dot(z)
       beta *= rTz
-      if (0 < self.it < self.ell): 
+      if (self.it < self.ell): 
         self.P[:,self.it] = p
       p = z+beta*p
       self.iterated_res_norm += [np.sqrt(rTr)]
@@ -186,7 +202,7 @@ class solver:
 
   def __dcg(self, Error=False, Reortho=False):
     self.it = 0
-    self.x = np.copy(x0)
+    self.x = np.copy(self.x0)
     r = self.b-self.A.dot(self.x)
     if (Reortho):
       R = (self.W.dot(np.linalg.inv(self.W.T.dot(self.W)))).dot(self.W.T)
@@ -215,7 +231,7 @@ class solver:
       beta *= rTr
       hmu = self.__apply_invWtAW(self.AW.T.dot(r))
       if (self.it < self.ell):
-        self.P[:,it] = p
+        self.P[:,self.it] = p
       p = beta*p+r-self.W.dot(hmu)
       self.iterated_res_norm += [np.sqrt(rTr)]
       self.it += 1
@@ -225,7 +241,7 @@ class solver:
 
   def __dpcg(self, Error=False, Reortho=False):
     self.it = 0
-    self.x = np.copy(x0)
+    self.x = np.copy(self.x0)
     r = self.b-self.A.dot(self.x)
     if (Reortho):
       R = (self.W.dot(np.linalg.inv(self.W.T.dot(self.W)))).dot(self.W.T)

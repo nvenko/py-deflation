@@ -64,7 +64,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   A `solver` solves a linear system iteratively and potentially recycles some information about a Krylov subspace.
 
-  Signature : `solver`( `n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`, `W`=`None`)
+  Signature : `solver`( `n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`, `W`=`None`, `ell`=`0`)
 
   - `n` (`int`, `n`>`1`) : System size.
   - `solver_type` (`string`, {`"cg"`, `"pcg"`, `"dcg"`, `"dpcg"`}) : Type of iterative solver.
@@ -75,6 +75,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   - `eps` (`float`, `0`<`eps`<`1`) : Tolerance used for stopping criterion. Iterations are stopped if the norm `iterated_res_norm` of the iterated residual `r` is such that `iterated_res_norm`<`eps`*`bnorm` where `bnorm` denotes $\|b\|$.
   - `itmax` (`int`, `itmax`>`1`) : Maximum number of iterations.
   - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace used for `"dcg"` and `"dpcg"`.
+  - `ell` (`int`, `ell`>`0`) : Attempted dimension of the recycled Krylov subspace.
 
   Public parameters : *, *, *.
 
@@ -148,7 +149,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator whose eigenvectors are approximated to construct a deflation subspace to be used for a current linear system : 
     - `"previous"` : Previous (resp. last distinct) operator in the sequence.
     - `"current"` : Current operator.
-  - `approx` (`string`, {`"HR"`, `"RR"`}) : Projection methods used for the eigenvector approximation :
+  - `approx` (`string`, {`"HR"`, `"RR"`}) : Method used for the eigenvector approximation :
     - `"HR"` : Harmonic Ritz analysis---best suited to approximate least dominant LD eigenpairs.
     - `"RR"` : Rayleigh Ritz analysis---best suited to approximate most dominant MD eigenpairs.
 
@@ -271,7 +272,7 @@ Output :
 
 #### Example #3: example03_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with both constant and realization-dependent bJ#5 preconditioners. The constant preconditioner is built on the basis of the median operator while the realization-dependent preconditioners are redefined periodically every `dt`={`50`, `100`, `250`, `500`, `1000`} distinct realizations (i.e. discarding realizations corresponding to rejected proposals) on the basis of the current operator in the sequence.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by PCGMO for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with both constant and realization-dependent bJ#5 preconditioners. The constant preconditioner is built on the basis of the median operator while the realization-dependent preconditioners are redefined periodically every `dt`={`50`, `100`, `250`, `500`, `1000`} distinct realizations (i.e. discarding realizations corresponding to rejected proposals) on the basis of the current operator in the sequence.
 
 ```python
 from samplers import sampler
@@ -348,16 +349,48 @@ Output :
 
 #### Example #4: example04_recycler.py
 
-Solves using a block Jacobi (bJ) preconditioner.  
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$.
 
 ```python
 from samplers import sampler
 from solvers import solver
-import numpy as np
+from recyclers import recycler
 import pylab as pl
+import numpy as np
 
+nEl = 1000
+nsmp = 100
+sig2, L = .357, 0.05
+model = "Exp"
 
+mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L)
+mcmc.compute_KL()
 
+mcmc.draw_realization()
+mcmc.do_assembly()
+
+kl = 20
+dcg = solver(n=mcmc.n, solver_type="dcg")
+dcgmo = recycler(sampler=mcmc, solver=dcg, recycler_type="dcgmo", kl=kl)
+
+dcgmo_it, dcgmo_kdim, dcgmo_ell = [], [], []
+while (mcmc.cnt_accepted_proposals < nsmp):
+  mcmc.draw_realization()
+  if (mcmc.proposal_accepted):
+    dcgmo.do_assembly()
+    dcgmo.prepare()
+    dcgmo_kdim += [dcgmo.solver.kdim]
+    dcgmo_ell += [dcgmo.solver.ell]
+    dcgmo.solve()
+    dcgmo_it += [dcg.it]
+    print("%d/%d" %(mcmc.cnt_accepted_proposals, nsmp))
+
+fig, ax = pl.subplots(1, 2, figsize=(8.5,3.7))
+ax[0].plot(dcgmo_it, label="dcgmo")
+ax[1].plot(dcgmo_it, label="dcgmo")
+ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Realization index, t")
+ax[0].set_ylabel("Number of solver iterations, n_it")
+fig.suptitle("DCGMO")
 pl.show()
 ```
 

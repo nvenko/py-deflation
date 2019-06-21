@@ -59,6 +59,6 @@ ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Renewal period of pr
 ax[0].set_ylabel("Number of solver iterations, n_it")
 ax[1].set_ylabel("Average relative number of solver iterations")
 ax[0].legend(frameon=False, ncol=2)
-fig.suptitle("MCMC / PCGMO / Realization dep. vs median bJ preconditioner")
+fig.suptitle("MCMC sampled seq. solved by PCGMO w. realization dep. & constant bJ preconditioner")
 #pl.show()
 pl.savefig("example03_recycler.png", bbox_inches='tight')

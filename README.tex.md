@@ -58,7 +58,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _solvers.py_ :
 
-  A `solver` solves a linear system iteratively.
+  A `solver` solves a linear system iteratively and potentially recycles some information about a Krylov subspace.
 
   Signature : `solver`( `n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`, `W`=`None`)
 
@@ -68,13 +68,45 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
     - `pcg` : Preconditioned conjugate gradient.
     - `dcg` : Deflated conjugate gradient.
     - `pdcg` : Preconditioned deflated conjugate gradient.
-  - `eps` (`float`, `0`<`eps`<`1`) : Tolerance.
+  - `eps` (`float`, `0`<`eps`<`1`) : Tolerance used for stopping criterion. Iterations are stopped if the norm `iterated_res_norm` of the iterated residual `r` is such that `iterated_res_norm`<`eps`*`bnorm` where `bnorm` denotes $\|b\|$.
   - `itmax` (`int`, `itmax`>`1`) : Maximum number of iterations.
-  - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace.
+  - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace used for `"dcg"` and `"dpcg"`.
 
-  Public parameters : `set_precond`, `solve`.
+  Public parameters : *, *, *.
 
   Public methods : `set_precond`, `solve`.
+
+  Signature : `set_precond`(`self`, `Mat`=`None`, `precond_id`=`0`, `nb`=`2`, `application_type`=`1`)
+
+  - `Mat` ({`ndarray`, `sparse`}, `Mat.shape`=`(n, n)`) : Array used to define a preconditioner.
+
+  - `precond_id` (`int`, {`0,` `1`, `2`, `3`}) : Preconditioner ID: 
+
+    `0` : No preconditioner.
+
+    `1` : Preconditioner is `Mat`.
+
+    `2` : Precondiotioner is an algebraic multi-grid (AMG) solver of a system defined with `Mat`.
+
+    `3` : Preconditioner is Block Jacobi (bJ) based on `Mat` with `nb` (non-overlapping) blocks.
+
+  - `nb` (`int`, `0`<`nb`<`n`) : Number of blocks for the bJ preconditioner.
+
+  - `application_type` (`int`, {`0`, `1`, `2`}) : Way the inverse preconditioner is applied. Does not apply for `precond_id` =`2`.
+
+    `0` : Resolution of a linear system from scratch using numpy.linalg.solve each time the inverse preconditoner is applied.
+
+    `1` : A factorization is computed and stored when set_precond is called. Then, the factorization is used each time the inverse preconditoner is applied. If `Mat` is `ndarray`, the factorization used is *. If `Mat` is `sparse`, the factorization used is *.  
+
+    `2` : The array of the inverse preconditioner is explicitly computed and later applied at each application.
+
+  Signature : `solve`(`self`, `A`, `b`, `x0`, `ell`=`0,` `x_sol`=`None`)
+
+  - `A` ({`ndarray`, `sparse`}, `A.shape`=`(n, n)`) : Sampled operator of linear system to solve.
+  - `b` (`ndarray`, `b.shape`=`(n,)`) : Right hand side.
+  - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate.
+  - `ell` (`int`, `ell`>=`0`) : Dimension of recycled Krylov subspace.
+  - `x_sol` (`ndarray`, `x_sol.shape`=`(n,)`) : Exact solution used to compute A-norm errors.
 
 - _recyclers.py_ : 
 
@@ -90,65 +122,16 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   Signature : `recycler`(`sampler`, `solver`, `recycler_type`, `dt`=`0`, `t_end_def`=`0`, `kl`=`5`, `kl_strategy`=`0`, `dp_seq`=`"pd"`, `which_op`=`"previous"`, `approx`=`"HR"`)
 
-  - PCG for a sequence with multiple operators, `pcgmo` :
-
-    Signature : `pcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`, `dt`=`1`) 
-
-    - `precond_id` (`int`) : 
-
-      `0` : No preconditioner.
-
-      `1` : Median operator.
-
-      `2` : Algebraic multi-grid (AMG) based on median operator.
-
-      `3` : Block Jacobi (bJ) based on median operator with `nb` (non-overlapping) blocks.
-
-    - `nb` (`int`) : Number of blocks for the bJ preconditioner.
-
-    - `real_dep_precond` (`bool`) : If `True`, the preconditoner is redefined every `dt` realizations in the sampled sequence.
-
-    - `dt` (`int`) : Period.
-
-  - DCG for a sequence with multiple operators, `dcgmo` :
-
-    Signature : `dcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
-
-    - kdim_ell_strategy (int) : Strategy
-
-  - Dimension of recycled.
-
-    - `kdim_ell_strategy` (int, default value : `0`)
-
-      `0` : First strategy
-
-      `1` : Second strategy
-
-    - Current/previous
-
-    - Stop updating
-
-    - HR vs RR
-
-  - DPCG for a sequence with multiple operators, `dpcgmo` :
-
-    Signature : `dpcgmo`(`M`, `precond_id`=`0`, `nb`=`1`, `real_dep_precond`=`False`) 
-
-    - Sequence (PD: 1, DP: 2)
-
-      (1) PD is preconditioning after deflating
-
-      (2) DP is deflating after preconditioning
-
-    - Preconditioner ID
-
-    - (_k_, _ell_)-strategy
-
-    - Current/Previous
-
-    - HR vs RR
-
-    - Stop updating
+  - sampler (sampler) : *.
+  - solver (solver) : *.
+  - recycler_type (string, {pcgmo, dcgmo, dpcgmo}) : Type of recycling.
+  - dt (int, dt>=0) : Renewal period.
+  - t_end_def (int, t_end_def>=0) : Time.
+  - kl (int, kl>=0) : kdim+ell
+  - kl_strategy (int, {0, 1}) : Strategy.
+  - dp_seq (string, {"pd", "dp"}) : Sequence.
+  - which_op (string, {"previous", "current"}) : Operator used.
+  - approx (string, {"HR", "RR"}) : Approximation.
 
   Public parameters : a, b, c.
 

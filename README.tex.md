@@ -272,6 +272,7 @@ from samplers import sampler
 from solvers import solver
 from recyclers import recycler
 import pylab as pl
+import numpy as np
 
 nEl = 1000
 nsmp = 1999
@@ -285,57 +286,55 @@ mcmc.draw_realization()
 mcmc.do_assembly()
 
 nb = 5
+dt = [50, 100, 200, 500, 1000]
+pcg_dtbJ = []
+pcgmo_dtbJ = []
 
-pcg_dt1bJ  = solver(n=mcmc.n, solver_type="pcg")
-pcg_dt1bJ.set_precond(Mat=mcmc.A, precond_id=3, nb=nb)
-
-pcg_dt2bJ  = solver(n=mcmc.n, solver_type="pcg")
-pcg_dt2bJ.set_precond(Mat=mcmc.A, precond_id=3, nb=nb)
+for i, dt_i in enumerate(dt):
+  pcg_dtbJ += [solver(n=mcmc.n, solver_type="pcg")]
+  pcg_dtbJ[i].set_precond(Mat=mcmc.A, precond_id=3, nb=nb)
 
 pcg_medbJ  = solver(n=mcmc.n, solver_type="pcg")
 pcg_medbJ.set_precond(Mat=mcmc.get_median_A(), precond_id=3, nb=nb)
 
-dt1, dt2 = 200, 500
-pcgmo_dt1bJ = recycler(sampler=mcmc, solver=pcg_dt1bJ, recycler_type="pcgmo", dt=dt1)
-pcgmo_dt2bJ = recycler(sampler=mcmc, solver=pcg_dt2bJ, recycler_type="pcgmo", dt=dt2)
+for i, dt_i in enumerate(dt):
+  pcgmo_dtbJ += [recycler(sampler=mcmc, solver=pcg_dtbJ[i], recycler_type="pcgmo", dt=dt_i)]
 pcgmo_medbJ = recycler(sampler=mcmc, solver=pcg_medbJ, recycler_type="pcgmo")
 
-pcgmo_dt1bJ_it, pcgmo_dt2bJ_it, pcgmo_medbJ_it = [], [], []
+pcgmo_dtbJ_it, pcgmo_medbJ_it = [[] for i in range(len(dt))], []
 while (mcmc.cnt_accepted_proposals < nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):
-    pcgmo_dt1bJ.do_assembly()
-    pcgmo_dt1bJ.prepare()
-    pcgmo_dt1bJ.solve()
-
-    pcgmo_dt2bJ.do_assembly()
-    pcgmo_dt2bJ.prepare()
-    pcgmo_dt2bJ.solve()
+    for i, dt_i in enumerate(dt):
+      pcgmo_dtbJ[i].do_assembly()
+      pcgmo_dtbJ[i].prepare()
+      pcgmo_dtbJ[i].solve()
     
     pcgmo_medbJ.do_assembly()
     pcgmo_medbJ.prepare()
     pcgmo_medbJ.solve()
 
-    pcgmo_dt1bJ_it += [pcg_dt1bJ.it]
-    pcgmo_dt2bJ_it += [pcg_dt2bJ.it]
+    for i, dt_i in enumerate(dt):
+      pcgmo_dtbJ_it[i] += [pcg_dtbJ[i].it]
     pcgmo_medbJ_it += [pcg_medbJ.it]
 
-ax = pl.subplot()
-ax.plot(pcgmo_medbJ_it, label="med-bJ#%d" %(nb))
-ax.plot(pcgmo_dt1bJ_it, label="%d-bJ#%d" %(dt1,nb), lw=.4)
-ax.plot(pcgmo_dt2bJ_it, label="%d-bJ#%d" %(dt2,nb), lw=.4)
-ax.set_xlabel("Realization index, t")
-ax.set_ylabel("Number of solver iterations, n_it")
-pl.legend(frameon=False)
-ax.set_title("MCMC / PCGMO / Realization dep. vs median bJ preconditioner")
+fig, ax = pl.subplots(1, 2, figsize=(8.5,3.7))
+ax[0].plot(pcgmo_medbJ_it, label="med-bJ#%d" %(nb))
+for i, dt_i in enumerate(dt):
+  ax[0].plot(pcgmo_dtbJ_it[i], label="%d-bJ#%d" %(dt_i,nb), lw=.4)
+av_pcgmo_medbJ_it = np.mean(pcgmo_medbJ_it)
+ax[1].plot(dt, av_pcgmo_dtbJ_it, "k")
+ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Precond. renewal period, dt")
+ax[0].set_ylabel("Number of solver iterations, n_it")
+ax[1].set_ylabel("Average relative number of solver iterations")
+ax[0].legend(frameon=False, ncol=2)
+fig.suptitle("MCMC / PCGMO / Realization dep. vs median bJ preconditioner")
 pl.show()
 ```
 
 Output :
 
 ![example03_recycler](./example03_recycler.png)
-
-
 
 
 

@@ -137,16 +137,20 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
     - {`"mc"`, `"mcmc"`} - `"dcg"` - `"dcgmo"`.
     - {`"mc"`, `"mcmc"`} - `"dpcg"` - `"dpcgmo"`.
   - `dt` (`int`, `dt`>=`0`) : Renewal period of the preconditioner used for `"pcgmo"`.  If `dt`=`0`, there is no renewal, i.e. the preconditioner is constant throughout the sequence.
-  - `t_end_def` (`int`, `t_end_def`>=`0`) : Time.
-  - `kl` (`int`, `kl`>=`0`) : `kdim`+`ell`.
-  - `kl_strategy` (`int`, {`0`, `1`}) : Strategy.
+  - `t_end_def` (`int`, `t_end_def`>=`0`) : Number of realizations (resp. distinct realizations, for `sampler.type`=`"mcmc"`) beyond which the deflation subspace is not updated any more. For`t_end_def`=`0` , there is no interruption and a new deflation subspace is generated at each  (resp. distinct) realization.
+  - `kl` (`int`, `kl`>=`0`) : Upper bound on the sum of the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively.
+  - `kl_strategy` (`int`, {`0`, `1`}) : Specifies the strategy used to update the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively, at each (resp. distinct) realizations in the sampled sequence.
+    - `0` : `kdim`=`kl`/2, `ell`=`kl`-`kdim`.
+    - `1` : kdim increases while ell decreases.
   - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflating/preconditioning sequence for `"dpcgmo"` :
     - `"pd"` : Precondition after deflating.
     - `"dp"` : Deflate after preconditioning.
-  - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator used.
-  - `approx` (`string`, {`"HR"`, `"RR"`}) : Approximation.
-    - `"HR"` : Harmonic Ritz analysis.
-    - `"RR"` : Rayleigh Ritz analysis.
+  - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator used for the construction of the deflation subspace :
+    - `"previous"` : this.
+    - `"current"` : that.
+  - `approx` (`string`, {`"HR"`, `"RR"`}) : Projection methods used for eigenvector approximation used in to turn to generate the deflation subspace :
+    - `"HR"` : Harmonic Ritz analysis, best suited for least dominant LD eigenpairs.
+    - `"RR"` : Rayleigh Ritz analysis, best suited for the most dominant MD eigenpairs.
 
   Public parameters : *, *, *.
 
@@ -154,11 +158,15 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _post-recyclers.py_ :
 
-  A `post_recycler` is *.
+  A `post_recycler` post-recycles.
 
-  List of `post_recycler` available:
+  Signature : `recycler`(`recycler`)
 
-  - Plots results
+  - recycler (recycler)
+
+  Public parameters : *, *, *.
+
+  Public methods : *, *, *.
 
 
 ### Usage:
@@ -323,6 +331,7 @@ for i, dt_i in enumerate(dt):
 av_pcgmo_medbJ_it = np.mean(pcgmo_medbJ_it)
 av_pcgmo_dtbJ_it = np.array([np.mean(pcgmo_it)/av_pcgmo_medbJ_it for pcgmo_it in pcgmo_dtbJ_it])
 ax[1].plot(dt, av_pcgmo_dtbJ_it, "k")
+ax[1].grid()
 ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Renewal period of preconditioner, dt")
 ax[0].set_ylabel("Number of solver iterations, n_it")
 ax[1].set_ylabel("Average relative number of solver iterations")

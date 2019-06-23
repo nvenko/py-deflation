@@ -133,17 +133,17 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - `sampler` (`sampler`) 
   - `solver` (`solver`) 
-  - `recycler_type` (`string`, {`"pcgmo"`, `"dcgmo"`, `"dpcgmo"`}) : Type of recycling/preconditioning strategy used to solve the sampled sequence of linear systems. Needs to be compatible with `solver.type` and `sampler.type`. Valid combinations are : 
-    - `"mcmc"` - `"pcg"` - `"pcgmo"`.
-    - {`"mc"`, `"mcmc"`} - `"dcg"` - `"dcgmo"`.
-    - {`"mc"`, `"mcmc"`} - `"dpcg"` - `"dpcgmo"`.
+  - `recycler_type` (`string`, {`"pcgmo"`, `"dcgmo"`, `"dpcgmo"`}) : Type of recycling or preconditioning strategy used to solve the sampled sequence of linear systems. Needs to be compatible with `solver.type` and `sampler.type`. Valid combinations are : 
+    - `sampler.type`=`"mcmc"` ; `solver.type`=`"pcg"` ; `recycler-type`=`"pcgmo"`.
+    - `sampler.type`={`"mc"`, `"mcmc"`} ; `solver.type`= `"dcg"` ; `recycler-type`= `"dcgmo"`.
+    - `sampler.type`={`"mc"`, `"mcmc"`} ; `solver.type`= `"dpcg"` ; `recycler-type`= `"dpcgmo"`.
   - `dt` (`int`, `dt`>=`0`) : Renewal period of the preconditioner used for `"pcgmo"`.  If `dt`=`0`, there is no renewal, i.e. the preconditioner is constant throughout the sequence.
-  - `t_end_def` (`int`, `t_end_def`>=`0`) : Number of realizations (resp. distinct realizations, for `sampler.type`=`"mcmc"`) beyond which the deflation subspace is not updated any more. For`t_end_def`=`0` , there is no interruption and a new deflation subspace is generated at each  (resp. distinct) realization.
+  - `t_end_def` (`int`, `t_end_def`>=`0`) : Number of realizations (resp. distinct realizations for `sampler.type`=`"mcmc"`) beyond which the deflation subspace is not updated any more. For`t_end_def`=`0` , there is no interruption and a new deflation subspace is generated at each  (resp. distinct) realization.
   - `kl` (`int`, `kl`>=`0`) : Upper bound on the sum of the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively.
-  - `kl_strategy` (`int`, {`0`, `1`}) : Specifies the strategy used to update the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively, at each (resp. distinct) realizations in the sampled sequence.
+  - `kl_strategy` (`int`, {`0`, `1`}) : Strategy used to update the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively, at each (resp. distinct) realizations in the sampled sequence.
     - `0` : `kdim`=`kl`/2, `ell`=`kl`-`kdim`.
     - `1` : kdim increases while ell decreases.
-  - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflation/preconditioning sequence for `"dpcgmo"` :
+  - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflation-preconditioning sequence for `"dpcgmo"` :
     - `"pd"` : Precondition after deflating.
     - `"dp"` : Deflate after preconditioning.
   - `which_op` (`string`, {`"previous"`, `"current"`}) : Operator whose eigenvectors are approximated to construct a deflation subspace to be used for a current linear system : 

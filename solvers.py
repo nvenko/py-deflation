@@ -100,6 +100,12 @@ class solver:
       else:
         self.AW = self.A.dot(self.W)
         self.WtAW = self.W.T.dot(self.AW)
+        # HERE, compute factorization of WtAW
+        r0 = self.b-self.A.dot(x0)
+        # HERE, compute new initial iterate, orthogonal to deflation subspace
+        self.x0 += self.W.dot(scipy.linalg.solve(self.WtAW, self.W.T.dot(r0)))
+
+
         self.__dcg(Error=Error)
     elif (self.type == "dpcg"):
       if (type(self.W) == type(None)):

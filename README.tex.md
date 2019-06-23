@@ -384,7 +384,7 @@ while (mcmc.cnt_accepted_proposals < nsmp):
     dcgmo.solve()
     dcgmo_it += [dcg.it]
     print("%d/%d" %(mcmc.cnt_accepted_proposals, nsmp))
-
+    
 fig, ax = pl.subplots(1, 2, figsize=(8.5,3.7))
 ax[0].plot(dcgmo_it, label="dcgmo")
 ax[1].plot(dcgmo_it, label="dcgmo")

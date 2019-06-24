@@ -5,7 +5,7 @@ import pylab as pl
 import numpy as np
 
 nEl = 1000
-nsmp = 50
+nsmp = 100
 sig2, L = .357, 0.05
 model = "Exp"
 

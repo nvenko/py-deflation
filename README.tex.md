@@ -516,7 +516,7 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. 
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. Show effect of stopping the update of the deflation subspace.
 
 ```python
 from samplers import sampler
@@ -536,3 +536,24 @@ Output :
 
 ![example05_recycler](./example05_recycler.png)
 
+#### Example #6: example06_recycler.py
+
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. Show the effect of `seq_dp`.
+
+```python
+from samplers import sampler
+from solvers import solver
+from recyclers import recycler
+import pylab as pl
+import numpy as np
+
+nEl = 1000
+nsmp = 50
+sig2, L = .357, 0.05
+model = "Exp"
+
+```
+
+Output :
+
+![example06_recycler](./example06_recycler.png)

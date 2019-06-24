@@ -516,7 +516,7 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. 
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. 
 
 ```python
 from samplers import sampler

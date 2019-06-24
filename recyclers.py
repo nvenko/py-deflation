@@ -78,9 +78,11 @@ class recycler:
     elif (self.approx == "RR"):
       _, eigvecs = scipy.linalg.eigh(G, F, eigvals=(self.solver.kdim+self.solver.ell-new_kdim, self.solver.kdim+self.solver.ell-1))
     
-    if (self.solver.kdim > 0):
+    if (self.solver.kdim > 0) & (self.solver.ell >0):
       self.solver.W = self.solver.W.dot(eigvecs[:self.solver.kdim,:]) \
                       + self.solver.P.dot(eigvecs[self.solver.kdim:,:])
+    elif (self.solver.kdim > 0):
+      self.solver.W = self.solver.W.dot(eigvecs[:self.solver.kdim,:])
     else:
       self.solver.W = self.solver.P.dot(eigvecs)
 
@@ -109,7 +111,6 @@ class recycler:
         if (self.solver.kdim > 0):
           F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
           if (self.solver.ell > 0):
-            F[self.solver.kdim:,self.solver.kdim:] = self.solver.W.T.dot(AP)
             if (self.which_op == "current"):
               F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
               F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T

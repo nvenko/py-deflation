@@ -106,10 +106,8 @@ ax[0,3].set_title("MCMC / kl_strategy #2")
 ax[0,3].plot(cgmo_it["mcmc"], label="cgmo")
 ax[0,3].plot(dcgmo_it[("mcmc", "previous", 1)], "-+", label="dcgmo-prev")
 ax[0,3].plot(dcgmo_it[("mcmc", "current", 1)], label="dcgmo-curr")
-for j in range(4):
-  ax[0,j].grid()
 # Second row
-ax[1,0].set_xlabel("(kdim,ell)")
+ax[1,0].set_ylabel("kdim, ell")
 ax[1,0].plot(dcgmo_kdim[("mc", "previous", 0)], label="kdim")
 ax[1,0].plot(dcgmo_ell[("mc", "previous", 0)], label="ell")
 ax[1,1].plot(dcgmo_kdim[("mc", "previous", 1)], label="kdim")
@@ -118,9 +116,13 @@ ax[1,2].plot(dcgmo_kdim[("mcmc", "previous", 0)], label="kdim")
 ax[1,2].plot(dcgmo_ell[("mcmc", "previous", 0)], label="ell")
 ax[1,3].plot(dcgmo_kdim[("mcmc", "previous", 1)], label="kdim")
 ax[1,3].plot(dcgmo_ell[("mcmc", "previous", 1)], label="ell")
+ax[1,0].yaxis.set_ticks(np.linspace(0, kl, kl/2+1, dtype=int)); ax[1,0].set_ylim(-1, kl+1)
 for i in range(2):
   for j in range(4):
     ax[i,j].legend(frameon=False, ncol=2)
+for j in range(4):
+  ax[0,j].grid()
+  ax[1,j].set_xlabel("Realization index, t")
 fig.suptitle("DCGMO")
 #pl.show()
 pl.savefig("example04_recycler.png", bbox_inches='tight')

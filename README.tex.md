@@ -16,7 +16,9 @@ _TeX expressions rendered by [TeXify](https://github.com/apps/texify)._
 
 ### Files' content:
 
-List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
+Files: _samplers.py_, _samplers_etc.py_, _solvers.py_, _solvers_etc.py_, _recyclers.py_, _post_recyclers.py_.
+
+Classes: `sampler`, `solver`, `recycler`.
 
 - _samplers.py_ : 
 
@@ -284,7 +286,7 @@ pl.show()
 
 Output :
 
-![example01_sampler](./example02_solver.png)
+![example02_solver](./example02_solver.png)
 
 
 
@@ -501,5 +503,29 @@ pl.show()
 
 Output :
 
-![example01_sampler](./example04_recycler.png)
+![example04_recycler](./example04_recycler.png)
+
+
+
+#### Example #5: example05_recycler.py
+
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. 
+
+```python
+from samplers import sampler
+from solvers import solver
+from recyclers import recycler
+import pylab as pl
+import numpy as np
+
+nEl = 1000
+nsmp = 50
+sig2, L = .357, 0.05
+model = "Exp"
+
+```
+
+Output :
+
+![example05_recycler](./example05_recycler.png)
 

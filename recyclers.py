@@ -193,9 +193,10 @@ class recycler:
         elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals < self.t_end_def):
           self.update_W()
     
-    self.solver.A = self.sampler.A
+    self.solver.presolve(A=self.sampler.A, b=self.sampler.b, ell=self.solver.ell)
 
-  def solve(self):
-    x0 = np.zeros(self.sampler.n)
-    self.solver.solve(self.sampler.A, self.sampler.b, x0, ell=self.solver.ell)
+  def solve(self, x0=None):
+    if (type(x0) == type(None)):
+      x0 = np.zeros(self.sampler.n)
+    self.solver.solve(x0=x0)
     # self.solver.ell was updated here

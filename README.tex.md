@@ -20,9 +20,9 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _samplers.py_ : 
 
-  A `sampler` assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ and $u(x_a)=0$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion later sampled either by Monte Carlo (MC) or by Markov chain Monte Carlo (MCMC).
-
   Signature : `sampler`(`nEL`=`500`,`smp_type`=`"mc"`, `model`=`"SExp"`, `sig2`=`1`, `mu`=`0`, `L`=`0.1`, `vsig2`=`None`,`delta2`=`1e-3`, `seed`=`123456789`, `verb`=`1`, `xa`=`0`, `xb`=`1`, `u_xb`=`None`, `du_xb`=`0`)
+
+  Assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for the stochastic system $\mathbf{A}(\theta)\mathbf{u}(\theta)=\mathbf{b}$ of a P0-FE discretization of the SDE $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ and $u(x_a)=0$. The stationary lognormal coefficient field $\kappa(x;\theta)$ is represented by a truncated Karhunen-Loève (KL) expansion later sampled either by Monte Carlo (MC) or by Markov chain Monte Carlo (MCMC).
 
   - `nEl` (`int`, `nEl`>`0`) : Number of elements.
 
@@ -62,9 +62,9 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
 - _solvers.py_ :
 
-  A `solver` solves a linear system iteratively and potentially recycles some information about a Krylov subspace.
-
   Signature : `solver`( `n`, `solver_type`, `eps`=`1e-7`, `itmax`=`2000`, `W`=`None`, `ell`=`0`)
+
+  Solves a linear system iteratively and potentially recycles some information about a Krylov subspace.
 
   - `n` (`int`, `n`>`1`) : System size.
   - `solver_type` (`string`, {`"cg"`, `"pcg"`, `"dcg"`, `"dpcg"`}) : Type of iterative solver.
@@ -75,11 +75,11 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   - `eps` (`float`, `0`<`eps`<`1`) : Tolerance used for stopping criterion. Iterations are stopped if the norm `iterated_res_norm` of the iterated residual `r` is such that `iterated_res_norm`<`eps`*`bnorm` where `bnorm` denotes $\|b\|$.
   - `itmax` (`int`, `itmax`>`1`) : Maximum number of iterations.
   - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace used for `"dcg"` and `"dpcg"`.
-  - `ell` (`int`, `ell`>`0`) : Attempted dimension of the recycled Krylov subspace.
+  - `ell` (`int`, `ell`>`0`) : Attempted dimension of the Krylov subspace to recycle.
 
   Public parameters : *, *, *.
 
-  Public methods : `set_precond`, `solve`.
+  Public methods : `set_precond`, `presolve`, `solve`.
 
   Signature : `set_precond`(`self`, `Mat`, `precond_id`, `nb`=`2`, `application_type`=`1`)
 
@@ -109,27 +109,30 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
     `2` : The array of the inverse preconditioner is explicitly computed when `set_precond` is called. The computed inverse is later applied as a matrix-vector product at each application.
 
-  Signature : `solve`(`self`, `A`, `b`, `x0`, `ell`=`0,` `x_sol`=`None`)
+  Signature : `presolve`(`self`, `A`, `b`, `ell`=`0`)
+
+  If `self.type`={`"dcg"`, `"dpcg"`} : Computes $AW$ and computes/factorizes $W^TAW$.
 
   - `A` ({`ndarray`, `sparse`}, `A.shape`=`(n, n)`) : Sampled operator of linear system to solve.
   - `b` (`ndarray`, `b.shape`=`(n,)`) : Right hand side.
+  - `ell` (`int`, `ell`>=`0`) : Dimension of Krylov subspace to recycle.
+
+  Signature : `solve`(`self`, `x0`, `x_sol`=`None`)
+
   - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate.
-  - `ell` (`int`, `ell`>=`0`) : Dimension of recycled Krylov subspace.
   - `x_sol` (`ndarray`, `x_sol.shape`=`(n,)`) : Exact solution used to compute A-norm errors.
 
 - _recyclers.py_ : 
 
-  A `recycler` interfaces a `sampler` with a `solver` in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with a sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or deflation of Krylov subspaces. 
+  Signature : `recycler`(`sampler`, `solver`, `recycler_type`, `dt`=`0`, `t_end_def`=`0`, `kl`=`5`, `kl_strategy`=`0`, `dp_seq`=`"pd"`, `which_op`=`"previous"`, `approx`=`"HR"`)
+
+  Interfaces a `sampler` with a `solver` in order to solve a sequence of linear systems $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  associated with a sequence of sampled operators $\{\mathbf{A}(\theta_t)\}_{t=1}^M$. The recyclers implemented make use of preconditioners and/or deflation of Krylov subspaces. 
 
   The available sequences of preconditioners $\{\mathbf{M}(\theta_t)\}_{t=1}^M$ are either: (1) constant, i.e.  $\mathbf{M}(\theta_t)=\mathbf{M}(\hat{\mathbf{A}})$ for all $t$, where $\hat{\mathbf{A}}$ denotes the median operator, or (2) realization-dependent and redefined periodically throughout the sampled sequence, i.e. $\mathbf{M}(\theta_t):=\mathbf{M}(\theta_{t_j})$ for all $t_j\leq t<t_{j+1}$ with $t_j:=1+j\Delta t$ and $0\leq j<M/\Delta t$ for some period $\Delta t$.  All the preconditioners available are SPD so that for each $\mathbf{M}(\theta_t)$, there exists $\mathbf{L}(\theta_t)$ such that $\mathbf{M}(\theta_t)=\mathbf{L}(\theta_{t})\mathbf{L}(\theta_{t})^{T}$.
 
   Deflation is performed either: (1) throughout the sequence, or (2) for all $t\leq t_{stop}$ for some $t_{stop}\leq M$. The Krylov subspace $\mathcal{K}^{(t)}$ associated with the iterative resolution of $\mathbf{A}(\theta_t)\mathbf{u}(\theta_t)=\mathbf{b}$  is deflated by a subspace $\mathcal{W}(\theta_t):=\mathcal{R}(\mathbf{W}(\theta_t))$ spanned by $\mathbf{W}(\theta_t):=[\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_t)]$. $\{\mathbf{w}_k(\theta_t)\}_{j=1}^k$ are approximate eigenvectors of either $\mathbf{A}(\theta_{t-1})$, $\mathbf{A}(\theta_t)$, $\mathbf{M}^{-1}(\theta_{t-1})\mathbf{A}(\theta_{t-1})$ or $\mathbf{M}^{-1}(\theta_{t})\mathbf{A}(\theta_{t})$ depending on the deflation strategy adopted and whether a preconditioner is used or not.
 
   The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_t)$ are obtained by (1) Harmonic Ritz, and/or (2) Rayleigh Ritz analysis over an approximation subspace $\mathcal{R}([\mathbf{W}(\theta_{t-1}),\mathbf{P}(\theta_{t-1})])$ spanned by a (recycled) basis $\mathbf{P}(\theta_{t-1})\in\mathbb{R}^{n\times\ell}$ of the Krylov subspace $\mathcal{K}^{(t-1)}_{\ell}\subseteq\mathcal{K}^{(t-1)}$, and the basis $\mathbf{W}(\theta_{t-1})\in\mathbb{R}^{n\times k}$ of a deflation subspace $\mathcal{W}^{(t-1)}\perp\mathcal{K}^{(t-1)}$. The dimensions $k$ and $\ell$ are respectively denoted by `kdim` and `ell` throughout the code.
-
-  A `recycler` recycles.
-
-  Signature : `recycler`(`sampler`, `solver`, `recycler_type`, `dt`=`0`, `t_end_def`=`0`, `kl`=`5`, `kl_strategy`=`0`, `dp_seq`=`"pd"`, `which_op`=`"previous"`, `approx`=`"HR"`)
 
   - `sampler` (`sampler`) 
   - `solver` (`solver`) 
@@ -155,7 +158,23 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   Public parameters : *, *, *.
 
-  Public methods : `do_assembly`, `prepare`, `solve`.
+  Public methods :
+
+  Signature `do_assembly`(`self`)
+
+  Assembles current operator $A$ from sampled realization.
+
+  Signature `prepare `(`self`)
+
+  If `self.type`=`"pcgmo"` : Updates preconditioner and computes new factorization.
+
+  If `self.type`={`"dcgmo"`, `"dpcgmo"`} : Updates deflation subspace, computes $AW$, and computes/factorizes $W^TAW$.
+
+  Signature : `solve`(`self`, `x0`)
+
+  Solves the current system in the the sequence.
+
+  - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate, later projected onto the orthogonal complement of $\mathcal{R}(W)$ if `self.type`={`"dcgmo"`, `"dpcgmo"`}.
 
 - _post-recyclers.py_ :
 
@@ -241,7 +260,8 @@ fig, ax = pl.subplots(2, 3, figsize=(13,8.))
 for i_smp in range(nsmp):
   mc.draw_realization()
   mc.do_assembly()
-  pcg.solve(A=mc.A, b=mc.b, x0=np.zeros(mc.n))
+  pcg.presolve(A=mc.A, b=mc.b)
+  pcg.solve(x0=np.zeros(mc.n))
   ax[0,0].plot(mc.get_kappa(), lw=.1)
   ax[0,1].plot(pcg.x, lw=.2)
   ax[0,2].semilogy(pcg.iterated_res_norm/pcg.bnorm, lw=.3)  
@@ -254,13 +274,13 @@ while (mcmc.cnt_accepted_proposals < nsmp):
   mcmc.draw_realization()
   mcmc.do_assembly()
   if (mcmc.proposal_accepted):
-    pcg.solve(A=mcmc.A, b=mcmc.b, x0=np.zeros(mcmc.n))
+    pcg.presolve(A=mcmc.A, b=mcmc.b)
+    pcg.solve(x0=np.zeros(mcmc.n))
     ax[1,0].plot(mcmc.get_kappa(), lw=.1)
     ax[1,1].plot(pcg.x, lw=.2)
     ax[1,2].semilogy(pcg.iterated_res_norm/pcg.bnorm, lw=.3)  
 ax[1,0].set_xlabel("x"); ax[1,1].set_xlabel("x"); ax[1,2].set_xlabel("Solver iteration, j")
 ax[1,0].set_ylabel("MCMC sampler")
-
 pl.show()
 ```
 
@@ -359,7 +379,7 @@ import pylab as pl
 import numpy as np
 
 nEl = 1000
-nsmp = 100
+nsmp = 300
 sig2, L = .357, 0.05
 model = "Exp"
 
@@ -370,9 +390,13 @@ mcmc.draw_realization()
 mcmc.do_assembly()
 
 kl = 20
+
+cg = solver(n=mcmc.n, solver_type="cg")
 dcg = solver(n=mcmc.n, solver_type="dcg")
+
 dcgmo = recycler(sampler=mcmc, solver=dcg, recycler_type="dcgmo", kl=kl)
 
+cgmo_it = []
 dcgmo_it, dcgmo_kdim, dcgmo_ell = [], [], []
 while (mcmc.cnt_accepted_proposals < nsmp):
   mcmc.draw_realization()
@@ -383,14 +407,22 @@ while (mcmc.cnt_accepted_proposals < nsmp):
     dcgmo_ell += [dcgmo.solver.ell]
     dcgmo.solve()
     dcgmo_it += [dcg.it]
+
+    cg.presolve(A=mcmc.A, b=mcmc.b)
+    cg.solve(x0=np.zeros(mcmc.n))
+    cgmo_it += [cg.it]
+
     print("%d/%d" %(mcmc.cnt_accepted_proposals, nsmp))
-    
+
 fig, ax = pl.subplots(1, 2, figsize=(8.5,3.7))
 ax[0].plot(dcgmo_it, label="dcgmo")
+ax[0].plot(cgmo_it, label="cgmo")
 ax[1].plot(dcgmo_it, label="dcgmo")
+ax[1].plot(cgmo_it, label="cgmo")
 ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Realization index, t")
 ax[0].set_ylabel("Number of solver iterations, n_it")
 fig.suptitle("DCGMO")
+ax[0].legend(frameon=False)
 pl.show()
 ```
 

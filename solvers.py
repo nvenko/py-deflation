@@ -13,7 +13,7 @@ class solver:
       Public methods:
         set_precond, solve.
   """
-  def __init__(self, n, solver_type, eps=1e-7, itmax=2000, W=None, ell=0):
+  def __init__(self, n, solver_type, eps=1e-7, itmax=4000, W=None, ell=0):
     self.n = n
     self.type = solver_type
     self.eps = eps
@@ -31,6 +31,34 @@ class solver:
         self.kdim = 0
       self.AW = None
       self.WtAW = None
+
+  def solve(self, x0, x_sol=None):
+    self.x0 = x0
+    self.x = None
+    if (type(x_sol) == type(None)):
+      Error = False
+    else:
+      self.x_sol = x_sol
+      self.error_Anorm = None
+      Error = True
+    if (self.type == "cg"):
+      self.__cg(Error=Error)
+    elif (self.type == "pcg"):
+      self.__pcg(Error=Error)
+    elif (self.type == "dcg"):
+      if (type(self.W) == type(None)):
+        self.__cg(Error=Error)
+      else:
+        r0 = self.b-self.A.dot(x0)
+        self.x0 += self.W.dot(self.__apply_invWtAW(self.W.T.dot(r0)))
+        self.__dcg(Error=Error)
+    elif (self.type == "dpcg"):
+      if (type(self.W) == type(None)):
+        self.__pcg(Error=Error)
+      else:
+        r0 = self.b-self.A.dot(x0)
+        self.x0 += self.W.dot(self.__apply_invWtAW(self.W.T.dot(r0)))
+        self.__dpcg(Error=Error)
 
   def set_precond(self, Mat=None, precond_id=0, nb=2, application_type=1):
     self.precond_id = precond_id
@@ -73,47 +101,29 @@ class solver:
       else:
         print('Warning: Invalid application_type.')
 
-  def solve(self, A, b, x0, ell=0, x_sol=None):
+  def presolve(self, A, b, ell=0):
     self.A = A
     self.b = b
     self.bnorm = np.linalg.norm(self.b)
-    self.x0 = x0
-    self.x = None
     self.iterated_res_norm = None
     self.it = 0
     self.ell = int(ell)
     if (self.ell > 0):
       self.P = np.zeros((self.n,self.ell))
-    if (type(x_sol) == type(None)):
-      Error = False
-    else:
-      self.x_sol = x_sol
-      self.error_Anorm = None
-      Error = True
-    if (self.type == "cg"):
-      self.__cg(Error=Error)
-    elif (self.type == "pcg"):
-      self.__pcg(Error=Error)
-    elif (self.type == "dcg"):
-      if (type(self.W) == type(None)):
-        self.__cg(Error=Error)
-      else:
+    if (self.type == "dcg"):
+      if (type(self.W) != type(None)):
         self.AW = self.A.dot(self.W)
         self.WtAW = self.W.T.dot(self.AW)
-        # HERE, compute factorization of WtAW
-        r0 = self.b-self.A.dot(x0)
-        # HERE, compute new initial iterate, orthogonal to deflation subspace
-        self.x0 += self.W.dot(scipy.linalg.solve(self.WtAW, self.W.T.dot(r0)))
-
-
-        self.__dcg(Error=Error)
+        self.__set_factorization_WtAW()
     elif (self.type == "dpcg"):
-      if (type(self.W) == type(None)):
-        self.__pcg(Error=Error)
-      else:
+      if (type(self.W) != type(None)):
         self.AW = self.A.dot(self.W)
         self.WtAW = self.W.T.dot(self.AW)
-        self.__dpcg(Error=Error)
+        self.__set_factorization_WtAW()
+
+  def __set_factorization_WtAW(self):
+    self.WtAW_chol = scipy.linalg.cho_factor(self.WtAW)
+    # Application: scipy.linalg.cho_solve(self.WtAW_chol, x)
 
   def __apply_invM(self, x):
     if (self.precond_id == 2):
@@ -133,10 +143,8 @@ class solver:
         return self.inv_M.dot(x)
 
   def __apply_invWtAW(self, x):
-    #
-    # Precompute a factorization in solve()
-    #
-    return scipy.linalg.solve(self.WtAW, x)
+    return scipy.linalg.cho_solve(self.WtAW_chol, x)
+    #return scipy.linalg.solve(self.WtAW, x)
 
   def __cg(self, Error=False):
     self.it = 0

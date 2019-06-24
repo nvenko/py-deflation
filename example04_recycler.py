@@ -5,11 +5,11 @@ import pylab as pl
 import numpy as np
 
 nEl = 1000
-nsmp = 100
+nsmp = 300
 sig2, L = .357, 0.05
 model = "Exp"
 
-mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L, seed=123)
+mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L)
 mcmc.compute_KL()
 
 mcmc.draw_realization()
@@ -34,7 +34,8 @@ while (mcmc.cnt_accepted_proposals < nsmp):
     dcgmo.solve()
     dcgmo_it += [dcg.it]
 
-    cg.solve(A=mcmc.A, b=mcmc.b, x0=np.zeros(mcmc.n))
+    cg.presolve(A=mcmc.A, b=mcmc.b)
+    cg.solve(x0=np.zeros(mcmc.n))
     cgmo_it += [cg.it]
 
     print("%d/%d" %(mcmc.cnt_accepted_proposals, nsmp))

@@ -4,8 +4,11 @@ import numpy as np
 import scipy
 
 class recycler:
-  """ Recycles. """
+  """ Recycles. 
 
+      Public methods:
+        do_assembly, prepare, solve.
+  """
   def __init__(self, sampler, solver, recycler_type, dt=0, t_end_def=0,
   	       kl=5, kl_strategy=0, dp_seq="pd", which_op="previous", approx="HR"):
     self.sampler = sampler
@@ -69,7 +72,7 @@ class recycler:
         self.sampler.do_assembly()
         self.solver.A = self.sampler.A
 
-  def approx_eigvecs(self, G, F, new_kdim):
+  def __approx_eigvecs(self, G, F, new_kdim):
     if (self.approx == "HR"):
       _, eigvecs = scipy.linalg.eigh(G, F, eigvals=(0, new_kdim-1))
     elif (self.approx == "RR"):
@@ -81,7 +84,7 @@ class recycler:
     else:
       self.solver.W = self.solver.P.dot(eigvecs)
 
-  def update_W(self):
+  def __update_W(self):
     G = np.zeros((self.solver.kdim+self.solver.ell,self.solver.kdim+self.solver.ell))
     F = np.copy(G)
 
@@ -134,11 +137,11 @@ class recycler:
         G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(AP)
 
       # Solve approximate eigenvalue problem
-      new_kdim = self.get_new_kdim()
+      new_kdim = self.__get_new_kdim()
       if (self.solver.kdim+self.solver.ell > 0):
-        self.approx_eigvecs(G, F, new_kdim)
+        self.__approx_eigvecs(G, F, new_kdim)
         self.solver.kdim = self.solver.W.shape[1]
-      self.set_attempted_ell()
+      self.__set_attempted_ell()
 
     elif (self.type == "dpcgmo"):
       if (self.which_op == "previous"):
@@ -156,10 +159,10 @@ class recycler:
           self.G = None
           self.F = None
       self.set_kdim()
-      self.approx_eigvecs(G, F)
-      self.set_attempted_ell()
+      self.__approx_eigvecs(G, F)
+      self.__set_attempted_ell()
 
-  def get_new_kdim(self):
+  def __get_new_kdim(self):
     if (self.solver.kdim == 0) & (self.solver.ell == 0):
       new_kdim = 0
     else:
@@ -167,7 +170,7 @@ class recycler:
         new_kdim = min(self.kl/2, self.solver.kdim+self.solver.ell)
     return new_kdim
 
-  def set_attempted_ell(self):
+  def __set_attempted_ell(self):
     if (self.sampler.reals == 1):
       self.solver.ell = self.kl
     else:
@@ -186,12 +189,12 @@ class recycler:
 
     elif (self.type == "dcgmo") | (self.type == "dpcgmo"):
       if not (self.t_end_def):
-        self.update_W()
+        self.__update_W()
       else:
         if (self.sampler.type == "mc") & (self.sampler.reals < self.t_end_def):
-          self.update_W()
+          self.__update_W()
         elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals < self.t_end_def):
-          self.update_W()
+          self.__update_W()
     
     self.solver.presolve(A=self.sampler.A, b=self.sampler.b, ell=self.solver.ell)
 

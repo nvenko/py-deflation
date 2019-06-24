@@ -56,7 +56,6 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   - `u_xb`, `du_xb` (`float`) : $u(x_b)$ and $\partial_xu(x_b)$. `u_xb` must be `None` if `du_xb`!=`None`. `du_xb` must be `None` if `u_xb`!=`None`.
 
-  Public parameters : *, *, *.
 
   Public methods : *, *.
 
@@ -77,7 +76,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace used for `"dcg"` and `"dpcg"`.
   - `ell` (`int`, `ell`>`0`) : Attempted dimension of the Krylov subspace to recycle.
 
-  Public parameters : *, *, *.
+
 
   Public methods : `set_precond`, `presolve`, `solve`.
 
@@ -120,6 +119,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
   Signature : `solve`(`self`, `x0`, `x_sol`=`None`)
 
   - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate.
+
   - `x_sol` (`ndarray`, `x_sol.shape`=`(n,)`) : Exact solution used to compute A-norm errors.
 
 - _recyclers.py_ : 
@@ -156,9 +156,9 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
     - `"HR"` : Harmonic Ritz analysis---best suited to approximate least dominant LD eigenpairs.
     - `"RR"` : Rayleigh Ritz analysis---best suited to approximate most dominant MD eigenpairs.
 
-  Public parameters : *, *, *.
 
-  Public methods :
+
+  Public methods : `do_assembly`, `prepare`, `solve`.
 
   Signature `do_assembly`(`self`)
 
@@ -174,7 +174,7 @@ List of files: _samplers.py_, _solvers.py_, _recyclers.py_, _post_recyclers.py_
 
   Solves the current system in the the sequence.
 
-  - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate, later projected onto the orthogonal complement of $\mathcal{R}(W)$ if `self.type`={`"dcgmo"`, `"dpcgmo"`}.
+  - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate, later projected onto the orthogonal complement of the deflation subspace if `self.type`={`"dcgmo"`, `"dpcgmo"`}.
 
 - _post-recyclers.py_ :
 

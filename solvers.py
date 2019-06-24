@@ -7,11 +7,8 @@ from pyamg.aggregation import smoothed_aggregation_solver
 class solver:
   """ Solves a linear system iteratively. 
 
-      Public parameters:
-        n, type, ...
-
       Public methods:
-        set_precond, solve.
+        set_precond, presolve, solve.
   """
   def __init__(self, n, solver_type, eps=1e-7, itmax=4000, W=None, ell=0):
     self.n = n

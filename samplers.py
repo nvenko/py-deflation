@@ -14,9 +14,8 @@ class sampler:
       Parameters:
         nEl, type, model, sig2, mu, L, delta2, ...
 
-      Methods:
-         eval_cov, compute_KL, draw_realization, do_assembly, set_b, get_kappa, get_median_A.
-
+      Public methods:
+        eval_cov, compute_KL, draw_realization, do_assembly, set_b, get_kappa, get_median_A.
       """
 
   data_path = './'

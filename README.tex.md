@@ -376,7 +376,7 @@ Output :
 
 #### Example #4: example04_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. 
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. The effects of `kl_strategy` and `which_op` are investigated on the number of solver iterations.
 
 ```python
 from samplers import sampler
@@ -516,7 +516,7 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. Show effect of stopping the update of the deflation subspace.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for a sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Show effect of stopping the update of the deflation subspace.
 
 ```python
 from samplers import sampler
@@ -538,7 +538,7 @@ Output :
 
 #### Example #6: example06_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for a sampled sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$. Show the effect of `seq_dp`.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, a constant bJ preconditioner is used based on the median operator. The effect of `dp_seq` is investigated on the number of solver iterations.
 
 ```python
 from samplers import sampler

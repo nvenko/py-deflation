@@ -100,7 +100,7 @@ Classes: `sampler`, `solver`, `recycler`.
 
     `0` : Resolution of a linear system from scratch using an appropriate solver each time the inverse preconditoner is applied. Apply inverse preconditioner to `x` as follows:
 
-    - `Mat` is `ndarray` : `scipy.sparse.linalg.spsolve`(`M`, `x`).
+    - `Mat` is `ndarray` : `scipy.linalg.solve`(`M`, `x`).
     - `Mat` is `sparse` : `scipy.sparse.linalg.spsolve`(`M`, `x`).
 
     `1` : An appropriate  factorization is computed and stored when `set_precond` is called. Then, the factorization is used each time the inverse preconditoner is applied.

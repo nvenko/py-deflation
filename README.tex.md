@@ -188,8 +188,15 @@ Classes: `sampler`, `solver`, `recycler`.
 
   Public methods : *.
 
-
 ### Usage:
+
+Examples:
+
+- _example01_sampler.py_ : Shows how to use the `sampler` class to sample by MC and MCMC.
+- _example02_solver.py_ : Shows how to use the `solver` class to solve MC and MCMC sampled sequences of systems by PCG.
+- _example03_recycler.py_ : Shows how to use the `recycler` class to solve a MCMC sampled sequences of systems by PCGMO using constant and realization-dependent preconditioners. 
+- _example04_recycler.py_ : Shows the effect of `kl_strategy` and `which_op` on DCGMO results for sequences of systems sampled by MC, and by MCMC.
+- _example05_recycler.py_ : Shows the effect of something on DPCGMO.
 
 #### Example #1: example01_sampler.py
 

@@ -168,6 +168,8 @@ class recycler:
     else:
       if (self.kl_strategy == 0):
         new_kdim = min(self.kl/2, self.solver.kdim+self.solver.ell)
+      elif (self.kl_strategy == 1):
+        new_kdim = min(self.kl/2, self.solver.kdim+self.solver.ell)
     return new_kdim
 
   def __set_attempted_ell(self):

@@ -11,11 +11,8 @@ class sampler:
       truncated Karhunen-Loeve (KL) expansion later sampled either by Monte Carlo (MC) 
       or by Markov chain Monte Carlo (MCMC). 
 
-      Parameters:
-        nEl, type, model, sig2, mu, L, delta2, ...
-
       Public methods:
-        eval_cov, compute_KL, draw_realization, do_assembly, set_b, get_kappa, get_median_A.
+        compute_KL, draw_realization, do_assembly, get_kappa, get_median_A.
       """
 
   data_path = './'
@@ -33,9 +30,9 @@ class sampler:
     if (self.model not in ("SExp", "Exp")):
       self.model = "SExp"
     if (self.model == "Exp"):
-      self.eval_cov = samplers_etc.CovExp
+      self.__eval_cov = samplers_etc.CovExp
     else:
-      self.eval_cov = samplers_etc.CovSExp
+      self.__eval_cov = samplers_etc.CovSExp
     self.sig2 = float(abs(sig2))
     if (self.sig2 <= 0):
       self.sig2 = 1.
@@ -106,7 +103,7 @@ class sampler:
         K_mat = np.zeros((self.nEl, self.nEl))
         for k in range(self.nEl):
           K_mat[k,:] = range(-k, self.nEl-k)
-        K_mat = self.eval_cov(self.h*K_mat, self.L, self.sig2)
+        K_mat = self.__eval_cov(self.h*K_mat, self.L, self.sig2)
         K_mat = self.h**2*sparse.csc_matrix(K_mat)
         M_mat = sparse.csc_matrix(self.h*sparse.eye(self.nEl))
         Eigvals, Eigvecs = sparse.linalg.eigsh(K_mat, M=M_mat, k=self.nKL, which='LM') 
@@ -164,21 +161,21 @@ class sampler:
       self.A = self.h**-1*sparse.diags([-self.kappa[1:], Ann[1:], -self.kappa[1:]], [-1,0,1])
       if (self.du_xb == 0):
         if (type(self.b) == type(None)):
-          self.set_b()
+          self.__set_b()
       else:
-        self.set_b()
+        self.__set_b()
     elif (self.u_xb != None) & (self.du_xb == None):
       # Dirichlet BC @ xb
       self.A = self.h**-1*sparse.diags([-self.kappa[1:-1], Ann[1:-1], -self.kappa[1:-1]], [-1,0,1])
       if (self.u_xb == 0):
         if (type(self.b) == type(None)):
-          self.set_b()
+          self.__set_b()
       else:
-        self.set_b()
+        self.__set_b()
     else:
       print 'Error: BC not properly prescribed @ xb.'
 
-  def set_b(self):
+  def __set_b(self):
     M = self.h/6.*sparse.eye(self.nEl+1)
     f = np.ones(self.nEl+1)
     f[0], f[-1] = 0., 0.

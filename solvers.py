@@ -122,7 +122,7 @@ class solver:
     self.WtAW_chol = scipy.linalg.cho_factor(self.WtAW)
     # Application: scipy.linalg.cho_solve(self.WtAW_chol, x)
 
-  def __apply_invM(self, x):
+  def apply_invM(self, x):
     if (self.precond_id == 2):
       return self.amg_op(x)
     else:
@@ -180,7 +180,7 @@ class solver:
     self.x = np.copy(self.x0)
     r = self.b-self.A.dot(self.x)
     rTr = r.dot(r)
-    z = self.__apply_invM(r)
+    z = self.apply_invM(r)
     rTz = r.dot(z)
     p = np.copy(z)
     self.iterated_res_norm = [np.sqrt(rTr)]
@@ -199,7 +199,7 @@ class solver:
         err = self.x-self.x_sol
         self.error_Anorm += [np.sqrt(err.dot(A.dot(err)))]
       rTr = r.dot(r)
-      z = self.__apply_invM(r)
+      z = self.apply_invM(r)
       rTz = r.dot(z)
       beta *= rTz
       if (self.it < self.ell): 
@@ -258,8 +258,8 @@ class solver:
       R = (self.W.dot(np.linalg.inv(self.W.T.dot(self.W)))).dot(self.W.T)
       r -= R.dot(r)
     rTr = r.dot(r)
-    z = self.__apply_invM(r)
-    rTr = r.dot(z)
+    z = self.apply_invM(r)
+    rTz = r.dot(z)
     hmu = self.__apply_invWtAW(self.AW.T.dot(z))
     p = z-self.W.dot(hmu)
     self.iterated_res_norm = [np.sqrt(rTr)]
@@ -280,12 +280,12 @@ class solver:
       if (Reortho): 
         r -= R.dot(r)
       rTr = r.dot(r)  
-      z = self.__apply_invM(r)
+      z = self.apply_invM(r)
       rTz = r.dot(z)
       beta *= rTz
       hmu = self.__apply_invWtAW(self.AW.T.dot(z))
       if (self.it < self.ell):
-        self.P[:,it] = p
+        self.P[:,self.it] = p
       p = beta*p+z-self.W.dot(hmu)
       self.iterated_res_norm += [np.sqrt(rTr)]
       self.it += 1

@@ -529,7 +529,7 @@ Output :
 
 #### Example #6: example06_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, a constant bJ preconditioner is used based on the median operator. The effect of `dp_seq` is investigated on the number of solver iterations.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, a constant bJ preconditioner is used based on the median operator with 10 blocks. The effect of `dp_seq` is investigated on the number of solver iterations.
 
 ```python
 from samplers import sampler

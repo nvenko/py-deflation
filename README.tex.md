@@ -533,18 +533,13 @@ Output :
 Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, a constant bJ preconditioner is used based on the median operator with 10 blocks. The effect of `dp_seq` is investigated on the number of solver iterations.
 
 ```python
-from samplers import sampler
-from solvers import solver
-from recyclers import recycler
-import pylab as pl
-import numpy as np
-
 nEl = 1000
-nsmp = 100
+nsmp = 5000
 sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
+case = "a" # {"a", "b"}
 
 smp, dpcg, dpcgmo = {}, {}, {}
 
@@ -556,12 +551,18 @@ for _smp in ("mc", "mcmc"):
   smp[_smp] = __smp
 
 pcg = solver(n=smp["mc"].n, solver_type="pcg")
-pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+if (case == "a"):
+  pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+elif (case == "b"):
+  pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
 
 for __smp in ("mc", "mcmc"):
   for dp_seq in ("dp", "pd"):
       __dpcg = solver(n=smp["mc"].n, solver_type="dpcg")
-      __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+      if (case == "a"):
+        __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+      elif (case == "b"):
+        __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
       dpcg[(__smp, dp_seq)] = __dpcg
       dpcgmo[(__smp, dp_seq)] = recycler(smp[__smp], __dpcg, "dpcgmo", kl=kl, dp_seq=dp_seq)
 
@@ -607,19 +608,34 @@ while (smp["mcmc"].cnt_accepted_proposals < nsmp):
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-fig, ax = pl.subplots(1, 2, figsize=(8.5,3.7), sharey=True)
+lw = 0.3
+fig, ax = pl.subplots(1, 4, figsize=(17.5,4.))
 ax[0].set_title("MC")
-ax[0].plot(pcgmo_it["mc"], label="pcgmo")
-ax[0].plot(dpcgmo_it[("mc", "dp")], "-+", label="dpcgmo-dp")
-ax[0].plot(dpcgmo_it[("mc", "pd")], label="dpcgmo-pd")
-ax[1].set_title("MCMC")
-ax[1].plot(pcgmo_it["mcmc"], label="pcgmo")
-ax[1].plot(dpcgmo_it[("mcmc", "dp")], "-+", label="dpcgmo-dp")
-ax[1].plot(dpcgmo_it[("mcmc", "pd")], label="dpcgmo-pd")
-ax[0].set_ylabel("Number of solver iterations, n_it")
-ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Realization index, t")
-fig.suptitle("DPCGMO")
-ax[0].legend(frameon=False, ncol=2); ax[1].legend(frameon=False, ncol=2)
+ax[0].plot(np.array(dpcgmo_it[("mc", "dp")])/np.array(pcgmo_it["mc"], dtype=float), "r", lw=lw, label="dpcgmo-dp")
+ax[0].plot(np.array(dpcgmo_it[("mc", "pd")])/np.array(pcgmo_it["mc"], dtype=float), "g", lw=lw, label="dpcgmo-pd")
+ax[1].set_title("MC")
+ax[1].plot(pcgmo_it["mc"], "k", lw=lw, label="pcgmo")
+ax[1].plot(dpcgmo_it[("mc", "dp")], "r", lw=lw)
+ax[1].plot(dpcgmo_it[("mc", "pd")], "g", lw=lw)
+ax[2].set_title("MCMC")
+ax[2].plot(pcgmo_it["mcmc"], "k", lw=lw, label="pcgmo")
+ax[2].plot(dpcgmo_it[("mcmc", "dp")], "r", lw=lw)
+ax[2].plot(dpcgmo_it[("mcmc", "pd")], "g", lw=lw)
+ax[3].set_title("MCMC")
+ax[3].plot(np.array(dpcgmo_it[("mcmc", "dp")])/np.array(pcgmo_it["mcmc"], dtype=float), "r", lw=lw, label="dpcgmo-dp")
+ax[3].plot(np.array(dpcgmo_it[("mcmc", "pd")])/np.array(pcgmo_it["mcmc"], dtype=float), "g", lw=lw, label="dpcgmo-pd")
+ax[0].set_ylim(0, 1); ax[3].set_ylim(0, 1)
+ax[2].set_ylim(ax[1].get_ylim())
+ax[0].set_ylabel("Relative number of solver iterations wrt PCG")
+ax[1].set_ylabel("Number of solver iterations, n_it")
+ax[2].set_ylabel("Number of solver iterations, n_it")
+ax[3].set_ylabel("Relative number of solver iterations wrt PCG")
+if (case == "a"):
+  fig.suptitle("DPCGMO with median-bJ10")
+elif (case == "b"):
+  fig.suptitle("DPCGMO with median")
+ax[0].legend(frameon=False, ncol=2); ax[1].legend(frameon=False)
+ax[2].legend(frameon=False); ax[3].legend(frameon=False, ncol=2)
 pl.show()
 ```
 

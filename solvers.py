@@ -8,7 +8,7 @@ class solver:
   """ Solves a linear system iteratively. 
 
       Public methods:
-        set_precond, presolve, solve.
+        set_precond, presolve, apply_invM, solve.
   """
   def __init__(self, n, solver_type, eps=1e-7, itmax=4000, W=None, ell=0):
     self.n = n

@@ -223,14 +223,13 @@ class recycler:
 
         elif (self.approx == "RR"):
           # Rayleigh-Ritz approximation (requires M.W and M.P, i.e. not invM.W and invM.P)
-          if (self.solver.kdim > 0):
-            MW = np.zeros((self.sampler.n, self.solver.kdim))
-            for k in range(self.solver.kdim):
-              MW = self.solver.apply_M(self.solver.W[:,k])
-          if (self.solver.ell > 0):
-            MP = np.zeros((self.sampler.n, self.solver.ell))
-            for l in range(self.solver.ell):
-              MP = self.solver.apply_M(self.solver.P[:,l]) 
+          if (self.solver.precond_id == 2):
+            print('Error: Rayleigh-Ritz approximation not available for dpcgmo-dp with AMG preconditioner')
+          else:
+            if (self.solver.kdim > 0):
+              MW = self.solver.M.dot(self.solver.W) 
+            if (self.solver.ell > 0):
+              MP = self.solver.M.dot(self.solver.P) 
           # Buid F:
           if (self.solver.kdim > 0): 
             F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(MW)

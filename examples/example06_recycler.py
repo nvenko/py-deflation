@@ -8,7 +8,7 @@ import numpy as np
 figures_path = '../figures/'
 
 nEl = 1000
-nsmp = 2000
+nsmp = 10000
 sig2, L = .357, 0.05
 model = "Exp"
 
@@ -86,7 +86,7 @@ ax[1].plot(dpcgmo_it[("mcmc", "dp")], "-+", lw=0.5, label="dpcgmo-dp")
 ax[1].plot(dpcgmo_it[("mcmc", "pd")], lw=0.5, label="dpcgmo-pd")
 ax[0].set_ylabel("Number of solver iterations, n_it")
 ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Realization index, t")
-fig.suptitle("DPCGMO")
+fig.suptitle("DPCGMO with median-bJ#10")
 ax[0].legend(frameon=False, ncol=2); ax[1].legend(frameon=False, ncol=2)
 #pl.show()
 pl.savefig(figures_path+"example06_recycler.png", bbox_inches='tight')

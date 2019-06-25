@@ -3,6 +3,8 @@ from solvers import solver
 import numpy as np
 import pylab as pl
 
+figures_path = './figures/'
+
 nEl = 1000
 nsmp = 50
 sig2, L = .357, 0.05
@@ -43,4 +45,4 @@ while (mcmc.cnt_accepted_proposals < nsmp):
 ax[1,0].set_xlabel("x"); ax[1,1].set_xlabel("x"); ax[1,2].set_xlabel("Solver iteration, j")
 ax[1,0].set_ylabel("MCMC sampler")
 pl.show()
-#pl.savefig("example02_solver.png", bbox_inches='tight')
+#pl.savefig(figures_path+"example02_solver.png", bbox_inches='tight')

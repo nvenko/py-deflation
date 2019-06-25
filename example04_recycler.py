@@ -4,6 +4,8 @@ from recyclers import recycler
 import pylab as pl
 import numpy as np
 
+figures_path = './figures/'
+
 nEl = 1000
 nsmp = 100
 sig2, L = .357, 0.05
@@ -125,4 +127,4 @@ for j in range(4):
   ax[1,j].set_xlabel("Realization index, t")
 fig.suptitle("DCGMO")
 #pl.show()
-pl.savefig("example04_recycler.png", bbox_inches='tight')
+pl.savefig(figures_path+"example04_recycler.png", bbox_inches='tight')

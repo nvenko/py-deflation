@@ -15,7 +15,7 @@ class sampler:
         compute_KL, draw_realization, do_assembly, get_kappa, get_median_A.
       """
 
-  data_path = './'
+  data_path = './data/'
 
   def __init__(self, nEl=500, smp_type="mc", model="SExp", sig2=1, mu=0, L=0.1, 
                vsig2=None, delta2=1e-3, seed=123456789, verb=1, 

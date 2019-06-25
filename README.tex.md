@@ -178,15 +178,6 @@ Classes: `sampler`, `solver`, `recycler`.
 
   - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate, later projected onto the orthogonal complement of the deflation subspace if `self.type`={`"dcgmo"`, `"dpcgmo"`}.
 
-- _post-recyclers.py_ :
-
-  A `post_recycler` post-recycles.
-
-  Signature : `post_recycler`(`recycler`)
-
-  - recycler (recycler)
-
-  Public methods : *.
 
 ### Usage:
 
@@ -235,7 +226,7 @@ pl.show()
 
 Output :
 
-![example01_sampler](./example01_sampler.png)
+![example01_sampler](./figures/example01_sampler.png)
 
 
 
@@ -293,7 +284,7 @@ pl.show()
 
 Output :
 
-![example02_solver](./example02_solver.png)
+![example02_solver](./figures/example02_solver.png)
 
 
 
@@ -370,7 +361,7 @@ pl.show()
 
 Output :
 
-![example03_recycler](./example03_recycler.png)
+![example03_recycler](./figures/example03_recycler.png)
 
 
 
@@ -510,7 +501,7 @@ pl.show()
 
 Output :
 
-![example04_recycler](./example04_recycler.png)
+![example04_recycler](./figures/example04_recycler.png)
 
 
 
@@ -534,7 +525,7 @@ model = "Exp"
 
 Output :
 
-![example05_recycler](./example05_recycler.png)
+![example05_recycler](./figures/example05_recycler.png)
 
 #### Example #6: example06_recycler.py
 
@@ -633,4 +624,4 @@ pl.show()
 
 Output :
 
-![example06_recycler](./example06_recycler.png)
+![example06_recycler](./figures/example06_recycler.png)

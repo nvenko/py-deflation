@@ -89,19 +89,20 @@ class recycler:
   def __update_W(self):
     G = np.zeros((self.solver.kdim+self.solver.ell,self.solver.kdim+self.solver.ell))
     F = np.copy(G)
+    
+    # Compute/get AW and AP for eigenvector approximation
+    if (self.which_op == "previous"):
+      if (self.solver.kdim > 0):
+        AW = self.solver.AW                    # Already computed for last solver call
+      if (self.solver.ell > 0):
+        AP = self.solver.A.dot(self.solver.P)  # Recyclable from last solver call
+    elif (self.which_op == "current"):
+      if (self.solver.kdim > 0):
+        AW = self.sampler.A.dot(self.solver.W)
+      if (self.solver.ell > 0):
+        AP = self.sampler.A.dot(self.solver.P)
 
     if (self.type == "dcgmo"):
-      # Compute/get AW and AP for eigenvector approximation
-      if (self.which_op == "previous"):
-        if (self.solver.kdim > 0):
-          AW = self.solver.AW                    # Already computed for last solver call
-        if (self.solver.ell > 0):
-          AP = self.solver.A.dot(self.solver.P)  # Recyclable from last solver call
-      elif (self.which_op == "current"):
-        if (self.solver.kdim > 0):
-          AW = self.sampler.A.dot(self.solver.W)
-        if (self.solver.ell > 0):
-          AP = self.sampler.A.dot(self.solver.P)
 
       # Build (G, F) for G.hw = theta*F.hw
       if (self.approx == "HR"):
@@ -126,52 +127,74 @@ class recycler:
 
       elif (self.approx == "RR"):
         # Rayleigh-Ritz approximation
-        F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
-        F[self.solver.kdim:,self.solver.kdim:] = self.solver.W.T.dot(AP)
-        if (self.which_op == "current"):
-          F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
-          F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
-        G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(AW)
-        G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(AP)
-        G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
-        G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(AP)
-
-      # Solve approximate eigenvalue problem
-      new_kdim = self.__get_new_kdim()
-      if (self.solver.kdim+self.solver.ell > 0):
-        self.__approx_eigvecs(G, F, new_kdim)
-        self.solver.kdim = self.solver.W.shape[1]
-      self.__set_attempted_ell()
+        # Buid F:
+        if (self.solver.kdim > 0): 
+          F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(self.solver.W)
+          if (self.solver.ell > 0):
+            F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(self.solver.P)
+            F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+        if (self.solver.ell > 0):
+          F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(self.solver.P)
+        # Build G:
+        if (self.solver.kdim > 0): 
+          G[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
+          if (self.solver.ell > 0): 
+            if (self.which_op == "current"):
+              G[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
+              G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
+        if (self.solver.ell > 0):
+          G[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
 
     elif (self.type == "dpcgmo"):
-      if (self.which_op == "previous"):
-        if (self.solver.kdim > 0):
-          AW = self.solver.AW                    # Already computed for last solver call
-        if (self.solver.ell > 0):
-          AP = self.solver.A.dot(self.solver.P)  # Recyclable from last solver call
-        if (self.dp_seq == "pd"):
-          # Build (G, F) for G.hw = theta*F.hw
-          if (self.approx == "HR"):
-            # Harmonic-Ritz approximation
-            # Build F:
-            if (self.solver.kdim > 0):
-              F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
-              if (self.solver.ell > 0):
-                if (self.which_op == "current"):
-                  F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
-                  F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+
+      # Precondition after deflating  
+      if (self.dp_seq == "pd"):
+        # Build (G, F) for G.hw = theta*F.hw
+        if (self.approx == "HR"):
+          # Harmonic-Ritz approximation
+          # Build F:
+          if (self.solver.kdim > 0):
+            F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
             if (self.solver.ell > 0):
-              F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
-            # Build G:
-            if (self.solver.kdim > 0):
-              G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(AW)
-              if (self.solver.ell > 0):
-                G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(AP)
+              if (self.which_op == "current"):
+                F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
+                F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+          if (self.solver.ell > 0):
+            F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
+          # Build G:
+          if (self.solver.kdim > 0):
+            G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(AW)
+            if (self.solver.ell > 0):
+              G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(AP)
+              G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
+          if (self.solver.ell > 0):
+            G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(AP)
+
+        elif (self.approx == "RR"):
+          # Rayleigh-Ritz approximation
+          # Buid F:
+          if (self.solver.kdim > 0): 
+            F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(self.solver.W)
+            if (self.solver.ell > 0):
+              F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(self.solver.P)
+              F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+          if (self.solver.ell > 0):
+            F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(self.solver.P)
+          # Build G:
+          if (self.solver.kdim > 0): 
+            G[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
+            if (self.solver.ell > 0): 
+              if (self.which_op == "current"):
+                G[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
                 G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
-            if (self.solver.ell > 0):
-              G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(AP)
-        elif (self.dp_seq == "dp"):
-          # Build (G, F) for G.hw = theta*F.hw
+          if (self.solver.ell > 0):
+            G[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
+
+      # Deflate after preconditioning
+      elif (self.dp_seq == "dp"):
+        # Build (G, F) for G.hw = theta*F.hw
+        if (self.approx == "HR"):
+          # Harmonic-Ritz approximation (requires invM.AW and invM.AP)
           if (self.solver.kdim > 0):
             invMAW = np.zeros((self.sampler.n, self.solver.kdim))
             for k in range(self.solver.kdim):
@@ -179,45 +202,59 @@ class recycler:
           if (self.solver.ell > 0):
             invMAP = np.zeros((self.sampler.n, self.solver.ell))
             for l in range(self.solver.ell):
-              invMAP[:,l] = self.solver.apply_invM(AP[:,l])
-          if (self.approx == "HR"):
-            # Harmonic-Ritz approximation
-            # Build F:
-            if (self.solver.kdim > 0):
-              F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
-              if (self.solver.ell > 0):
-                if (self.which_op == "current"):
-                  F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
-                  F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+              invMAP[:,l] = self.solver.apply_invM(AP[:,l])          
+          # Build F:
+          if (self.solver.kdim > 0):
+            F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
             if (self.solver.ell > 0):
-              F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
-            # Build G:
-            if (self.solver.kdim > 0):
-              G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(invMAW)
-              if (self.solver.ell > 0):
-                G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(invMAP)
+              if (self.which_op == "current"):
+                F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
+                F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+          if (self.solver.ell > 0):
+            F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)
+          # Build G:
+          if (self.solver.kdim > 0):
+            G[:self.solver.kdim,:self.solver.kdim] = AW.T.dot(invMAW)
+            if (self.solver.ell > 0):
+              G[:self.solver.kdim,self.solver.kdim:] = AW.T.dot(invMAP)
+              G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
+          if (self.solver.ell > 0):
+            G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(invMAP)
+
+        elif (self.approx == "RR"):
+          # Rayleigh-Ritz approximation (requires M.W and M.P, i.e. not invM.W and invM.P)
+          if (self.solver.kdim > 0):
+            MW = np.zeros((self.sampler.n, self.solver.kdim))
+            for k in range(self.solver.kdim):
+              MW = self.solver.apply_M(self.solver.W[:,k])
+          if (self.solver.ell > 0):
+            MP = np.zeros((self.sampler.n, self.solver.ell))
+            for l in range(self.solver.ell):
+              MP = self.solver.apply_M(self.solver.P[:,l]) 
+          # Buid F:
+          if (self.solver.kdim > 0): 
+            F[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(MW)
+            if (self.solver.ell > 0):
+              F[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(MP)
+              F[self.solver.kdim:,:self.solver.kdim] = F[:self.solver.kdim,self.solver.kdim:].T
+          if (self.solver.ell > 0):
+            F[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(MP)
+          # Build G:
+          if (self.solver.kdim > 0): 
+            G[:self.solver.kdim,:self.solver.kdim] = self.solver.W.T.dot(AW)
+            if (self.solver.ell > 0): 
+              if (self.which_op == "current"):
+                G[:self.solver.kdim,self.solver.kdim:] = self.solver.W.T.dot(AP)
                 G[self.solver.kdim:,:self.solver.kdim] = G[:self.solver.kdim,self.solver.kdim:].T
-            if (self.solver.ell > 0):
-              G[self.solver.kdim:,self.solver.kdim:] = AP.T.dot(invMAP)
+          if (self.solver.ell > 0):
+            G[self.solver.kdim:,self.solver.kdim:] = self.solver.P.T.dot(AP)            
 
-      elif (self.which_op == "current"):
-        if (self.solver.kdim > 0):
-          AW = self.sampler.A.dot(self.solver.W)
-        if (self.solver.ell > 0):
-          AP = self.sampler.A.dot(self.solver.P)
-        if (seq == "pd"):
-          self.G = None
-          self.F = None
-        elif (seq == "pd"):
-          self.G = None
-          self.F = None
-
-      # Solve approximate eigenvalue problem
-      new_kdim = self.__get_new_kdim()
-      if (self.solver.kdim+self.solver.ell > 0):
-        self.__approx_eigvecs(G, F, new_kdim)
-        self.solver.kdim = self.solver.W.shape[1]
-      self.__set_attempted_ell()
+    # Solve approximate eigenvalue problem
+    new_kdim = self.__get_new_kdim()
+    if (self.solver.kdim+self.solver.ell > 0):
+      self.__approx_eigvecs(G, F, new_kdim)
+      self.solver.kdim = self.solver.W.shape[1]
+    self.__set_attempted_ell()
 
   def __get_new_kdim(self):
     if (self.solver.kdim == 0) & (self.solver.ell == 0):

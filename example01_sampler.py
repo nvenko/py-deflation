@@ -1,6 +1,8 @@
 from samplers import sampler
 import pylab as pl
 
+figures_path = './figures/'
+
 nEl = 1000
 nsmp = 50
 sig2, L = .357, 0.05
@@ -26,4 +28,4 @@ ax[0].set_xlabel("x"); ax[1].set_xlabel("x")
 ax[0].set_title("MC sampler")
 ax[1].set_title("MCMC sampler")
 #pl.show()
-pl.savefig("example01_sampler.png")
+pl.savefig(figures_path+"example01_sampler.png")

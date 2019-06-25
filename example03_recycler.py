@@ -4,6 +4,8 @@ from recyclers import recycler
 import pylab as pl
 import numpy as np
 
+figures_path = './figures/'
+
 nEl = 1000
 nsmp = 1999
 sig2, L = .357, 0.05
@@ -62,4 +64,4 @@ ax[1].set_ylabel("Average relative number of solver iterations")
 ax[0].legend(frameon=False, ncol=2)
 fig.suptitle("MCMC sampled seq. solved by PCGMO w. realization dep. & constant bJ preconditioner")
 #pl.show()
-pl.savefig("example03_recycler.png", bbox_inches='tight')
+pl.savefig(figures_path+"example03_recycler.png", bbox_inches='tight')

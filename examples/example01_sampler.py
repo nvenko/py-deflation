@@ -1,7 +1,8 @@
+import sys; sys.path += ["../"]
 from samplers import sampler
 import pylab as pl
 
-figures_path = './figures/'
+figures_path = '../figures/'
 
 nEl = 1000
 nsmp = 50

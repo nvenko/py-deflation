@@ -1,10 +1,11 @@
+import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 from recyclers import recycler
 import pylab as pl
 import numpy as np
 
-figures_path = './figures/'
+figures_path = '../figures/'
 
 nEl = 1000
 nsmp = 100

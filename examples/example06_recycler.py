@@ -8,7 +8,7 @@ import numpy as np
 figures_path = '../figures/'
 
 nEl = 1000
-nsmp = 10000
+nsmp = 5000
 sig2, L = .357, 0.05
 model = "Exp"
 
@@ -24,12 +24,14 @@ for _smp in ("mc", "mcmc"):
   smp[_smp] = __smp
 
 pcg = solver(n=smp["mc"].n, solver_type="pcg")
-pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+#pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
 
 for __smp in ("mc", "mcmc"):
   for dp_seq in ("dp", "pd"):
       __dpcg = solver(n=smp["mc"].n, solver_type="dpcg")
-      __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+      #__dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
+      __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
       dpcg[(__smp, dp_seq)] = __dpcg
       dpcgmo[(__smp, dp_seq)] = recycler(smp[__smp], __dpcg, "dpcgmo", kl=kl, dp_seq=dp_seq)
 
@@ -78,15 +80,48 @@ while (smp["mcmc"].cnt_accepted_proposals < nsmp):
 fig, ax = pl.subplots(1, 2, figsize=(8.5,3.7), sharey=True)
 ax[0].set_title("MC")
 ax[0].plot(pcgmo_it["mc"], lw=0.5, label="pcgmo")
-ax[0].plot(dpcgmo_it[("mc", "dp")], "-+", lw=0.5, label="dpcgmo-dp")
+ax[0].plot(dpcgmo_it[("mc", "dp")], "-+", markersize=mrksize, label="dpcgmo-dp")
 ax[0].plot(dpcgmo_it[("mc", "pd")], lw=0.5, label="dpcgmo-pd")
 ax[1].set_title("MCMC")
 ax[1].plot(pcgmo_it["mcmc"], lw=0.5, label="pcgmo")
-ax[1].plot(dpcgmo_it[("mcmc", "dp")], "-+", lw=0.5, label="dpcgmo-dp")
+ax[1].plot(dpcgmo_it[("mcmc", "dp")], "-+", markersize=mrksize, label="dpcgmo-dp")
 ax[1].plot(dpcgmo_it[("mcmc", "pd")], lw=0.5, label="dpcgmo-pd")
 ax[0].set_ylabel("Number of solver iterations, n_it")
 ax[0].set_xlabel("Realization index, t"); ax[1].set_xlabel("Realization index, t")
-fig.suptitle("DPCGMO with median-bJ#10")
+#fig.suptitle("DPCGMO with median-bJ10")
+fig.suptitle("DPCGMO with median")
 ax[0].legend(frameon=False, ncol=2); ax[1].legend(frameon=False, ncol=2)
 #pl.show()
-pl.savefig(figures_path+"example06_recycler.png", bbox_inches='tight')
+#pl.savefig(figures_path+"example06_recycler_a.png", bbox_inches='tight')
+pl.savefig(figures_path+"example06_recycler_b.png", bbox_inches='tight')
+
+
+mrkr, mrksize = ".", 0.2
+fig, ax = pl.subplots(1, 4, figsize=(16,3.7))
+ax[0].set_title("MC")
+ax[0].plot(np.array(dpcgmo_it[("mc", "dp")])/np.array(pcgmo_it["mc"], dtype=float), "r"+mrkr, markersize=mrksize, label="dpcgmo-dp")
+ax[0].plot(np.array(dpcgmo_it[("mc", "pd")])/np.array(pcgmo_it["mc"], dtype=float), "g"+mrkr, markersize=mrksize, label="dpcgmo-pd")
+ax[1].set_title("MC")
+ax[1].plot(pcgmo_it["mc"], "k"+mrkr, markersize=mrksize, label="pcgmo")
+ax[1].plot(dpcgmo_it[("mc", "dp")], "r"+mrkr, markersize=mrksize)
+ax[1].plot(dpcgmo_it[("mc", "pd")], "g"+mrkr, markersize=mrksize)
+ax[2].set_title("MCMC")
+ax[2].plot(pcgmo_it["mcmc"], "k"+mrkr, markersize=mrksize, label="pcgmo")
+ax[2].plot(dpcgmo_it[("mcmc", "dp")], "r"+mrkr, markersize=mrksize)
+ax[2].plot(dpcgmo_it[("mcmc", "pd")], "g"+mrkr, markersize=mrksize)
+ax[3].set_title("MCMC")
+ax[3].plot(np.array(dpcgmo_it[("mcmc", "dp")])/np.array(pcgmo_it["mcmc"], dtype=float), "r"+mrkr, markersize=mrksize, label="dpcgmo-dp")
+ax[3].plot(np.array(dpcgmo_it[("mcmc", "pd")])/np.array(pcgmo_it["mcmc"], dtype=float), "g"+mrkr, markersize=mrksize, label="dpcgmo-pd")
+ax[0].set_ylim(0, 1); ax[3].set_ylim(0, 1)
+ax[2].set_ylim(ax[1].get_ylim())
+ax[0].set_ylabel("Relative number of solver iterations wrt PCG")
+ax[1].set_ylabel("Number of solver iterations, n_it")
+ax[2].set_ylabel("Number of solver iterations, n_it")
+ax[3].set_ylabel("Relative number of solver iterations wrt PCG")
+#fig.suptitle("DPCGMO with median-bJ10")
+fig.suptitle("DPCGMO with median")
+ax[0].legend(frameon=False, ncol=2); ax[1].legend(frameon=False)
+ax[2].legend(frameon=False); ax[3].legend(frameon=False, ncol=2)
+#pl.show()
+#pl.savefig(figures_path+"example06_recycler_a.png", bbox_inches='tight')
+pl.savefig(figures_path+"example06_recycler_b.png", bbox_inches='tight')

@@ -625,4 +625,6 @@ pl.show()
 
 Output :
 
-![example06_recycler](./figures/example06_recycler.png)
+![example06_recycler](./figures/example06_recycler_a.png)
+
+![example06_recycler](./figures/example06_recycler_b.png)

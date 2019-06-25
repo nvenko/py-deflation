@@ -13,7 +13,7 @@ sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
-case = "a" # {"a", "b"}
+case = "c" # {"a", "b", "c"}
 
 smp, dpcg, dpcgmo = {}, {}, {}
 
@@ -29,6 +29,8 @@ if (case == "a"):
   pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
 elif (case == "b"):
   pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
+elif (case == "c"):
+  pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=2)
 
 for __smp in ("mc", "mcmc"):
   for dp_seq in ("dp", "pd"):
@@ -37,6 +39,8 @@ for __smp in ("mc", "mcmc"):
         __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
       elif (case == "b"):
         __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
+      elif (case == "c"):
+        __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=2)
       dpcg[(__smp, dp_seq)] = __dpcg
       dpcgmo[(__smp, dp_seq)] = recycler(smp[__smp], __dpcg, "dpcgmo", kl=kl, dp_seq=dp_seq)
 
@@ -104,14 +108,20 @@ ax[0].set_ylabel("Relative number of solver iterations wrt PCG")
 ax[1].set_ylabel("Number of solver iterations, n_it")
 ax[2].set_ylabel("Number of solver iterations, n_it")
 ax[3].set_ylabel("Relative number of solver iterations wrt PCG")
+for j in range(4):
+  ax[j].set_xlabel("Realization index, t")
 if (case == "a"):
   fig.suptitle("DPCGMO with median-bJ10")
 elif (case == "b"):
   fig.suptitle("DPCGMO with median")
+elif (case == "c"):
+  fig.suptitle("DPCGMO with median-AMG")
 ax[0].legend(frameon=False, ncol=2); ax[1].legend(frameon=False)
 ax[2].legend(frameon=False); ax[3].legend(frameon=False, ncol=2)
 #pl.show()
 if (case == "a"):
   pl.savefig(figures_path+"example06_recycler_a.png", bbox_inches='tight')
-if (case == "b"):
+elif (case == "b"):
   pl.savefig(figures_path+"example06_recycler_b.png", bbox_inches='tight')
+elif (case == "c"):
+  pl.savefig(figures_path+"example06_recycler_c.png", bbox_inches='tight')

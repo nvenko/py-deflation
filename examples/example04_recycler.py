@@ -8,7 +8,7 @@ import numpy as np
 figures_path = '../figures/'
 
 nEl = 1000
-nsmp = 100
+nsmp = 1000
 sig2, L = .357, 0.05
 model = "Exp"
 
@@ -89,6 +89,49 @@ while (smp["mcmc"].cnt_accepted_proposals < nsmp):
           dcgmo_it[_dcgmo] = [dcgmo[_dcgmo].solver.it]
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
+
+
+
+
+
+lw = 0.3
+fig, ax = pl.subplots(2, 3, figsize=(16,7.5), sharex="col")
+fig.suptitle("DCGMO -- MC sampler")
+# First row:
+ax[0,0].set_title("kl_strategy #1")
+ax[0,0].set_ylabel("kdim, ell")
+ax[0,0].plot(dcgmo_kdim[("mc", "previous", 0)], label="kdim")
+ax[0,0].plot(dcgmo_ell[("mc", "previous", 0)], label="ell")
+ax[0,1].set_title("Number of solver iterations, n_it")
+ax[0,1].plot(cgmo_it["mc"], label="cgmo", lw=lw)
+ax[0,1].plot(dcgmo_it[("mc", "previous", 0)], "r", lw=lw)
+ax[0,1].plot(dcgmo_it[("mc", "current", 0)], "g", lw=lw)
+ax[0,2].set_title("Relative number of solver iterations wrt CG")
+ax[0,2].plot(np.array(dcgmo_it[("mc", "previous", 0)])/np.array(cgmo_it["mc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
+ax[0,2].plot(np.array(dcgmo_it[("mc", "current", 0)])/np.array(cgmo_it["mc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
+ax[0,2].set_ylim(0.6,1)
+ax[0,0].legend(frameon=False, ncol=2); ax[0,1].legend(frameon=False); ax[0,2].legend(frameon=False, ncol=2)
+# Second row:
+ax[1,0].set_title("kl_strategy #2")
+ax[1,0].set_ylabel("kdim, ell")
+ax[1,0].plot(dcgmo_kdim[("mc", "previous", 1)], label="kdim")
+ax[1,0].plot(dcgmo_ell[("mc", "previous", 1)], label="ell")
+ax[1,1].set_title("Number of solver iterations, n_it")
+ax[1,1].plot(cgmo_it["mc"], label="cgmo", lw=lw)
+ax[1,1].plot(dcgmo_it[("mc", "previous", 1)], "r", lw=lw)
+ax[1,1].plot(dcgmo_it[("mc", "current", 1)], "g", lw=lw)
+ax[1,2].set_title("Relative number of solver iterations wrt CG")
+ax[1,2].plot(np.array(dcgmo_it[("mc", "previous", 1)])/np.array(cgmo_it["mc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
+ax[1,2].plot(np.array(dcgmo_it[("mc", "current", 1)])/np.array(cgmo_it["mc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
+ax[1,0].legend(frameon=False, ncol=2); ax[1,1].legend(frameon=False); ax[1,2].legend(frameon=False, ncol=2)
+for j in range(3):
+  ax[1,j].set_ylim(ax[0,j].get_ylim())
+  ax[1,j].set_xlabel("Realization index, t")
+#pl.show()
+pl.savefig(figures_path+"example04_recycler_a.png", bbox_inches='tight')
+
+
+
 
 fig, ax = pl.subplots(2, 4, figsize=(16,7.5), sharey="row")
 # First row:

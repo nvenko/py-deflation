@@ -575,7 +575,7 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated here.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated. 
 
 ```python
 from samplers import sampler

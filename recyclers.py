@@ -10,7 +10,7 @@ class recycler:
         do_assembly, prepare, solve.
   """
   def __init__(self, sampler, solver, recycler_type, dt=0, t_end_def=0,
-  	       kl=5, kl_strategy=0, dp_seq="pd", which_op="previous", approx="HR"):
+  	       kl=5, kl_strategy=0, t_end_kl=0, dp_seq="pd", which_op="previous", approx="HR"):
     self.sampler = sampler
     self.solver = solver
     self.type = recycler_type
@@ -31,6 +31,13 @@ class recycler:
       self.kl_strategy = int(kl_strategy)
       if self.kl_strategy not in (0, 1):
         self.kl_strategy = 0
+      self.t_end_kl = int(t_end_kl)
+      if (self.t_end_kl < 0):
+        self.t_end_kl = 0
+      if (kl_strategy == 1) & (self.t_end_kl >= 0):
+        if (self.t_end_kl == 0):
+          self.t_end_kl = 100
+        self.dt_kl = self.t_end_kl/self.kl
       self.which_op = str(which_op)
       if self.which_op not in ("previous", "current"):
         self.which_op = "previous"
@@ -49,6 +56,12 @@ class recycler:
       self.kl_strategy = int(kl_strategy)
       if self.kl_strategy not in (0, 1):
         self.kl_strategy = 0
+      if (self.t_end_kl < 0):
+        self.t_end_kl = 0
+      if (kl_strategy == 1) & (self.t_end_kl >= 0):
+        if (self.t_end_kl == 0):
+          self.t_end_kl = 100
+        self.dt_kl = self.t_end_kl/self.kl
       self.dp_seq = str(dp_seq)
       if self.dp_seq not in ("pd", "dp"):
   	    self.dp_seq = "pd"
@@ -262,7 +275,21 @@ class recycler:
       if (self.kl_strategy == 0):
         new_kdim = min(self.kl/2, self.solver.kdim+self.solver.ell)
       elif (self.kl_strategy == 1):
-        new_kdim = min(self.solver.kdim+1, self.solver.kdim+self.solver.ell)
+        if (self.solver.kdim == 0):
+          new_kdim = 1
+        else:
+          if (self.sampler.type == "mc") & (self.sampler.reals < self.t_end_kl):
+            if (self.sampler.reals%self.dt_kl == 0):
+              new_kdim = new_kdim = min(self.solver.kdim+1, self.solver.kdim+self.solver.ell)
+            else:
+              new_kdim = self.solver.kdim
+          elif (self.sampler.type == "mcmc"):
+            if (self.sampler.cnt_accepted_proposals < self.t_end_kl) & (self.sampler.cnt_accepted_proposals%self.dt_kl == 0):
+              new_kdim = new_kdim = min(self.solver.kdim+1, self.solver.kdim+self.solver.ell)
+            else:
+              new_kdim = self.solver.kdim
+          else:
+            new_kdim = min(self.solver.kdim+1, self.solver.kdim+self.solver.ell)
     return new_kdim
 
   def __set_attempted_ell(self):
@@ -288,8 +315,9 @@ class recycler:
       else:
         if (self.sampler.type == "mc") & (self.sampler.reals < self.t_end_def):
           self.__update_W()
-        elif (self.sampler.type == "mcmc") & (self.sampler.cnt_accepted_proposals < self.t_end_def):
-          self.__update_W()
+        elif (self.sampler.type == "mcmc"):
+          if (self.sampler.cnt_accepted_proposals < self.t_end_def):
+            self.__update_W()
     
     self.solver.presolve(A=self.sampler.A, b=self.sampler.b, ell=self.solver.ell)
 

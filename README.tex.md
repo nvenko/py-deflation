@@ -502,13 +502,13 @@ pl.show()
 
 Output :
 
-![example04_recycler](./figures/example04_recycler.png)
+![example04_recycler_a](./figures/example04_recycler_a.png)
 
-
+![example04_recycler_b](./figures/example04_recycler_b.png)
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, a constant bJ preconditioner is used based on the median operator with 10 blocks. The effect of stopping the update of the deflation subspace is investigated.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M​$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M​$ sampled by MC and by MCMC. In both cases, a constant bJ preconditioner is used based on the median operator with 10 blocks. The effect of stopping the update of the deflation subspace is investigated.
 
 ```python
 from samplers import sampler

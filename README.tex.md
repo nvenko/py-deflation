@@ -1,6 +1,6 @@
 # deflation-precond-strategies-sde
 
-#### Enables testing and applications of deflation and preconditioning strategies to solve sequences of sampled finite element (FE) discretization of stochastic differential equations (SDE).
+#### Enables testing and applications of deflation and preconditioning strategies to solve sequences of sampled finite element (FE) discretizations of stochastic differential equations (SDE).
 
 Author: Nicolas Venkovic
 

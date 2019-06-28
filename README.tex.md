@@ -618,12 +618,12 @@ from example06_recycler_plot import *
 figures_path = '../figures/'
 
 nEl = 1000
-nsmp = 5000
+nsmp = 100
 sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
-case = "c" # {"a", "b", "c"}
+case = "a" # {"a", "b", "c"}
 
 smp, dpcg, dpcgmo = {}, {}, {}
 
@@ -696,8 +696,8 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-save_data()
-plot()
+save_data(dpcgmo_it, pcgmo_it, case)
+plot(case=case)
 ```
 
 Output :

@@ -6,7 +6,7 @@ import numpy as np
 from example04_recycler_plot import *
 
 nEl = 1000
-nsmp = 100
+nsmp = 5000
 sig2, L = .357, 0.05
 model = "Exp"
 
@@ -25,7 +25,7 @@ cg = solver(n=smp["mc"].n, solver_type="cg")
 
 kl_strategy = (0, 1, 1)
 n_kl_strategies = len(kl_strategy)
-t_end_kl = (0, 40, 80)
+t_end_kl = (0, 500, 1000)
 ell_min = kl/2
 
 for __smp in ("mc", "mcmc"):

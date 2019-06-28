@@ -6,14 +6,27 @@ import pylab as pl
 import numpy as np
 
 """ HOW TO:
-    >>> from example05_reclycler_plot import *
+    >>> from example06_reclycler_plot import *
     >>> plot()
 """
 
 figures_path = '../figures/'
 
-def plot():
-  lw = 0.3
+lw = 0.3
+
+def save_data(dpcgmo_it, pcgmo_it, case):
+  np.save(".example06_recycler_dpcgmo_it_"+case, dpcgmo_it)
+  np.save(".example06_recycler_pcgmo_it_"+case, pcgmo_it)
+
+def load_data(case):
+  dpcgmo_it = np.load(".example06_recycler_dpcgmo_it_"+case+".npy").item()
+  pcgmo_it = np.load(".example06_recycler_pcgmo_it_"+case+".npy").item()
+  return dpcgmo_it, pcgmo_it
+
+def plot(dpcgmo_it=None, pcgmo_it=None, case="a"):
+  if (type(dpcgmo_it) == type(None)):
+    dpcgmo_it, pcgmo_it  = load_data(case)
+
   fig, ax = pl.subplots(1, 4, figsize=(17.5,4.))
   ax[0].set_title("MC")
   ax[0].plot(np.array(dpcgmo_it[("mc", "dp")])/np.array(pcgmo_it["mc"], dtype=float), "r", lw=lw, label="dpcgmo-dp")
@@ -47,8 +60,8 @@ def plot():
   ax[2].legend(frameon=False); ax[3].legend(frameon=False, ncol=2)
   #pl.show()
   if (case == "a"):
-    pl.savefig(figures_path+"example06_recycler_a.png", bbox_inches='tight')
+    pl.savefig(figures_path+"example06_recycler_a__.png", bbox_inches='tight')
   elif (case == "b"):
-    pl.savefig(figures_path+"example06_recycler_b.png", bbox_inches='tight')
+    pl.savefig(figures_path+"example06_recycler_b__.png", bbox_inches='tight')
   elif (case == "c"):
-    pl.savefig(figures_path+"example06_recycler_c.png", bbox_inches='tight')
+    pl.savefig(figures_path+"example06_recycler_c__.png", bbox_inches='tight')

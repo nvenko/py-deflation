@@ -26,12 +26,13 @@ for _smp in ("mc", "mcmc"):
 cg = solver(n=smp["mc"].n, solver_type="cg")
 
 kl_strategy = (0, 1, 1)
+n_kl_strategies = len(kl_strategy)
 t_end_kl = (0, 500, 1000)
 ell_min = kl/2
 
 for __smp in ("mc", "mcmc"):
   for which_op in ("previous", "current"):
-    for _kl_strategy in range(3):
+    for _kl_strategy in range(n_kl_strategies):
       __dcg = solver(n=smp["mc"].n, solver_type="dcg")
       dcg[(__smp, which_op, _kl_strategy)] = __dcg
       dcgmo[(__smp, which_op, _kl_strategy)] = recycler(smp[__smp], __dcg, "dcgmo", kl=kl, 
@@ -47,7 +48,7 @@ for i_smp in range(nsmp):
   cg.solve(x0=np.zeros(smp["mc"].n))
   cgmo_it["mc"] += [cg.it]
   for which_op in ("previous", "current"):
-    for _kl_strategy in range(3):
+    for _kl_strategy in range(n_kl_strategies):
       _dcgmo = ("mc", which_op, _kl_strategy)
 
       dcgmo[_dcgmo].do_assembly()
@@ -68,14 +69,14 @@ for i_smp in range(nsmp):
 
   print("%d/%d" %(i_smp+1, nsmp))
 
-while (smp["mcmc"].cnt_accepted_proposals < nsmp):
+while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()
   if (smp["mcmc"].proposal_accepted):
     cg.presolve(smp["mcmc"].A, smp["mcmc"].b)
     cg.solve(x0=np.zeros(smp["mcmc"].n))
     cgmo_it["mcmc"] += [cg.it]
     for which_op in ("previous", "current"):
-      for _kl_strategy in range(3):
+      for _kl_strategy in range(n_kl_strategies):
         _dcgmo = ("mcmc", which_op, _kl_strategy)
 
         dcgmo[_dcgmo].do_assembly()

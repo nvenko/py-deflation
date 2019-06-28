@@ -118,9 +118,16 @@ class solver:
         self.WtAW = self.W.T.dot(self.AW)
         self.__set_factorization_WtAW()
 
-  def __set_factorization_WtAW(self):
-    self.WtAW_chol = scipy.linalg.cho_factor(self.WtAW)
-    # Application: scipy.linalg.cho_solve(self.WtAW_chol, x)
+  def __set_factorization_WtAW(self, application_type=2):
+    self.invWtAW_application_type = application_type
+    if (self.invWtAW_application_type == 1):
+      self.WtAW_chol = scipy.linalg.cho_factor(self.WtAW)
+      # Application: scipy.linalg.cho_solve(self.WtAW_chol, x)
+    elif (self.invWtAW_application_type == 2):
+      if (sparse.issparse(self.WtAW)):
+        self.inv_WtAW = sparse.linalg.inv(sparse.csc_matrix(self.WtAW))
+      else:
+        self.inv_WtAW = scipy.linalg.inv(self.WtAW)
 
   def apply_invM(self, x):
     if (self.precond_id == 2):
@@ -138,10 +145,30 @@ class solver:
           return scipy.linalg.cho_solve(self.M_chol, x)
       elif (self.application_type == 2):
         return self.inv_M.dot(x)
+  
+  def get_deflated_op(self):
+    if (self.invWtAW_application_type == 0):
+      HtA = self.A.copy().tolil()
+      for j in range(self.n):
+        HtA[:,j] -= (self.AW.dot(self.__apply_invWtAW(self.AW.T[:,j]))).reshape((self.n,1))
+    elif (self.invWtAW_application_type == 1):
+      HtA = self.A.copy().tolil()
+      for j in range(self.n):
+        HtA[:,j] -= (self.AW.dot(self.__apply_invWtAW(self.AW.T[:,j]))).reshape((self.n,1))
+    elif (self.invWtAW_application_type == 2):
+      HtA = self.A-self.AW.dot(self.inv_WtAW.dot(self.AW.T))
+    return HtA
 
   def __apply_invWtAW(self, x):
-    return scipy.linalg.cho_solve(self.WtAW_chol, x)
-    #return scipy.linalg.solve(self.WtAW, x)
+    if (self.invWtAW_application_type == 0):
+      if (sparse.issparse(self.WtAW)):
+        return sparse.linalg.spsolve(self.WtAW, x)
+      else:
+        return scipy.linalg.solve(self.WtAW, x)
+    elif (self.invWtAW_application_type == 1):
+      return scipy.linalg.cho_solve(self.WtAW_chol, x)
+    elif (self.invWtAW_application_type == 2):
+      return self.inv_WtAW.dot(x)
 
   def __cg(self, Error=False):
     self.it = 0

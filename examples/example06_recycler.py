@@ -66,7 +66,7 @@ for i_smp in range(nsmp):
 
   print("%d/%d" %(i_smp+1, nsmp))
 
-while (smp["mcmc"].cnt_accepted_proposals < nsmp):
+while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()
   if (smp["mcmc"].proposal_accepted):
     pcg.presolve(smp["mcmc"].A, smp["mcmc"].b)

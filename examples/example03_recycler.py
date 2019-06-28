@@ -35,7 +35,7 @@ for i, dt_i in enumerate(dt):
 pcgmo_medbJ = recycler(sampler=mcmc, solver=pcg_medbJ, recycler_type="pcgmo")
 
 pcgmo_dtbJ_it, pcgmo_medbJ_it = [[] for i in range(len(dt))], []
-while (mcmc.cnt_accepted_proposals < nsmp):
+while (mcmc.cnt_accepted_proposals <= nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):
     for i, dt_i in enumerate(dt):

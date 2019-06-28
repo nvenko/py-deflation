@@ -20,7 +20,7 @@ for i_smp in range(nsmp):
   mc.draw_realization()
   ax[0].plot(mc.get_kappa(), lw=.1)
 
-while (mcmc.cnt_accepted_proposals < nsmp):
+while (mcmc.cnt_accepted_proposals <= nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):
     ax[1].plot(mcmc.get_kappa(), lw=.1)

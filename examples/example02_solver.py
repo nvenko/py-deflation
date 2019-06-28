@@ -34,7 +34,7 @@ ax[0,1].set_title("u(x; theta_t)")
 ax[0,2].set_title("||r_j||/||b||")
 ax[0,0].set_ylabel("MC sampler")
 
-while (mcmc.cnt_accepted_proposals < nsmp):
+while (mcmc.cnt_accepted_proposals <= nsmp):
   mcmc.draw_realization()
   mcmc.do_assembly()
   if (mcmc.proposal_accepted):

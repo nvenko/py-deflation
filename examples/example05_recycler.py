@@ -11,6 +11,8 @@ sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
+case = "b" # {"a", "b", "c"}
+
 
 smp, dcg, dcgmo = {}, {}, {}
 
@@ -23,9 +25,17 @@ for _smp in ("mc", "mcmc"):
 
 cg = solver(n=smp["mc"].n, solver_type="cg")
 
-kl_strategy = (1,)
+if (case == "a"):
+  kl_strategy = (0,)
+  t_end_kl = (0,)
+elif (case == "b"):
+  kl_strategy = (1,)
+  t_end_kl = (500,)
+elif (case == "c"):
+  kl_strategy = (1,)
+  t_end_kl = (1000,)
+
 n_kl_strategies = len(kl_strategy)
-t_end_kl = (1000,)
 ell_min = kl/2
 
 for __smp in ("mc", "mcmc"):
@@ -106,5 +116,5 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim)
-plot()
+save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, case)
+plot(case=case)

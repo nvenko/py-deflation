@@ -7,7 +7,7 @@ import numpy as np
 
 """ HOW TO:
     >>> from example06_reclycler_plot import *
-    >>> plot()
+    >>> plot(case=case)
 """
 
 figures_path = '../figures/'

@@ -5,8 +5,6 @@ from recyclers import recycler
 import numpy as np
 from example06_recycler_plot import *
 
-figures_path = '../figures/'
-
 nEl = 1000
 nsmp = 100
 sig2, L = .357, 0.05

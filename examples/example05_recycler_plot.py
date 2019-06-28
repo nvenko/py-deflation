@@ -7,7 +7,7 @@ import numpy as np
 
 """ HOW TO:
     >>> from example05_reclycler_plot import *
-    >>> plot()
+    >>> plot(case=case)
 """
 
 figures_path = '../figures/'
@@ -25,26 +25,27 @@ def get_envelopes_HtA(SpHtA, dcgmo_kdim):
   SpHtA_n = [Sp[-1] for Sp in SpHtA]
   return SpHtA_k, SpHtA_n
 
-def save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim):
-  np.save(".example05_recycler_smp", smp)
-  np.save(".example05_recycler_smp_SpA", smp_SpA)
-  np.save(".example05_recycler_dcgmo_SpHtA", dcgmo_SpHtA)
-  np.save(".example05_recycler_dcgmo_kdim", dcgmo_kdim)
+def save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, case):
+  np.save(".example05_recycler_smp_"+case, smp)
+  np.save(".example05_recycler_smp_SpA_"+case, smp_SpA)
+  np.save(".example05_recycler_dcgmo_SpHtA_"+case, dcgmo_SpHtA)
+  np.save(".example05_recycler_dcgmo_kdim_"+case, dcgmo_kdim)
 
-def load_data():
-    smp = np.load(".example05_recycler_smp.npy").item()
-    smp_SpA = np.load(".example05_recycler_smp_SpA.npy").item()
-    dcgmo_SpHtA = np.load(".example05_recycler_dcgmo_SpHtA.npy").item()
-    dcgmo_kdim = np.load(".example05_recycler_dcgmo_kdim.npy").item()
+def load_data(case):
+    smp = np.load(".example05_recycler_smp_"+case+".npy").item()
+    smp_SpA = np.load(".example05_recycler_smp_SpA_"+case+".npy").item()
+    dcgmo_SpHtA = np.load(".example05_recycler_dcgmo_SpHtA_"+case+".npy").item()
+    dcgmo_kdim = np.load(".example05_recycler_dcgmo_kdim_"+case+".npy").item()
     return smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim
 
-def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None):
+def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
   if (type(smp) == type(None)):
-    smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim = load_data()
+    smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim = load_data(case)
 
   n = smp["mc"].n
   fig, ax = pl.subplots(2, 3, figsize=(13.5,9), sharex="col")
-  fig.suptitle("DCGMO -- strategy #3 -- Envelopes and full spectra")
+  strategy_name = {"a":"strategy #1", "b":"strategy #2", "c":"strategy #3"}
+  fig.suptitle("DCGMO -- %s -- Envelopes and full spectra" %strategy_name[case])
   # Enveloppes
   ax[0,1].set_title("MC sampler")
   _dcgmo = ("mc", "previous", 0)
@@ -108,4 +109,4 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None):
   ax[1,0].set_ylim(ax[0,0].get_ylim()); ax[1,1].set_ylim(ax[0,0].get_ylim()); ax[1,2].set_ylim(ax[0,0].get_ylim())
   for j in range(3):
     ax[1,j].set_xlabel("Realization index, t")
-  pl.savefig(figures_path+"example05_recycler.png", bbox_inches='tight')
+  pl.savefig(figures_path+"example05_recycler_"+case+".png", bbox_inches='tight')

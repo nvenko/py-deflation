@@ -311,7 +311,7 @@ Output :
 
 #### Example #3: example03_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by PCGMO for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with a constant and with a realization-dependent bJ preconditioners with 5 blocks. The constant preconditioner is built on the basis of the median operator; the realization-dependent preconditioners are redefined periodically every `dt`={`50`, `100`, `250`, `500`, `1000`} distinct realizations (i.e. discarding realizations corresponding to rejected proposals) on the basis of the current operator in the sequence.
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by PCGMO for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with a constant and with realization-dependent bJ preconditioners with 5 blocks denoted by med-bJ5 and `dt`-bJ5, respectively. The constant preconditioner is built on the basis of the median operator; the realization-dependent preconditioners are redefined periodically every `dt`={`50`, `100`, `250`, `500`, `1000`} distinct realizations (i.e. discarding realizations corresponding to rejected proposals) on the basis of the current operator in the sequence.
 
 ```python
 import sys; sys.path += ["../"]
@@ -377,7 +377,7 @@ Output :
 
 #### Example #4: example04_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. The effects of `kl_strategy` and `which_op` are investigated on the number of solver iterations.
+Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. The effects of `kl_strategy` and `which_op` are investigated on the number of solver iterations.
 
 ```python
 import sys; sys.path += ["../"]
@@ -487,9 +487,11 @@ Output :
 
 ![example04_recycler_b](./figures/example04_recycler_b.png)
 
+
+
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated. 
+Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO as in Example #4. Additionally, envelopes of positive spectra and full spectra of the sampled operators and corresponding deflated operators are investigated.
 
 ```python
 import sys; sys.path += ["../"]
@@ -606,7 +608,13 @@ plot()
 
 Output :
 
-![example05_recycler](./figures/example05_recycler.png)
+
+
+![example05_recycler_a](./figures/example05_recycler_a.png)
+
+![example05_recycler_b](./figures/example05_recycler_b.png)
+
+![example05_recycler_c](./figures/example05_recycler_c.png)
 
 #### Example #6: example06_recycler.py
 
@@ -619,8 +627,6 @@ from solvers import solver
 from recyclers import recycler
 import numpy as np
 from example06_recycler_plot import *
-
-figures_path = '../figures/'
 
 nEl = 1000
 nsmp = 100

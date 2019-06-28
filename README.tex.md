@@ -375,11 +375,12 @@ Output :
 Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. The effects of `kl_strategy` and `which_op` are investigated on the number of solver iterations.
 
 ```python
+import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 from recyclers import recycler
-import pylab as pl
 import numpy as np
+from example04_recycler_plot import *
 
 nEl = 1000
 nsmp = 5000
@@ -400,12 +401,13 @@ for _smp in ("mc", "mcmc"):
 cg = solver(n=smp["mc"].n, solver_type="cg")
 
 kl_strategy = (0, 1, 1)
+n_kl_strategies = len(kl_strategy)
 t_end_kl = (0, 500, 1000)
 ell_min = kl/2
 
 for __smp in ("mc", "mcmc"):
   for which_op in ("previous", "current"):
-    for _kl_strategy in range(3):
+    for _kl_strategy in range(n_kl_strategies):
       __dcg = solver(n=smp["mc"].n, solver_type="dcg")
       dcg[(__smp, which_op, _kl_strategy)] = __dcg
       dcgmo[(__smp, which_op, _kl_strategy)] = recycler(smp[__smp], __dcg, "dcgmo", kl=kl, 
@@ -421,7 +423,7 @@ for i_smp in range(nsmp):
   cg.solve(x0=np.zeros(smp["mc"].n))
   cgmo_it["mc"] += [cg.it]
   for which_op in ("previous", "current"):
-    for _kl_strategy in range(3):
+    for _kl_strategy in range(n_kl_strategies):
       _dcgmo = ("mc", which_op, _kl_strategy)
 
       dcgmo[_dcgmo].do_assembly()
@@ -442,14 +444,14 @@ for i_smp in range(nsmp):
 
   print("%d/%d" %(i_smp+1, nsmp))
 
-while (smp["mcmc"].cnt_accepted_proposals < nsmp):
+while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()
   if (smp["mcmc"].proposal_accepted):
     cg.presolve(smp["mcmc"].A, smp["mcmc"].b)
     cg.solve(x0=np.zeros(smp["mcmc"].n))
     cgmo_it["mcmc"] += [cg.it]
     for which_op in ("previous", "current"):
-      for _kl_strategy in range(3):
+      for _kl_strategy in range(n_kl_strategies):
         _dcgmo = ("mcmc", which_op, _kl_strategy)
 
         dcgmo[_dcgmo].do_assembly()
@@ -470,105 +472,8 @@ while (smp["mcmc"].cnt_accepted_proposals < nsmp):
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-
-lw = 0.3
-fig, ax = pl.subplots(3, 3, figsize=(13.5,10.5), sharex="col")
-fig.suptitle("DCGMO -- MC sampler")
-# First row:
-ax[0,0].set_title("kl_strategy #1")
-ax[0,0].set_ylabel("kdim, ell")
-ax[0,0].plot(dcgmo_kdim[("mc", "previous", 0)], label="kdim")
-ax[0,0].plot(dcgmo_ell[("mc", "previous", 0)], label="ell")
-ax[0,1].set_title("Number of solver iterations, n_it")
-ax[0,1].plot(cgmo_it["mc"], "k", lw=lw, label="cgmo")
-ax[0,1].plot(dcgmo_it[("mc", "previous", 0)], "r", lw=lw)
-ax[0,1].plot(dcgmo_it[("mc", "current", 0)], "g", lw=lw)
-ax[0,2].set_title("Relative number of solver iterations wrt CG")
-ax[0,2].plot(np.array(dcgmo_it[("mc", "previous", 0)])/np.array(cgmo_it["mc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
-ax[0,2].plot(np.array(dcgmo_it[("mc", "current", 0)])/np.array(cgmo_it["mc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
-ax[0,0].legend(frameon=False, ncol=2); ax[0,1].legend(frameon=False); ax[0,2].legend(frameon=False, ncol=2)
-# Second row:
-ax[1,0].set_title("kl_strategy #2")
-ax[1,0].set_ylabel("kdim, ell")
-ax[1,0].plot(dcgmo_kdim[("mc", "previous", 1)], label="kdim")
-ax[1,0].plot(dcgmo_ell[("mc", "previous", 1)], label="ell")
-ax[1,1].set_title("Number of solver iterations, n_it")
-ax[1,1].plot(cgmo_it["mc"], "k", lw=lw, label="cgmo")
-ax[1,1].plot(dcgmo_it[("mc", "previous", 1)], "r", lw=lw)
-ax[1,1].plot(dcgmo_it[("mc", "current", 1)], "g", lw=lw)
-ax[1,2].set_title("Relative number of solver iterations wrt CG")
-ax[1,2].plot(np.array(dcgmo_it[("mc", "previous", 1)])/np.array(cgmo_it["mc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
-ax[1,2].plot(np.array(dcgmo_it[("mc", "current", 1)])/np.array(cgmo_it["mc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
-ax[1,0].legend(frameon=False, ncol=2); ax[1,1].legend(frameon=False); ax[1,2].legend(frameon=False, ncol=2)
-# Third row:
-ax[2,0].set_title("kl_strategy #3")
-ax[2,0].set_ylabel("kdim, ell")
-ax[2,0].plot(dcgmo_kdim[("mc", "previous", 2)], label="kdim")
-ax[2,0].plot(dcgmo_ell[("mc", "previous", 2)], label="ell")
-ax[2,1].set_title("Number of solver iterations, n_it")
-ax[2,1].plot(cgmo_it["mc"], "k", lw=lw, label="cgmo")
-ax[2,1].plot(dcgmo_it[("mc", "previous", 2)], "r", lw=lw)
-ax[2,1].plot(dcgmo_it[("mc", "current", 2)], "g", lw=lw)
-ax[2,2].set_title("Relative number of solver iterations wrt CG")
-ax[2,2].plot(np.array(dcgmo_it[("mc", "previous", 2)])/np.array(cgmo_it["mc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
-ax[2,2].plot(np.array(dcgmo_it[("mc", "current", 2)])/np.array(cgmo_it["mc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
-ax[2,2].set_ylim(0.6,1)
-ax[2,0].legend(frameon=False, ncol=2); ax[2,1].legend(frameon=False); ax[2,2].legend(frameon=False, ncol=2)
-for j in range(3):
-  ax[0,j].set_ylim(ax[2,j].get_ylim())
-  ax[1,j].set_ylim(ax[2,j].get_ylim())
-  ax[2,j].set_xlabel("Realization index, t")
-ax[0,2].grid(); ax[1,2].grid(); ax[2,2].grid()
-pl.show()
-
-fig, ax = pl.subplots(3, 3, figsize=(13.5,10.5), sharex="col")
-fig.suptitle("DCGMO -- MCMC sampler")
-# First row:
-ax[0,0].set_title("kl_strategy #1")
-ax[0,0].set_ylabel("kdim, ell")
-ax[0,0].plot(dcgmo_kdim[("mcmc", "previous", 0)], label="kdim")
-ax[0,0].plot(dcgmo_ell[("mcmc", "previous", 0)], label="ell")
-ax[0,1].set_title("Number of solver iterations, n_it")
-ax[0,1].plot(cgmo_it["mcmc"], "k", lw=lw, label="cgmo")
-ax[0,1].plot(dcgmo_it[("mcmc", "previous", 0)], "r", lw=lw)
-ax[0,1].plot(dcgmo_it[("mcmc", "current", 0)], "g", lw=lw)
-ax[0,2].set_title("Relative number of solver iterations wrt CG")
-ax[0,2].plot(np.array(dcgmo_it[("mcmc", "previous", 0)])/np.array(cgmo_it["mcmc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
-ax[0,2].plot(np.array(dcgmo_it[("mcmc", "current", 0)])/np.array(cgmo_it["mcmc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
-ax[0,0].legend(frameon=False, ncol=2); ax[0,1].legend(frameon=False); ax[0,2].legend(frameon=False, ncol=2)
-# Second row:
-ax[1,0].set_title("kl_strategy #2")
-ax[1,0].set_ylabel("kdim, ell")
-ax[1,0].plot(dcgmo_kdim[("mcmc", "previous", 1)], label="kdim")
-ax[1,0].plot(dcgmo_ell[("mcmc", "previous", 1)], label="ell")
-ax[1,1].set_title("Number of solver iterations, n_it")
-ax[1,1].plot(cgmo_it["mcmc"], "k", lw=lw, label="cgmo")
-ax[1,1].plot(dcgmo_it[("mcmc", "previous", 1)], "r", lw=lw)
-ax[1,1].plot(dcgmo_it[("mcmc", "current", 1)], "g", lw=lw)
-ax[1,2].set_title("Relative number of solver iterations wrt CG")
-ax[1,2].plot(np.array(dcgmo_it[("mcmc", "previous", 1)])/np.array(cgmo_it["mcmc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
-ax[1,2].plot(np.array(dcgmo_it[("mcmc", "current", 1)])/np.array(cgmo_it["mcmc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
-ax[1,0].legend(frameon=False, ncol=2); ax[1,1].legend(frameon=False); ax[1,2].legend(frameon=False, ncol=2)
-# Third row:
-ax[2,0].set_title("kl_strategy #3")
-ax[2,0].set_ylabel("kdim, ell")
-ax[2,0].plot(dcgmo_kdim[("mcmc", "previous", 2)], label="kdim")
-ax[2,0].plot(dcgmo_ell[("mcmc", "previous", 2)], label="ell")
-ax[2,1].set_title("Number of solver iterations, n_it")
-ax[2,1].plot(cgmo_it["mcmc"], "k", lw=lw, label="cgmo")
-ax[2,1].plot(dcgmo_it[("mcmc", "previous", 2)], "r", lw=lw)
-ax[2,1].plot(dcgmo_it[("mcmc", "current", 2)], "g", lw=lw)
-ax[2,2].set_title("Relative number of solver iterations wrt CG")
-ax[2,2].plot(np.array(dcgmo_it[("mcmc", "previous", 2)])/np.array(cgmo_it["mcmc"], dtype=float), "r", lw=lw, label="dcgmo-prev")
-ax[2,2].plot(np.array(dcgmo_it[("mcmc", "current", 2)])/np.array(cgmo_it["mcmc"], dtype=float), "g", lw=lw, label="dcgmo-curr")
-ax[2,2].set_ylim(0.6,1)
-ax[2,0].legend(frameon=False, ncol=2); ax[2,1].legend(frameon=False); ax[2,2].legend(frameon=False, ncol=2)
-for j in range(3):
-  ax[0,j].set_ylim(ax[2,j].get_ylim())
-  ax[1,j].set_ylim(ax[2,j].get_ylim())
-  ax[2,j].set_xlabel("Realization index, t")
-ax[0,2].grid(); ax[1,2].grid(); ax[2,2].grid()
-pl.show()
+save_data()
+plot()
 ```
 
 Output :
@@ -579,7 +484,7 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M​$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated. 
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated. 
 
 ```python
 import sys; sys.path += ["../"]

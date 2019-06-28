@@ -49,5 +49,5 @@ while (mcmc.cnt_accepted_proposals <= nsmp):
       pcgmo_dtbJ_it[i] += [pcg_dtbJ[i].it]
     pcgmo_medbJ_it += [pcg_medbJ.it]
 
-save_data(cgmo_medbJ_it, pcgmo_dtbJ_it)
+save_data(pcgmo_medbJ_it, pcgmo_dtbJ_it)
 plot()

@@ -22,7 +22,7 @@ Classes: `sampler`, `solver`, `recycler`.
 
 
 
-***
+___
 
 _samplers.py_ : 
 
@@ -66,7 +66,7 @@ Assembles sampled operators in a sequence $\{\mathbf{A}(\theta_t)\}_{t=1}^M$ for
 
 
 
-***
+___
 
 _solvers.py_ :
 
@@ -132,11 +132,11 @@ Solves a linear system iteratively and potentially recycles some information abo
   Signature : `solve`(`self`, `x0`, `x_sol`=`None`)
 
   - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate.
-
   - `x_sol` (`ndarray`, `x_sol.shape`=`(n,)`) : Exact solution used to compute A-norm errors.
 
 
-***
+
+___
 
 _recyclers.py_ : 
 
@@ -194,6 +194,8 @@ The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_
 
   - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate, later projected onto the orthogonal complement of the deflation subspace if `self.type`={`"dcgmo"`, `"dpcgmo"`}.
 
+___
+
 
 ### Usage:
 
@@ -205,6 +207,8 @@ Examples:
 - _example04_recycler.py_ : Shows the effect of `kl_strategy` and `which_op` on DCGMO results for sequences of systems sampled by MC, and by MCMC.
 - _example05_recycler.py_ : Shows the effect of `t_end_def` on DPCGMO.
 - _example06_recycler.py_ : Shows the effect of `dp_seq` on DPCGMO.
+
+___
 
 #### Example #1: example01_sampler.py
 

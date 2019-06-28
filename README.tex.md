@@ -579,14 +579,13 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated. 
+Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M​$ sampled by MC and by MCMC. Local and global errors of Ritz values are investigated. 
 
 ```python
 import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 from recyclers import recycler
-import pylab as pl
 import numpy as np
 from example05_recycler_plot import *
 

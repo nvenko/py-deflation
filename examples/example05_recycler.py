@@ -2,7 +2,6 @@ import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 from recyclers import recycler
-import pylab as pl
 import numpy as np
 from example05_recycler_plot import *
 

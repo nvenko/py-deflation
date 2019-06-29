@@ -721,7 +721,7 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
 save_data(dpcgmo_it, pcgmo_it, case)
-plot(case=case)
+plot(case=case) 
 ```
 
 Output :

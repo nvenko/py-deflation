@@ -11,7 +11,7 @@ sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
-case = "a" # {"a", "b", "c"}
+case = "c" # {"a", "b", "c"}
 
 smp, dpcg, dpcgmo = {}, {}, {}
 

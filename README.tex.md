@@ -635,7 +635,7 @@ Output :
 
 Observations :
 
-*.
+First, the strictly positive envelopes of the sampled spectra theoretically deflated with exact eigenvectors do  not significantly vary from realization to realization. Second, the cases for which higher gains of iterations where observed in Example #4, namely strategies #2 and #3, are associated to smaller strictly positive envelopes of deflated operators, here by less than one order of magnitude in comparison to strategy #1.
 
 #### Example #6: example06_recycler.py
 

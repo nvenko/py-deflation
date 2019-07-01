@@ -205,8 +205,9 @@ Examples:
 - _example02_solver.py_ : Use of the `solver` class to solve MC and MCMC sampled sequences of systems by PCG.
 - _example03_recycler.py_ : Use of the `recycler` class to solve a MCMC sampled sequences of systems by PCGMO using constant and realization-dependent preconditioners. 
 - _example04_recycler.py_ : Effect of `kl_strategy` and `which_op` on DCGMO results for sequences of systems sampled by MC and by MCMC.
-- _example05_recycler.py_ : Envelopes and full spectra of operators and deflated operators from example #4 sampled by MC and by MCMC.
-- _example06_recycler.py_ : Effect of `dp_seq` on PDCGMO results for sequences of systems sampled by MC and by MCMC.
+- _example05_recycler.py_ : Envelopes and full spectra of operators and deflated operators from example #4.
+- _example06_recycler.py_ : Effect of `dp_seq` and `which_op` on PDCGMO results for sequences of systems sampled by MC and by MCMC.
+- _example07_recycler.py_ : Envelopes and full spectra of operators and deflated operators from example #6.
 
 
 
@@ -491,7 +492,7 @@ Output :
 
 #### Example #5: example05_recycler.py
 
-Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO as in Example #4. Additionally, envelopes of positive spectra and full spectra of the sampled operators and corresponding deflated operators are investigated.
+Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO as in Example #4. Additionally, envelopes of strictly positive spectra and full spectra of the sampled operators and corresponding deflated operators are investigated.
 
 ```python
 import sys; sys.path += ["../"]
@@ -736,4 +737,8 @@ The following observed. First, `which_op` does not significantly impact the numb
 
 In cases where median and median-AMG are used as preconditioners, the gain of iterations of deflation+preconditioning varies from close to none to relatively low. In particular, no improvement is observed when sampling by MC, while MCMC sampled chains lead to better iteration gains when the preconditioner is applied to an already deflated operator, i.e. when `seq_dp`=`"dpcgmo-pd"` as opposed to `"dpcgmo-dp"`. 
 
-When median-bJ10 is used, the observed iteration gains are far more substantial owing to the trail of isolated eigenvalues left in the lower of part of the spectrum through the action of the preconditioner. In this case, deflation+preconditioning does result in some iteration gains when applied to a MC-sampled sequence---the relative gain obtained when  `seq_dp`=`"dpcgmo-dp"` is by far more realization dependent than the rather stable gain obtained for  `seq_dp`=`"dpcgmo-pd"`. The effect of deflation is, again, more significant when applied to the MCMC sampled sequence of systems. In particular, the relative gains obtained are more important and less realization dependent. The difference between deflating before preconditioning versus the opposite is not as clear in the case this MCMC sampled sequence.
+When median-bJ10 is used, the observed iteration gains are far more substantial owing to the trail of isolated eigenvalues left in the lower of part of the spectrum by the action of the preconditioner. In this case, deflation+preconditioning does result in some iteration gains when applied to a MC sampled sequence; and the relative gain obtained with `seq_dp`=`"dpcgmo-dp"` is by far more realization dependent than the rather stable gain obtained with `seq_dp`=`"dpcgmo-pd"`. The effect of deflation is, again, more significant when applied to MCMC sampled sequences. In particular, the relative gains obtained are more important and less realization dependent. However, the difference between deflating before preconditioning versus the opposite is not as clear in the case of this MCMC sampled sequence.
+
+#### Example #7: example07_recycler.py
+
+Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO as in Example #6. Additionally, envelopes of strictly positive spectra and full spectra of the sampled operators and corresponding deflated operators are investigated.

@@ -250,7 +250,9 @@ Output :
 
 ![example01_sampler](./figures/example01_sampler.png)
 
+Observations :
 
+*.
 
 #### Example #2: example02_solver.py
 
@@ -308,7 +310,9 @@ Output :
 
 ![example02_solver](./figures/example02_solver.png)
 
+Observations :
 
+*.
 
 #### Example #3: example03_recycler.py
 
@@ -374,7 +378,9 @@ Output :
 
 ![example03_recycler](./figures/example03_recycler.png)
 
+Observations :
 
+*.
 
 #### Example #4: example04_recycler.py
 
@@ -488,7 +494,9 @@ Output :
 
 ![example04_recycler_b](./figures/example04_recycler_b.png)
 
+Observations :
 
+*.
 
 #### Example #5: example05_recycler.py
 
@@ -619,13 +627,15 @@ plot(case=case)
 
 Output :
 
-
-
 ![example05_recycler_a](./figures/example05_recycler_a.png)
 
 ![example05_recycler_b](./figures/example05_recycler_b.png)
 
 ![example05_recycler_c](./figures/example05_recycler_c.png)
+
+Observations :
+
+*.
 
 #### Example #6: example06_recycler.py
 
@@ -733,7 +743,9 @@ Output :
 
 ![example06_recycler_c](./figures/example06_recycler_c.png)
 
-The following observed. First, `which_op` does not significantly impact the numbers of iterations gained through strategies which combine deflation with preconditioning (in comparison to a resolution by PCG)---this remains true independently of `dp_seq`, the preconditioner used, and the sampling strategy. Second, MCMC sampled chains allow for more iteration gains per realization than their MC counterpart. 
+Observations :
+
+First, `which_op` does not significantly impact the numbers of iterations gained through strategies which combine deflation with preconditioning (in comparison to a resolution by PCG)---this remains true independently of `dp_seq`, the preconditioner used, and the sampling strategy. Second, MCMC sampled chains allow for more iteration gains per realization than their MC counterpart. 
 
 In cases where median and median-AMG are used as preconditioners, the gain of iterations of deflation+preconditioning varies from close to none to relatively low. In particular, no improvement is observed when sampling by MC, while MCMC sampled chains lead to better iteration gains when the preconditioner is applied to an already deflated operator, i.e. when `seq_dp`=`"dpcgmo-pd"` as opposed to `"dpcgmo-dp"`. 
 

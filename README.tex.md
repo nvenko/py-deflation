@@ -631,7 +631,7 @@ Output :
 
 Observations :
 
-First, the strictly positive envelopes, and conditioning number, of the sampled spectra deflated with exact eigenvectors do not significantly vary from realization to realization. Second, the cases for which higher gains of iterations were observed in Example #4, namely strategies #2 and #3, are associated with smaller relative conditioning numbers of deflated operators, here by about half an order of magnitude for MCMC sampling in comparison to strategy #1, and less in case of MC sampling. Third, absence of significant effect of `which_op` observed in Example #4 is similarly observed on the deflated spectra, particularly so in case of MCMC sampling.
+First, the strictly positive envelopes, and conditioning number, of the sampled spectra deflated with exact eigenvectors do not significantly vary from realization to realization. Second, the cases for which higher gains of iterations were observed in Example #4, namely strategies #2 and #3, are associated with smaller relative conditioning numbers of deflated operators, here by about half an order of magnitude for MCMC sampling in comparison to strategy #1, and less in case of MC sampling. Third, absence of significant effect of `which_op` observed in Example #4 is similarly observed on the deflated spectra, particularly so in case of MCMC sampling. 
 
 #### Example #6: example06_recycler.py
 

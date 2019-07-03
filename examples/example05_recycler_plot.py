@@ -12,7 +12,7 @@ import numpy as np
 
 figures_path = '../figures/'
 
-lw = 0.3
+lw = 0.5
 
 def get_envelopes_A(SpA, dcgmo_kdim):
   SpA_0 = [Sp[0] for Sp in SpA]
@@ -52,14 +52,16 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
   _dcgmo = ("mc", "previous", 0)
   SpA_0, SpA_k, SpA_n = get_envelopes_A(smp_SpA["mc"], dcgmo_kdim[_dcgmo])
   cond_A = np.array(SpA_n)/np.array(SpA_0)
+  cond_HtA = np.array(SpA_n)/np.array(SpA_k)  
+  ax[0,1].set_title(r"$\mathrm{cond}(H^TA)/\mathrm{cond}(A)$")
+  ax[0,1].semilogy(cond_HtA/cond_A, "b", lw=lw)
   ax[0,0].semilogy(SpA_0, "k", lw=lw)
-  ax[0,0].semilogy(SpA_k, "k", lw=lw)
+  ax[0,0].semilogy(SpA_k, "b", lw=lw)
   ax[0,0].semilogy(SpA_n, "k", lw=lw)
   SpHtA_k, SpHtA_n = get_envelopes_HtA(dcgmo_SpHtA[_dcgmo], dcgmo_kdim[_dcgmo])
   cond_HtA = np.concatenate(([cond_A[0]],np.array(SpHtA_n[1:])/np.array(SpHtA_k[1:])))
   ax[0,0].semilogy(SpHtA_k, "r", lw=lw, label="dcgmo-previous")
   ax[0,0].semilogy(SpHtA_n, "r", lw=lw)
-  ax[0,1].set_title(r"$\mathrm{cond}(H^TA)/\mathrm{cond}(A)$")
   ax[0,1].semilogy(cond_HtA/cond_A, "r", lw=lw)
   _dcgmo = ("mc", "current", 0)
   SpHtA_k, SpHtA_n = get_envelopes_HtA(dcgmo_SpHtA[_dcgmo], dcgmo_kdim[_dcgmo])
@@ -91,15 +93,17 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
   ax[1,0].set_title("envelopes")
   SpA_0, SpA_k, SpA_n = get_envelopes_A(smp_SpA["mcmc"], dcgmo_kdim[_dcgmo])
   cond_A = np.array(SpA_n)/np.array(SpA_0)
-  ax[1,0].semilogy(SpA_0, "k", lw=lw, label=r"$\lambda_{1}(A),\;\lambda_{k}(A),\;\lambda_{n}(A)$")
-  ax[1,0].semilogy(SpA_k, "k", lw=lw)
+  cond_HtA = np.array(SpA_n)/np.array(SpA_k)  
+  ax[1,1].set_title(r"$\mathrm{cond}(H^TA)/\mathrm{cond}(A)$")
+  ax[1,1].semilogy(cond_HtA/cond_A, "b", lw=lw)
+  ax[1,0].semilogy(SpA_0, "k", lw=lw, label=r"$\lambda_{1}(A),\;\lambda_{n}(A)$")
+  ax[1,0].semilogy(SpA_k, "b", lw=lw, label=r"$\lambda_{k}(A)$")
   ax[1,0].semilogy(SpA_n, "k", lw=lw)
   _dcgmo = ("mcmc", "previous", 0)
   SpHtA_k, SpHtA_n = get_envelopes_HtA(dcgmo_SpHtA[_dcgmo], dcgmo_kdim[_dcgmo])
   cond_HtA = np.concatenate(([cond_A[0]],np.array(SpHtA_n[1:])/np.array(SpHtA_k[1:])))
   ax[1,0].semilogy(SpHtA_k, "r", lw=lw, label=r"$\lambda_{k}(H^TA),\;\lambda_{n}(H^TA)$")
   ax[1,0].semilogy(SpHtA_n, "r", lw=lw)
-  ax[1,1].set_title(r"$\mathrm{cond}(H^TA)/\mathrm{cond}(A)$")
   ax[1,1].semilogy(cond_HtA/cond_A, "r", lw=lw)
   _dcgmo = ("mcmc", "current", 0)
   SpHtA_k, SpHtA_n = get_envelopes_HtA(dcgmo_SpHtA[_dcgmo], dcgmo_kdim[_dcgmo])
@@ -107,7 +111,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
   ax[1,0].semilogy(SpHtA_n, "g", lw=lw)
   cond_HtA = np.concatenate(([cond_A[0]],np.array(SpHtA_n[1:])/np.array(SpHtA_k[1:])))
   ax[1,1].semilogy(cond_HtA/cond_A, "g", lw=lw)
-  ax[1,0].legend(frameon=False)
+  ax[1,0].legend(loc="upper left", bbox_to_anchor=(0.05, 0.8), frameon=False)
   # Snapshot #1
   ax[1,2].set_title(r"$\mathrm{Sp}(A), \mathrm{Sp}(H^TA)$")
   for i in range(500,506):
@@ -125,7 +129,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
     ax[1,3].semilogy((n-kdim)*[i+.33], dcgmo_SpHtA[("mcmc", "previous", 0)][i][kdim:], "r_", markersize=6)
     ax[1,3].semilogy((n-kdim)*[i+.66], dcgmo_SpHtA[("mcmc", "current", 0)][i][kdim:], "g_", markersize=6)
   ax[1,0].set_ylim(ax[0,0].get_ylim()); ax[1,2].set_ylim(ax[0,0].get_ylim()); ax[1,3].set_ylim(ax[0,0].get_ylim())
-  ax[0,1].set_ylim(1e-3,1)
+  #ax[0,1].set_ylim(1e-3,1)
   ylim0 = ax[0,1].get_ylim(); ylim1 = ax[1,1].get_ylim()
   ylim = (min(ylim0[0], ylim1[0]), max(ylim0[1], ylim1[1]))
   ax[0,1].set_ylim(ylim); ax[1,1].set_ylim(ylim)

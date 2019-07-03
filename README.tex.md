@@ -250,9 +250,7 @@ Output :
 
 ![example01_sampler](./figures/example01_sampler.png)
 
-Observations :
 
-*.
 
 #### Example #2: example02_solver.py
 
@@ -310,9 +308,7 @@ Output :
 
 ![example02_solver](./figures/example02_solver.png)
 
-Observations :
 
-*.
 
 #### Example #3: example03_recycler.py
 
@@ -635,7 +631,7 @@ Output :
 
 Observations :
 
-First, the strictly positive envelopes of the sampled spectra theoretically deflated with exact eigenvectors do  not significantly vary from realization to realization. Second, the cases for which higher gains of iterations were observed in Example #4, namely strategies #2 and #3, are associated to smaller strictly positive envelopes of deflated operators, here by less than one order of magnitude in comparison to strategy #1, as SHOULD BE SHOWN ON A PLOT OF THE CONDITIONING NUMBER. Third, `which_op` has no strong effect on the envelopes (TO CONFIRM WITH PLOTS OF CONDITIONING NUMBER).
+First, the strictly positive envelopes of the sampled spectra deflated with exact eigenvectors do not significantly vary from realization to realization. Second, the cases for which higher gains of iterations were observed in Example #4, namely strategies #2 and #3, are associated to smaller strictly positive envelopes of deflated operators, here by less than one order of magnitude in comparison to strategy #1, as SHOULD BE SHOWN ON A PLOT OF THE CONDITIONING NUMBER. Third, `which_op` has no strong effect on the envelopes (TO CONFIRM WITH PLOTS OF CONDITIONING NUMBER).
 
 #### Example #6: example06_recycler.py
 
@@ -745,11 +741,11 @@ Output :
 
 Observations :
 
-First, `which_op` does not significantly impact the numbers of iterations gained through strategies which combine deflation with preconditioning (in comparison to a resolution by PCG)---this remains true independently of `dp_seq`, the preconditioner used, and the sampling strategy. Second, MCMC sampled chains allow for more iteration gains per realization than their MC counterpart. 
+First, in comparison to a resolution by PCG, `which_op` does not significantly impact the numbers of iterations gained by strategies combining deflation with preconditioning---this is true independently of `dp_seq`, the preconditioner used, and the sampling strategy. Second, MCMC sampled chains allow for more iteration gains per realization than their MC counterpart. 
 
-In cases where median and median-AMG are used as preconditioners, the gain of iterations of deflation+preconditioning varies from close to none to relatively low. In particular, no improvement is observed when sampling by MC, while MCMC sampled chains lead to better iteration gains when the preconditioner is applied to an already deflated operator, i.e. when `seq_dp`=`"dpcgmo-pd"` as opposed to `"dpcgmo-dp"`. 
+In cases where median and median-AMG are used as preconditioners, the iterations gains vary from close to none to relatively low. In particular, no improvement is observed when sampling by MC, while MCMC sampled chains lead to better iteration gains when the preconditioner is applied to an already deflated operator, i.e. when `seq_dp`=`"dpcgmo-pd"` as opposed to `"dpcgmo-dp"`. 
 
-When median-bJ10 is used, the observed iteration gains are far more substantial owing to the trail of isolated eigenvalues left in the lower of part of the spectrum by the action of the preconditioner. In this case, deflation+preconditioning does result in some iteration gains when applied to a MC sampled sequence; and the relative gain obtained with `seq_dp`=`"dpcgmo-dp"` is by far more realization dependent than the rather stable gain obtained with `seq_dp`=`"dpcgmo-pd"`. The effect of deflation is, again, more significant when applied to MCMC sampled sequences. In particular, the relative gains obtained are more important and less realization dependent. However, the difference between deflating before preconditioning versus the opposite is not as clear in the case of this MCMC sampled sequence.
+When median-bJ10 is used, the observed iteration gains are far more substantial owing to the trail of isolated eigenvalues left in the lower of part of the spectrum by the action of the preconditioner. In this case, a MC sampled sequence does result in some iteration gains; and the relative gain obtained with `seq_dp`=`"dpcgmo-dp"` is by far more realization dependent than the rather stable gains obtained with `seq_dp`=`"dpcgmo-pd"`. The effect of deflation is, again, more significant when applied to MCMC sampled sequences. The relative gains obtained are more important and less realization dependent. However, the difference between deflating before preconditioning versus the opposite is not as clear in the case of this MCMC sampled sequence.
 
 #### Example #7: example07_recycler.py
 

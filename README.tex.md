@@ -616,7 +616,7 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
           dcgmo_SpHtA[_dcgmo] += [np.array(smp["mcmc"].n*[None])]
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
-
+ 
 save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, case)
 plot(case=case)
 ```

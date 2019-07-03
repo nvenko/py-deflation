@@ -126,9 +126,11 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
     ax[1,3].semilogy((n-kdim)*[i+.33], dcgmo_SpHtA[("mcmc", "previous", 0)][i][kdim:], "r_", markersize=6)
     ax[1,3].semilogy((n-kdim)*[i+.66], dcgmo_SpHtA[("mcmc", "current", 0)][i][kdim:], "g_", markersize=6)
   ax[1,0].set_ylim(ax[0,0].get_ylim()); ax[1,2].set_ylim(ax[0,0].get_ylim()); ax[1,3].set_ylim(ax[0,0].get_ylim())
+  ax[0,1].set_ylim(1e-3,1)
   ylim0 = ax[0,1].get_ylim(); ylim1 = ax[1,1].get_ylim()
   ylim = (min(ylim0[0], ylim1[0]), max(ylim0[1], ylim1[1]))
   ax[0,1].set_ylim(ylim); ax[1,1].set_ylim(ylim)
+  ax[0,1].grid(); ax[1,1].grid()
   for j in range(4):
     ax[1,j].set_xlabel("Realization index, t")
   pl.savefig(figures_path+"example05_recycler_"+case+".png", bbox_inches='tight')

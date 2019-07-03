@@ -45,7 +45,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, case=None):
   n = smp["mc"].n
   fig, ax = pl.subplots(2, 4, figsize=(13.5,9), sharex="col")
   strategy_name = {"a":"strategy #1", "b":"strategy #2", "c":"strategy #3"}
-  fig.suptitle("DCGMO -- %s -- Envelopes and full spectra" %strategy_name[case])
+  fig.suptitle("DCGMO -- %s -- Envelopes, conditioning numbers and spectra" %strategy_name[case])
   # Enveloppes
   ax[0,0].set_ylabel("MC sampler")
   ax[0,0].set_title("envelopes")

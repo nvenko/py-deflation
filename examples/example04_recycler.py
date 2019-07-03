@@ -95,5 +95,5 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-save_data(dcgmo_kdim, dcgmo_ell, dcgmo_it, cgmo_it)
+#save_data(dcgmo_kdim, dcgmo_ell, dcgmo_it, cgmo_it)
 plot()

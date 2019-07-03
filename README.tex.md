@@ -205,7 +205,7 @@ Examples:
 - _example02_solver.py_ : Use of the `solver` class to solve MC and MCMC sampled sequences of systems by PCG.
 - _example03_recycler.py_ : Use of the `recycler` class to solve a MCMC sampled sequences of systems by PCGMO using constant and realization-dependent preconditioners. 
 - _example04_recycler.py_ : Effect of `kl_strategy` and `which_op` on DCGMO results for sequences of systems sampled by MC and by MCMC.
-- _example05_recycler.py_ : Envelopes and full spectra of operators and deflated operators from example #4.
+- _example05_recycler.py_ : Envelopes, relative conditioning numbers and full spectra of operators and deflated operators from example #4.
 - _example06_recycler.py_ : Effect of `dp_seq` and `which_op` on PDCGMO results for sequences of systems sampled by MC and by MCMC.
 - _example07_recycler.py_ : Envelopes and full spectra of operators and deflated operators from example #6.
 
@@ -496,7 +496,7 @@ First, strategy is important for MCMC, not really for MC. Second, which_op has a
 
 #### Example #5: example05_recycler.py
 
-Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO as in Example #4. Additionally, envelopes of strictly positive spectra and full spectra of the sampled operators and corresponding deflated operators are investigated.
+Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO as in Example #4. Additionally, envelopes of strictly positive spectra, relative conditioning number of deflated operators and full spectra of the sampled operators and corresponding deflated operators are investigated.
 
 ```python
 import sys; sys.path += ["../"]

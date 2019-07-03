@@ -48,7 +48,7 @@ for __smp in ("mc", "mcmc"):
                                                t_end_kl=t_end_kl[_kl_strategy], ell_min=ell_min)
 
 cgmo_it = {"mc":[], "mcmc":[]}
-dcgmo_it, dcgmo_kdim, dcgmo_ell = {}, {}, {}
+dcgmo_it, dcgmo_kdim, dcgmo_ell, dcgmo_approx_eigvals = {}, {}, {}, {}
 smp_SpA, dcgmo_SpHtA = {"mc":[], "mcmc":[]}, {}
 
 for i_smp in range(nsmp):
@@ -63,7 +63,7 @@ for i_smp in range(nsmp):
 
       if not (dcgmo_SpHtA.has_key(_dcgmo)):
         dcgmo_SpHtA[_dcgmo] = []
-        dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo] = [], []
+        dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo], dcgmo_approx_eigvals[_dcgmo] = [], [], []
         dcgmo_it[_dcgmo] = []
 
       dcgmo[_dcgmo].do_assembly()
@@ -75,8 +75,10 @@ for i_smp in range(nsmp):
       if (dcgmo_kdim[_dcgmo][-1] > 0):
         HtA = dcgmo[_dcgmo].solver.get_deflated_op()
         dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
+        dcgmo_approx_eigvals[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigvals)]
       else:
         dcgmo_SpHtA[_dcgmo] += [np.array(smp["mc"].n*[None])]
+        dcgmo_approx_eigvals[_dcgmo] += [None]
 
       dcgmo[_dcgmo].solve()
       dcgmo_it[_dcgmo] = [dcgmo[_dcgmo].solver.it]
@@ -96,7 +98,7 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
 
         if not (dcgmo_SpHtA.has_key(_dcgmo)):
           dcgmo_SpHtA[_dcgmo] = []
-          dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo] = [], []
+          dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo], dcgmo_approx_eigvals[_dcgmo] = [], [], []
           dcgmo_it[_dcgmo] = []
 
         dcgmo[_dcgmo].do_assembly()
@@ -111,10 +113,12 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
         if (dcgmo_kdim[_dcgmo][-1] > 0):
           HtA = dcgmo[_dcgmo].solver.get_deflated_op()
           dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
+          dcgmo_approx_eigvals[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigvals)]
         else:
           dcgmo_SpHtA[_dcgmo] += [np.array(smp["mcmc"].n*[None])]
+          dcgmo_approx_eigvals[_dcgmo] += [None]
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, case)
+save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, dcgmo_approx_eigvals, case)
 plot(case=case)

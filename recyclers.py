@@ -94,9 +94,10 @@ class recycler:
 
   def __approx_eigvecs(self, G, F, new_kdim):
     if (self.approx == "HR"):
-      _, eigvecs = scipy.linalg.eigh(G, F, eigvals=(0, new_kdim-1))
+      eigvals, eigvecs = scipy.linalg.eigh(G, F, eigvals=(0, new_kdim-1))
     elif (self.approx == "RR"):
-      _, eigvecs = scipy.linalg.eigh(G, F, eigvals=(self.solver.kdim+self.solver.ell-new_kdim, self.solver.kdim+self.solver.ell-1))
+      eigvals, eigvecs = scipy.linalg.eigh(G, F, eigvals=(self.solver.kdim+self.solver.ell-new_kdim, self.solver.kdim+self.solver.ell-1))
+    self.eigvals = eigvals
     
     if (self.solver.kdim > 0) & (self.solver.ell >0):
       self.solver.W = self.solver.W.dot(eigvecs[:self.solver.kdim,:]) \

@@ -160,7 +160,7 @@ class sampler:
       # Neumann BC @ xb
       self.A = self.h**-1*sparse.diags([-self.kappa[1:], Ann[1:], -self.kappa[1:]], [-1,0,1])
       if (self.du_xb == 0):
-        if (type(self.b) == type(None)):
+        if not isinstance(self.b, np.ndarray):
           self.__set_b()
       else:
         self.__set_b()
@@ -168,7 +168,7 @@ class sampler:
       # Dirichlet BC @ xb
       self.A = self.h**-1*sparse.diags([-self.kappa[1:-1], Ann[1:-1], -self.kappa[1:-1]], [-1,0,1])
       if (self.u_xb == 0):
-        if (type(self.b) == type(None)):
+        if not isinstance(self.b, np.ndarray):
           self.__set_b()
       else:
         self.__set_b()

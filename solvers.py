@@ -20,7 +20,7 @@ class solver:
     if (self.ell < 0):
       self.ell = 0
     if (self.type == "dcg") | (self.type == "dpcg"):
-      if (type(W) != type(None)):
+      if isinstance(W, np.ndarray):
         self.W = W
         self.kdim = self.W.shape[1]
       else:
@@ -32,7 +32,7 @@ class solver:
   def solve(self, x0, x_sol=None):
     self.x0 = x0
     self.x = None
-    if (type(x_sol) == type(None)):
+    if not isinstance(x_sol, np.ndarray):
       Error = False
     else:
       self.x_sol = x_sol
@@ -43,14 +43,14 @@ class solver:
     elif (self.type == "pcg"):
       self.__pcg(Error=Error)
     elif (self.type == "dcg"):
-      if (type(self.W) == type(None)):
+      if not isinstance(self.W, np.ndarray):
         self.__cg(Error=Error)
       else:
         r0 = self.b-self.A.dot(x0)
         self.x0 += self.W.dot(self.__apply_invWtAW(self.W.T.dot(r0)))
         self.__dcg(Error=Error)
     elif (self.type == "dpcg"):
-      if (type(self.W) == type(None)):
+      if not isinstance(self.W, np.ndarray):
         self.__pcg(Error=Error)
       else:
         r0 = self.b-self.A.dot(x0)
@@ -108,12 +108,12 @@ class solver:
     if (self.ell > 0):
       self.P = np.zeros((self.n,self.ell))
     if (self.type == "dcg"):
-      if (type(self.W) != type(None)):
+      if isinstance(self.W, np.ndarray):
         self.AW = self.A.dot(self.W)
         self.WtAW = self.W.T.dot(self.AW)
         self.__set_factorization_WtAW()
     elif (self.type == "dpcg"):
-      if (type(self.W) != type(None)):
+      if isinstance(self.W, np.ndarray):
         self.AW = self.A.dot(self.W)
         self.WtAW = self.W.T.dot(self.AW)
         self.__set_factorization_WtAW()

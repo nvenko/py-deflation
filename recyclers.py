@@ -334,7 +334,7 @@ class recycler:
     self.solver.presolve(A=self.sampler.A, b=self.sampler.b, ell=self.solver.ell)
 
   def solve(self, x0=None):
-    if (type(x0) == type(None)):
+    if not isinstance(x0, np.ndarray):
       x0 = np.zeros(self.sampler.n)
     self.solver.solve(x0=x0)
     # self.solver.ell was updated here

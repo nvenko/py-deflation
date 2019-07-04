@@ -29,7 +29,13 @@ def get_eigen_errors(eigen_error, kdim):
   kmax = max(kdim)
   errors = np.array(kmax*[len(kdim)*[None]])
   for k in range(kmax):
-    tk = kdim.index(k+1)
+    _k = k 
+    while True:
+      try:
+        tk = kdim.index(_k+1)
+        break
+      except ValueError:
+        _k += 1
     errors[k,tk:] = [err[k] for err in eigen_error[tk:]]
   return errors
 

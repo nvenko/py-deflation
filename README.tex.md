@@ -625,6 +625,8 @@ Output :
 
 ![example05_recycler_a](./figures/example05_recycler_a.png)
 
+![example05_recycler_c](./figures/example05_recycler_err_a.png)
+
 ![example05_recycler_b](./figures/example05_recycler_b.png)
 
 ![example05_recycler_c](./figures/example05_recycler_c.png)

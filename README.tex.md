@@ -638,7 +638,7 @@ First, the strictly positive envelopes, and conditioning number, of the sampled 
 Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, three different constant preconditioners are used : (1) median-bJ10, (2) median and (3) median-AMG. The effect of `dp_seq` and `which_op` are investigated on the number of solver iterations in comparison to those obtained by PCG resolution.
 
 ```python
-import sys; sys.path += ["../"]
+import sys; sys.path += ["../"] 
 from samplers import sampler
 from solvers import solver
 from recyclers import recycler

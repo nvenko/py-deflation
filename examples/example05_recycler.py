@@ -11,7 +11,7 @@ sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
-case = "b" # {"a", "b", "c"}
+case = "c" # {"a", "b", "c"}
 
 
 smp, dcg, dcgmo = {}, {}, {}
@@ -49,6 +49,7 @@ for __smp in ("mc", "mcmc"):
 
 cgmo_it = {"mc":[], "mcmc":[]}
 dcgmo_it, dcgmo_kdim, dcgmo_ell, dcgmo_approx_eigvals = {}, {}, {}, {}
+dcgmo_ritz_coef, dcgmo_eigen_error = {}, {}
 smp_SpA, dcgmo_SpHtA = {"mc":[], "mcmc":[]}, {}
 
 for i_smp in range(nsmp):
@@ -64,6 +65,7 @@ for i_smp in range(nsmp):
       if not (dcgmo_SpHtA.has_key(_dcgmo)):
         dcgmo_SpHtA[_dcgmo] = []
         dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo], dcgmo_approx_eigvals[_dcgmo] = [], [], []
+        dcgmo_ritz_coef[_dcgmo], dcgmo_eigen_error[_dcgmo] = [], []
         dcgmo_it[_dcgmo] = []
 
       dcgmo[_dcgmo].do_assembly()
@@ -76,9 +78,14 @@ for i_smp in range(nsmp):
         HtA = dcgmo[_dcgmo].solver.get_deflated_op()
         dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
         dcgmo_approx_eigvals[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigvals)]
+        dcgmo_ritz_coef[_dcgmo] += [np.copy(dcgmo[_dcgmo].ritz_coef)]
+        dcgmo_eigen_error[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigen_error)]
+
       else:
         dcgmo_SpHtA[_dcgmo] += [np.array(smp["mc"].n*[None])]
         dcgmo_approx_eigvals[_dcgmo] += [None]
+        dcgmo_ritz_coef[_dcgmo] += [None]
+        dcgmo_eigen_error[_dcgmo] += [None]
 
       dcgmo[_dcgmo].solve()
       dcgmo_it[_dcgmo] = [dcgmo[_dcgmo].solver.it]
@@ -99,6 +106,7 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
         if not (dcgmo_SpHtA.has_key(_dcgmo)):
           dcgmo_SpHtA[_dcgmo] = []
           dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo], dcgmo_approx_eigvals[_dcgmo] = [], [], []
+          dcgmo_ritz_coef[_dcgmo], dcgmo_eigen_error[_dcgmo] = [], []
           dcgmo_it[_dcgmo] = []
 
         dcgmo[_dcgmo].do_assembly()
@@ -114,11 +122,15 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
           HtA = dcgmo[_dcgmo].solver.get_deflated_op()
           dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
           dcgmo_approx_eigvals[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigvals)]
+          dcgmo_ritz_coef[_dcgmo] += [np.copy(dcgmo[_dcgmo].ritz_coef)]
+          dcgmo_eigen_error[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigen_error)]
         else:
           dcgmo_SpHtA[_dcgmo] += [np.array(smp["mcmc"].n*[None])]
           dcgmo_approx_eigvals[_dcgmo] += [None]
+          dcgmo_ritz_coef[_dcgmo] += [None]
+          dcgmo_eigen_error[_dcgmo] += [None]
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, dcgmo_approx_eigvals, case)
+save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, dcgmo_approx_eigvals, dcgmo_ritz_coef, dcgmo_eigen_error, case)
 plot(case=case)

@@ -98,7 +98,7 @@ class recycler:
     elif (self.approx == "RR"):
       eigvals, eigvecs = scipy.linalg.eigh(G, F, eigvals=(self.solver.kdim+self.solver.ell-new_kdim, self.solver.kdim+self.solver.ell-1))
     self.eigvals = eigvals
-    
+
     if (self.solver.kdim > 0) & (self.solver.ell >0):
       self.solver.W = self.solver.W.dot(eigvecs[:self.solver.kdim,:]) \
                       + self.solver.P.dot(eigvecs[self.solver.kdim:,:])
@@ -106,6 +106,13 @@ class recycler:
       self.solver.W = self.solver.W.dot(eigvecs[:self.solver.kdim,:])
     else:
       self.solver.W = self.solver.P.dot(eigvecs)
+
+    Aeigvecs = self.sampler.A.dot(self.solver.W)
+    wk2 = np.array([self.solver.W[:,k].T.dot(self.solver.W[:,k]) for k in range(new_kdim)])
+
+    self.ritz_coef = np.array([self.solver.W[:,k].T.dot(Aeigvecs[:,k]) for k in range(new_kdim)])/wk2
+    self.eigen_error = np.array([np.linalg.norm(Aeigvecs[:,k]-self.ritz_coef[k]*self.solver.W[:,k])/wk2[k]**.5 for k in range(new_kdim)])
+
 
   def __update_W(self):
     G = np.zeros((self.solver.kdim+self.solver.ell,self.solver.kdim+self.solver.ell))

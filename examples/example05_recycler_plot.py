@@ -25,12 +25,14 @@ def get_envelopes_HtA(SpHtA, dcgmo_kdim):
   SpHtA_n = [Sp[-1] for Sp in SpHtA]
   return SpHtA_k, SpHtA_n
 
-def save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, dcgmo_eigvals, case):
+def save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, dcgmo_eigvals, dcgmo_ritz_coef, dcgmo_eigen_error, case):
   np.save(".example05_recycler_smp_"+case, smp)
   np.save(".example05_recycler_smp_SpA_"+case, smp_SpA)
   np.save(".example05_recycler_dcgmo_SpHtA_"+case, dcgmo_SpHtA)
   np.save(".example05_recycler_dcgmo_kdim_"+case, dcgmo_kdim)
   np.save(".example05_recycler_dcgmo_eigvals_"+case, dcgmo_eigvals)
+  np.save(".example05_recycler_dcgmo_ritz_coef_"+case, dcgmo_ritz_coef)
+  np.save(".example05_recycler_dcgmo_eigen_error_"+case, dcgmo_eigen_error)
 
 def load_data(case):
     smp = np.load(".example05_recycler_smp_"+case+".npy").item()
@@ -157,3 +159,6 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, dcgmo_eigval
     ax[1,j].set_xlabel("Realization index, t")
   pl.savefig(figures_path+"example05_recycler_"+case+".png", bbox_inches='tight')
   #pl.show()
+
+
+#fig, ax = pl.subplots(1, 2, figsize=(7.5,4))

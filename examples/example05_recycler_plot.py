@@ -64,7 +64,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, dcgmo_eigval
 
   n = smp["mc"].n
   fig, ax = pl.subplots(2, 4, figsize=(13.5,8), sharex="col")
-  strategy_name = {"a":"strategy #1", "b":"strategy #2", "c":"strategy #3"}
+  strategy_name = {"a":"strategy #1", "b":"strategy #2", "c":"strategy #3", "d":"strategy #4"}
   fig.suptitle("DCGMO -- %s -- Envelopes, conditioning numbers and spectra" %strategy_name[case])
   # Enveloppes
   ax[0,0].set_ylabel("MC sampler")
@@ -174,7 +174,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, dcgmo_eigval
     if (i < 3001):
       ax[1,3].semilogy((i+.5,i+.5), (1e-3,5e4),"k", lw=lw)
   ax[1,0].set_ylim(ax[0,0].get_ylim()); ax[1,2].set_ylim(ax[0,0].get_ylim()); ax[1,3].set_ylim(ax[0,0].get_ylim())
-  #ax[0,1].set_ylim(1e-3,1)
+  ax[0,1].set_ylim(1e-3,1)
   ylim0 = ax[0,1].get_ylim(); ylim1 = ax[1,1].get_ylim()
   ylim = (min(ylim0[0], ylim1[0]), max(ylim0[1], ylim1[1]))
   ax[0,1].set_ylim(ylim); ax[1,1].set_ylim(ylim)
@@ -190,6 +190,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, dcgmo_eigval
   errors = get_eigen_errors(dcgmo_eigen_error[_dcgmo], dcgmo_kdim[_dcgmo])
   for k in range(errors.shape[0]):
     ax[0].semilogy(errors[k,:], lw=lw)
+  ax[0].set_ylim(1e-3,5e3)
   _dcgmo = ("mc", "current", 0)
   ax[1].set_title("MC--current")
   errors = get_eigen_errors(dcgmo_eigen_error[_dcgmo], dcgmo_kdim[_dcgmo])
@@ -206,6 +207,7 @@ def plot(smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgmo_kdim=None, dcgmo_eigval
   for k in range(errors.shape[0]):
     ax[3].semilogy(errors[k,:], lw=lw)
   for j in range(4):
+    ax[j].grid()
     ax[j].set_xlabel("Realization index, t")
   ax[0].set_ylabel(r"$||Aw_j-\rho(w_j,A)w_j||/||w_j||$")
   #pl.show()

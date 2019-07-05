@@ -11,7 +11,7 @@ sig2, L = .357, 0.05
 model = "Exp"
 
 kl = 20
-case = "b" # {"a", "b", "c"}
+case = "e" # {"a", "b", "c", "d", "e"}
 
 
 smp, dcg, dcgmo = {}, {}, {}
@@ -28,15 +28,25 @@ cg = solver(n=smp["mc"].n, solver_type="cg")
 if (case == "a"):
   kl_strategy = (0,)
   t_end_kl = (0,)
+  ell_min = kl/2
 elif (case == "b"):
   kl_strategy = (1,)
   t_end_kl = (500,)
+  ell_min = kl/2
 elif (case == "c"):
   kl_strategy = (1,)
   t_end_kl = (1000,)
+  ell_min = kl/2
+elif (case == "d"):
+  kl_strategy = (1,)
+  t_end_kl = (5000,)
+  ell_min = kl-2
+elif (case == "e"):
+  kl_strategy = (1,)
+  t_end_kl = (2500,)
+  ell_min = kl-2
 
 n_kl_strategies = len(kl_strategy)
-ell_min = kl/2
 
 for __smp in ("mc", "mcmc"):
   for which_op in ("previous", "current"):

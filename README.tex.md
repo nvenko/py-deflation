@@ -340,8 +340,6 @@ from solvers import solver
 import numpy as np
 from example02_solver_mcmc_overhead_plot import *
 
-figures_path = '../figures/'
-
 nEl = 1000
 nsmp_mcmc = 10000
 nsmp_mc = 1000

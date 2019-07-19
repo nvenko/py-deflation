@@ -6,7 +6,7 @@ import pylab as pl
 import numpy as np
 
 """ HOW TO:
-    >>> from example03_reclycler_plot import *
+    >>> from example03_pcgmo_reclycler_plot import *
     >>> plot()
 """
 
@@ -15,16 +15,16 @@ figures_path = '../figures/'
 nb = 5
 dt = [50, 100, 250, 500, 1000]
 
-def save_data(pcgmo_medbJ_it, pcgmo_dtbJ_it):
-  np.save(".example03_recycler_pcgmo_medbJ_it", pcgmo_medbJ_it)
-  np.save(".example03_recycler_pcgmo_dtbJ_it", pcgmo_dtbJ_it)
+def save_data(pcgmo_medbJ_it, pcgmo_dtbJ_it, case_id="example03"):
+  np.save(".recycler_pcgmo_medbJ_it_%s" %case_id, pcgmo_medbJ_it)
+  np.save(".recycler_pcgmo_dtbJ_it_%s" %case_id, pcgmo_dtbJ_it)
 
-def load_data():
-    pcgmo_medbJ_it = np.load(".example03_recycler_pcgmo_medbJ_it.npy")
-    pcgmo_dtbJ_it = np.load(".example03_recycler_pcgmo_dtbJ_it.npy")
+def load_data(case_id="example03"):
+    pcgmo_medbJ_it = np.load(".recycler_pcgmo_medbJ_it_%s.npy" %case_id)
+    pcgmo_dtbJ_it = np.load(".recycler_pcgmo_dtbJ_it_%s.npy" %case_id)
     return pcgmo_medbJ_it, pcgmo_dtbJ_it
 
-def plot(pcgmo_medbJ_it=None, pcgmo_dtbJ_it=None):
+def plot(pcgmo_medbJ_it=None, pcgmo_dtbJ_it=None, case_id="example03"):
   if (type(pcgmo_medbJ_it) == type(None)):
     pcgmo_medbJ_it, pcgmo_dtbJ_it = load_data()
 
@@ -41,4 +41,4 @@ def plot(pcgmo_medbJ_it=None, pcgmo_dtbJ_it=None):
   ax[1].set_ylabel("Average relative number of solver iterations")
   ax[0].legend(frameon=False, ncol=2)
   fig.suptitle("MCMC sampled seq. solved by PCGMO w. realization dep. & constant bJ preconditioner")
-  pl.savefig(figures_path+"example03_recycler.png", bbox_inches='tight')
+  pl.savefig(figures_path+"recycler_pcgmo_%s.png" %case_id, bbox_inches='tight')

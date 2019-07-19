@@ -19,7 +19,7 @@ class sampler:
 
   def __init__(self, nEl=500, smp_type="mc", model="SExp", sig2=1, mu=0, L=0.1, 
                vsig2=None, delta2=1e-3, seed=123456789, verb=1, 
-               xa=0, xb=1, u_xb=None, du_xb=0):
+               xa=0, xb=1, u_xb=None, du_xb=0, t_switch_to_mc=0):
     self.nEl = int(abs(nEl))
     if (self.nEl <= 0):
       self.nEl = 500
@@ -81,6 +81,9 @@ class sampler:
     else:
       print 'Error: BC not properly prescribed @ xb.'
 
+
+    self.t_switch_to_mc = t_switch_to_mc
+
     if (self.verb == 2):
       print("Sampler created with following parameters:")
       print("  Number of elements: %g" %(self.nEl))
@@ -129,22 +132,26 @@ class sampler:
     if (self.type == "mc"):
       self.xi = np.random.normal(size=self.nKL)
     elif (self.type == "mcmc"):
-      if not (self.reals):
+      if (self.t_switch_to_mc > 0) & (self.cnt_accepted_proposals > self.t_switch_to_mc):
         self.xi = np.random.normal(size=self.nKL)
-        self.xitxi = self.xi.dot(self.xi)
-        self.proposal_accepted = True
         self.cnt_accepted_proposals += 1 
       else:
-        chi = self.xi+np.random.normal(scale=self.vsig2**.5, size=self.nKL)
-        chitchi = chi.dot(chi)
-        alpha=min(np.exp((self.xitxi-chitchi)/2.), 1)
-        if (np.random.uniform()<alpha):
+        if not (self.reals):
+          self.xi = np.random.normal(size=self.nKL)
+          self.xitxi = self.xi.dot(self.xi)
           self.proposal_accepted = True
           self.cnt_accepted_proposals += 1 
-          self.xi = np.copy(chi)
-          self.xitxi = np.copy(chitchi)
         else:
-          self.proposal_accepted = False
+          chi = self.xi+np.random.normal(scale=self.vsig2**.5, size=self.nKL)
+          chitchi = chi.dot(chi)
+          alpha=min(np.exp((self.xitxi-chitchi)/2.), 1)
+          if (np.random.uniform()<alpha):
+            self.proposal_accepted = True
+            self.cnt_accepted_proposals += 1 
+            self.xi = np.copy(chi)
+            self.xitxi = np.copy(chitchi)
+          else:
+            self.proposal_accepted = False
     self.reals += 1
     if (self.type == "mc"):
       self.do_assembly()

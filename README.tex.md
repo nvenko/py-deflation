@@ -80,7 +80,7 @@ Solves a linear system iteratively and potentially recycles some information abo
   - `pcg` : Preconditioned conjugate gradient.
   - `dcg` : Deflated conjugate gradient.
   - `pdcg` : Preconditioned deflated conjugate gradient.
-- `eps` (`float`, `0`<`eps`<`1`) : Tolerance used for stopping criterion. Iterations are stopped if the norm `iterated_res_norm` of the iterated residual `r` is such that `iterated_res_norm`<`eps`*`bnorm` where `bnorm` denotes $\|b\|$.
+- `eps` (`float`, `0`<`eps`<`1`) : Tolerance used for the stopping criterion based on the backward error of the RHS. Iterations are stopped if the norm `iterated_res_norm` of the iterated residual `r` is such that `iterated_res_norm`<`eps`*`bnorm` where `bnorm` denotes $\|b\|$.
 - `itmax` (`int`, `itmax`>`1`) : Maximum number of iterations.
 - `W` (`ndarray`, `W.shape`=`(n,k)`, `k`<`n`) : Basis of deflation subspace used for `"dcg"` and `"dpcg"`.
 - `ell` (`int`, `ell`>`0`) : Attempted dimension of the Krylov subspace to recycle.
@@ -162,6 +162,7 @@ The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_
 - `kl_strategy` (`int`, {`0`, `1`}) : Strategy used to update the dimensions `kdim`  and `ell` of the deflation and recycled Krylov subspaces, respectively, at each (resp. distinct) realizations in the sampled sequence.
   - `0` : First, `kdim`=`0` and `ell`=`kl`. Starting at the second realization, `kdim` and `ell` are kept as constant as possible with values `kdim`=`kl`/2 and `ell`=`kl`-`kdim`.
   - `1` : First, `kdim`=`0` and `ell`=`kl`. Starting at the second realization, `ell` is decreased at constant rate from `kl` to reach `ell_min` by the `t_end_kl`-th realization.
+  - `2` : First, `kdim`=`0` and `ell`=`kl`. Starting at the second realization, `kdim`<  `ell` approximate eigenvectors are selected, at each realization, that satisfy a criterion given on the eigenresidual.
 - `t_end_kl` (`int`, `t_end_kl`>`0`) : Number of sampled realizations before `ell` reaches `ell_min`, used only for `kl_strategy`=`1`.
 - `ell_min` (`int`, `ell_min`>=`0`) : Minimum dimension of recycled Krylov subspaces, used only for `kl_strategy`=`1`.
 - `dp_seq` (`string`, {`"pd"`, `"dp"`}) : Deflation-preconditioning sequence for `"dpcgmo"` :
@@ -194,6 +195,8 @@ The approximated eigenvectors $\mathbf{w}_1(\theta_t),\dots,\mathbf{w}_k(\theta_
 
   - `x0` (`ndarray`, `x0.shape`=`(n,)`) : Initial iterate, later projected onto the orthogonal complement of the deflation subspace if `self.type`={`"dcgmo"`, `"dpcgmo"`}.
 
+
+
 ___
 
 
@@ -201,23 +204,27 @@ ___
 
 Examples:
 
-- _example01_sampler.py_ : Use of the `sampler` class to sample by MC and MCMC.
-- _example02_solver.py_ : Use of the `solver` class to solve MC and MCMC sampled sequences of systems by PCG.
+- _example00_sampler.py_ : Use of the `sampler` class to sample by MC and MCMC.
+- _example01_solver.py_ : Use of the `solver` class to solve MC and MCMC sampled sequences of systems by PCG.
+- _example02_solver.py_ : Quantification of overhead due to MCMC sampling.
 - _example03_recycler.py_ : Use of the `recycler` class to solve a MCMC sampled sequences of systems by PCGMO using constant and realization-dependent preconditioners. 
-- _example04_recycler.py_ : Effect of `kl_strategy` and `which_op` on DCGMO results for sequences of systems sampled by MC and by MCMC.
-- _example05_recycler.py_ : Envelopes, relative conditioning numbers and full spectra of operators and deflated operators from example #4.
-- _example06_recycler.py_ : Effect of `dp_seq` and `which_op` on PDCGMO results for sequences of systems sampled by MC and by MCMC.
-- _example07_recycler.py_ : Envelopes and full spectra of operators and deflated operators from example #6.
+- _example04_recycler.py_ : Series of DCGMO results for sequences of systems sampled by MC and by MCMC.
+- _example05_recycler.py_ : Series of DPCGMO results for sequences of systems sampled by MC and by MCMC.
 
 
 
-#### Example #1: example01_sampler.py
+___
+
+#### Example #0: example00_sampler.py
 
 Draws and plots realizations of the lognormal coefficient field $\kappa(x;\theta)$ with an exponential covariance sampled by Monte Carlo, and by Markov chain Monte Carlo.  
 
 ```python
+import sys; sys.path += ["../"]
 from samplers import sampler
 import pylab as pl
+
+figures_path = '../figures/'
 
 nEl = 1000
 nsmp = 50
@@ -235,7 +242,7 @@ for i_smp in range(nsmp):
   mc.draw_realization()
   ax[0].plot(mc.get_kappa(), lw=.1)
 
-while (mcmc.cnt_accepted_proposals < nsmp):
+while (mcmc.cnt_accepted_proposals <= nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):
     ax[1].plot(mcmc.get_kappa(), lw=.1)
@@ -243,24 +250,32 @@ ax[0].set_ylabel("kappa(x;theta_t)")
 ax[0].set_xlabel("x"); ax[1].set_xlabel("x")
 ax[0].set_title("MC sampler")
 ax[1].set_title("MCMC sampler")
-pl.show()
+#pl.show()
+pl.savefig(figures_path+"example00_sampler.png")
 ```
 
-Output :
-
-![example01_sampler](./figures/example01_sampler.png)
 
 
+__Results:__ 
 
-#### Example #2: example02_solver.py
+![](./figures/example00_sampler.png)
+
+
+
+___
+
+#### Example #1: example01_solver.py
 
 Solves $\partial_x[\kappa(x;\theta)\partial_xu(x;\theta)]=-f(x)$ for all $x\in(x_a, x_b)$ with $u(x_a)=0$ and $u(x_b)=0.005$. The sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$ is sampled by Monte Carlo, and by Markov chain Monte Carlo.  In both cases, the corresponding sequence $\{u(x;\theta_t)\}_{t=1}^M$ is obtained after FE discretization and PCG resolutions using a block Jacobi (bJ) preconditioner based on the median operator with 10 blocks.
 
 ```python
+import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 import numpy as np
 import pylab as pl
+
+figures_path = '../figures/'
 
 nEl = 1000
 nsmp = 50
@@ -290,10 +305,10 @@ ax[0,1].set_title("u(x; theta_t)")
 ax[0,2].set_title("||r_j||/||b||")
 ax[0,0].set_ylabel("MC sampler")
 
-while (mcmc.cnt_accepted_proposals < nsmp):
+while (mcmc.cnt_accepted_proposals <= nsmp):
   mcmc.draw_realization()
-  mcmc.do_assembly()
   if (mcmc.proposal_accepted):
+    #mcmc.do_assembly()
     pcg.presolve(A=mcmc.A, b=mcmc.b)
     pcg.solve(x0=np.zeros(mcmc.n))
     ax[1,0].plot(mcmc.get_kappa(), lw=.1)
@@ -302,15 +317,146 @@ while (mcmc.cnt_accepted_proposals < nsmp):
 ax[1,0].set_xlabel("x"); ax[1,1].set_xlabel("x"); ax[1,2].set_xlabel("Solver iteration, j")
 ax[1,0].set_ylabel("MCMC sampler")
 pl.show()
+#pl.savefig(figures_path+"example02_solver.png", bbox_inches='tight')
 ```
 
-Output :
-
-![example02_solver](./figures/example02_solver.png)
 
 
+__Results:__
 
-#### Example #3: example03_recycler.py
+![](./figures/example01_solver.png)
+
+
+
+___
+
+#### Example #2: example02_solver_mcmc_overhead.py
+
+mcmc overhead.
+
+```python
+import sys; sys.path += ["../"]
+from samplers import sampler
+from solvers import solver
+import numpy as np
+import pylab as pl
+import glob
+
+figures_path = '../figures/'
+
+def save_u_xb_mc(u_smp, case, model):
+  np.save(".paper1D01_case%d_%s_u_xb_mc" %(case, model), u_smp)
+
+def load_u_xb_mc(case, model):
+  fname = ".paper1D01_case%d_%s_u_xb_mc.npy" %(case, model)
+  files = glob.glob(fname)
+  if (len(files) > 0):
+    u_xb_mc = np.load(files[0])
+    return u_xb_mc
+  return False
+
+def save_u_xb_mcmc(u_smp, ratio, case, model):
+  smp_dict = {"u_xb_mcmc":u_smp, "ratio":ratio}
+  np.save(".paper1D01_case%d_%s_u_xb_mcmc" %(case, model), smp_dict)
+
+def load_u_xb_mcmc(case, model):
+  fname = ".paper1D01_case%d_%s_u_xb_mcmc.npy" %(case, model)
+  files = glob.glob(fname)
+  if (len(files) > 0):
+    smp_dict = np.load(files[0]).item()
+    u_xb_mcmc = smp_dict["u_xb_mcmc"]
+    ratio = smp_dict["ratio"]
+    return u_xb_mcmc, ratio
+  return False, False
+
+nEl = 1000
+nsmp_mcmc = 10000
+nsmp_mc = 1000
+
+nchains = 1000
+
+case = 5
+model = "Exp"
+
+prms = [{"sig2":0.05, "L":0.02}, {"sig2":0.50, "L":0.02}, 
+        {"sig2":0.05, "L":0.10}, {"sig2":0.50, "L":0.10}, 
+        {"sig2":0.05, "L":0.50}, {"sig2":0.50, "L":0.50}]
+
+sig2, L = prms[case]["sig2"], prms[case]["L"]
+
+u_xb_mc = load_u_xb_mc(case, model)
+
+if isinstance(u_xb_mc, type(False)):
+  u_xb_mc = np.zeros(nsmp_mc)
+  mc = sampler(nEl=nEl, smp_type="mc", model=model, sig2=sig2, L=L, u_xb=None, du_xb=0)
+  mc.compute_KL()
+  pcg = solver(n=mc.n, solver_type="pcg")
+  pcg.set_precond(Mat=mc.get_median_A(), precond_id=1)
+  for i_smp in range(nsmp_mc):
+    mc.draw_realization()
+    mc.do_assembly()
+    pcg.presolve(A=mc.A, b=mc.b)
+    pcg.solve(x0=np.zeros(mc.n))
+    u_xb_mc[i_smp] = pcg.x[-1]
+  save_u_xb_mc(u_xb_mc, case, model)
+var_u_xb = np.var(u_xb_mc)
+
+u_xb_mcmc, ratio = load_u_xb_mcmc(case, model)
+
+if isinstance(u_xb_mcmc, type(False)):
+  u_xb_mcmc = np.zeros((nchains, nsmp_mcmc))
+  ratio = np.zeros(nchains)
+  mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L, u_xb=None, du_xb=0)
+  mcmc.compute_KL()
+  #mcmc.draw_realization()
+  #mcmc.do_assembly()
+  pcg = solver(n=mcmc.n, solver_type="pcg")
+  pcg.set_precond(Mat=mcmc.get_median_A(), precond_id=1)  
+  for ichain in range(nchains):
+    print "chain %g/%g " % (ichain+1, nchains)
+    mcmc.cnt_accepted_proposals = 0
+    mcmc.reals = 0  
+    for i_smp in range(nsmp_mcmc):
+      mcmc.draw_realization()
+      mcmc.do_assembly()
+      if (mcmc.proposal_accepted) | (mcmc.reals == 1):
+        pcg.presolve(A=mcmc.A, b=mcmc.b)
+        pcg.solve(x0=np.zeros(mcmc.n))
+        #print ichain, mcmc.cnt_accepted_proposals
+      u_xb_mcmc[ichain][i_smp] = pcg.x[-1]
+    ratio[ichain] = mcmc.cnt_accepted_proposals/float(mcmc.reals)
+  save_u_xb_mcmc(u_xb_mcmc, ratio, case, model)
+
+sig2f_xb = np.zeros(nsmp_mcmc)
+sig2f_xb[0] = np.var(u_xb_mcmc[:,0])
+for ismp in range(1, nsmp_mcmc):
+  sig2f_xb[ismp] = sig2f_xb[ismp-1]+2.*np.cov(u_xb_mcmc[:,0], u_xb_mcmc[:,ismp])[0,1]
+
+ax = pl.subplot()
+ax.plot(sig2f_xb)
+ax.set_xlabel("Realization index, t")
+ax.set_ylabel(r"$\sigma_f^2(1)$")
+pl.savefig(figures_path+"solver_mcmc_overhead_%d_%s_sig2f.png" % (case, model))
+print np.mean(ratio)*sig2f_xb[-1]/var_u_xb
+```
+
+
+
+__Results:__
+
+![](./figures/solver_mcmc_overhead_5_Exp_sig2f.png)
+
+
+
+__Obervations:__
+
+Overhead is big.
+
+
+
+___
+
+#### Example #3: example03_recycler_pcgmo.py
 
 Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by PCGMO for a MCMC sampled sequence $\{\kappa(x;\theta_t)\}_{t=1}^M$. Every system is solved by PCG with a constant and with realization-dependent bJ preconditioners with 5 blocks denoted by med-bJ5 and `dt`-bJ5, respectively. The constant preconditioner is built on the basis of the median operator; the realization-dependent preconditioners are redefined periodically every `dt`={`50`, `100`, `250`, `500`, `1000`} distinct realizations (i.e. discarding realizations corresponding to rejected proposals) on the basis of the current operator in the sequence.
 
@@ -370,131 +516,23 @@ save_data(pcgmo_medbJ_it, pcgmo_dtbJ_it)
 plot()
 ```
 
-Output :
 
-![example03_recycler](./figures/example03_recycler.png)
 
-Observations :
+__Results:__
+
+![](./figures/example03_recycler.png)
+
+
+
+__Observations:__
 
 *.
 
-#### Example #4: example04_recycler.py
+___
+
+#### Series of examples #4: example04_recycler_dcgmo.py
 
 Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. The effects of `kl_strategy` and `which_op` are investigated on the number of solver iterations.
-
-```python
-import sys; sys.path += ["../"]
-from samplers import sampler
-from solvers import solver
-from recyclers import recycler
-import numpy as np
-from example04_recycler_plot import *
-
-nEl = 1000
-nsmp = 5000
-sig2, L = .357, 0.05
-model = "Exp"
-
-kl = 20
-
-smp, dcg, dcgmo = {}, {}, {}
-
-for _smp in ("mc", "mcmc"):
-  __smp = sampler(nEl=nEl, smp_type=_smp, model=model, sig2=sig2, L=L)
-  __smp.compute_KL()
-  __smp.draw_realization()
-  __smp.do_assembly()
-  smp[_smp] = __smp
-
-cg = solver(n=smp["mc"].n, solver_type="cg")
-
-kl_strategy = (0, 1, 1)
-n_kl_strategies = len(kl_strategy)
-t_end_kl = (0, 500, 1000)
-ell_min = kl/2
-
-for __smp in ("mc", "mcmc"):
-  for which_op in ("previous", "current"):
-    for _kl_strategy in range(n_kl_strategies):
-      __dcg = solver(n=smp["mc"].n, solver_type="dcg")
-      dcg[(__smp, which_op, _kl_strategy)] = __dcg
-      dcgmo[(__smp, which_op, _kl_strategy)] = recycler(smp[__smp], __dcg, "dcgmo", kl=kl, 
-                                               kl_strategy=kl_strategy[_kl_strategy], which_op=which_op, 
-                                               t_end_kl=t_end_kl[_kl_strategy], ell_min=ell_min)
-
-cgmo_it = {"mc":[], "mcmc":[]}
-dcgmo_it, dcgmo_kdim, dcgmo_ell = {}, {}, {}
-
-for i_smp in range(nsmp):
-  smp["mc"].draw_realization()
-  cg.presolve(smp["mc"].A, smp["mc"].b)
-  cg.solve(x0=np.zeros(smp["mc"].n))
-  cgmo_it["mc"] += [cg.it]
-  for which_op in ("previous", "current"):
-    for _kl_strategy in range(n_kl_strategies):
-      _dcgmo = ("mc", which_op, _kl_strategy)
-
-      dcgmo[_dcgmo].do_assembly()
-      dcgmo[_dcgmo].prepare()
-
-      if dcgmo_kdim.has_key(_dcgmo):
-        dcgmo_kdim[_dcgmo] += [dcgmo[_dcgmo].solver.kdim]
-        dcgmo_ell[_dcgmo] += [dcgmo[_dcgmo].solver.ell]
-      else:
-        dcgmo_kdim[_dcgmo] = [dcgmo[_dcgmo].solver.kdim]
-        dcgmo_ell[_dcgmo] = [dcgmo[_dcgmo].solver.ell]
-
-      dcgmo[_dcgmo].solve()
-      if dcgmo_it.has_key(_dcgmo):
-        dcgmo_it[_dcgmo] += [dcgmo[_dcgmo].solver.it]
-      else:
-        dcgmo_it[_dcgmo] = [dcgmo[_dcgmo].solver.it]
-
-  print("%d/%d" %(i_smp+1, nsmp))
-
-while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
-  smp["mcmc"].draw_realization()
-  if (smp["mcmc"].proposal_accepted):
-    cg.presolve(smp["mcmc"].A, smp["mcmc"].b)
-    cg.solve(x0=np.zeros(smp["mcmc"].n))
-    cgmo_it["mcmc"] += [cg.it]
-    for which_op in ("previous", "current"):
-      for _kl_strategy in range(n_kl_strategies):
-        _dcgmo = ("mcmc", which_op, _kl_strategy)
-
-        dcgmo[_dcgmo].do_assembly()
-        dcgmo[_dcgmo].prepare()
-
-        if dcgmo_kdim.has_key(_dcgmo):
-          dcgmo_kdim[_dcgmo] += [dcgmo[_dcgmo].solver.kdim]
-          dcgmo_ell[_dcgmo] += [dcgmo[_dcgmo].solver.ell]
-        else:
-          dcgmo_kdim[_dcgmo] = [dcgmo[_dcgmo].solver.kdim]
-          dcgmo_ell[_dcgmo] = [dcgmo[_dcgmo].solver.ell]
-
-        dcgmo[_dcgmo].solve()
-        if dcgmo_it.has_key(_dcgmo):
-          dcgmo_it[_dcgmo] += [dcgmo[_dcgmo].solver.it]
-        else:
-          dcgmo_it[_dcgmo] = [dcgmo[_dcgmo].solver.it]
-
-    print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
-
-save_data(dcgmo_kdim, dcgmo_ell, dcgmo_it, cgmo_it)
-plot()
-```
-
-Output :
-
-![example04_recycler_a](./figures/example04_recycler_a.png)
-
-![example04_recycler_b](./figures/example04_recycler_b.png)
-
-Observations :
-
-First, strategy is important for MCMC, not really for MC. Second, which_op has an effect with MC. Third, for MCMC, no strong effect of `which_op`. This suggests *. This makes sense from a backward error perspective.
-
-#### Example #5: example05_recycler.py
 
 Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DCGMO as in Example #4. Additionally, envelopes of strictly positive spectra, relative conditioning number of deflated operators and full spectra of the sampled operators and corresponding deflated operators are investigated.
 
@@ -504,21 +542,86 @@ from samplers import sampler
 from solvers import solver
 from recyclers import recycler
 import numpy as np
-from example05_recycler_plot import *
+from example04_recycler_dcgmo_plot import *
+
+import scipy.sparse as sparse
+import scipy.sparse.linalg
 
 nEl = 1000
-nsmp = 5000
-sig2, L = .357, 0.05
-model = "Exp"
+# nsmp      in {200, 10000, 15000}
+# (sig2, L) in {0.05, 0.50}x{0.02, 0.10, 0.50}
+# model     in {"Exp", "SExp"}
+# kl        in {20, 50}
 
-kl = 20
-case = "b" # {"a", "b", "c"}
+case = "e7"
+eigres_thresh = 1e0
 
+if (case == "a"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+elif (case == "b"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = 3*kl/4; nsmp = 10000
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+elif (case == "c"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 10000
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+elif (case == "d"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = kl/2; nsmp = 10000
+  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = False
+elif (case == "e"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 10000
+  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = False
+elif (case == "f"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = 3*kl/4; nsmp = 10000
+  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = False
+elif (case == "e5"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 15000
+  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 7000; ini_W = False
+elif (case == "e7"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 15000
+  t_end_def = 0; t_end_kl = 1000; t_switch_to_mc = 7000; ini_W = False
+elif (case == "a3"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000
+  t_end_def = nsmp; t_end_kl = 0; t_switch_to_mc = 7000; ini_W = True
+
+elif (case == "a2"):
+  sig2 = 0.50; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 15000
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+elif (case == "e6"):
+  sig2 = 0.50; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 10000
+  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 7000; ini_W = False
+elif (case == "a4"):
+  sig2 = 0.50; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000
+  t_end_def = nsmp; t_end_kl = 5000; t_switch_to_mc = 7000; ini_W = True
+elif (case == "a5"):
+  sig2 = 0.50; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
+  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = True
+
+elif (case == "g"):
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 2; ell_min = 0; nsmp = 200 # ell_min?
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+  eigres_thresh = 5e0
+
+case = "example04_"+case
 
 smp, dcg, dcgmo = {}, {}, {}
 
 for _smp in ("mc", "mcmc"):
-  __smp = sampler(nEl=nEl, smp_type=_smp, model=model, sig2=sig2, L=L)
+  __smp = sampler(nEl=nEl, smp_type=_smp, model=model, sig2=sig2, L=L, t_switch_to_mc=t_switch_to_mc)
   __smp.compute_KL()
   __smp.draw_realization()
   __smp.do_assembly()
@@ -526,31 +629,24 @@ for _smp in ("mc", "mcmc"):
 
 cg = solver(n=smp["mc"].n, solver_type="cg")
 
-if (case == "a"):
-  kl_strategy = (0,)
-  t_end_kl = (0,)
-elif (case == "b"):
-  kl_strategy = (1,)
-  t_end_kl = (500,)
-elif (case == "c"):
-  kl_strategy = (1,)
-  t_end_kl = (1000,)
-
-n_kl_strategies = len(kl_strategy)
-ell_min = kl/2
-
 for __smp in ("mc", "mcmc"):
   for which_op in ("previous", "current"):
-    for _kl_strategy in range(n_kl_strategies):
-      __dcg = solver(n=smp["mc"].n, solver_type="dcg")
-      dcg[(__smp, which_op, _kl_strategy)] = __dcg
-      dcgmo[(__smp, which_op, _kl_strategy)] = recycler(smp[__smp], __dcg, "dcgmo", kl=kl, 
-                                               kl_strategy=kl_strategy[_kl_strategy], which_op=which_op, 
-                                               t_end_kl=t_end_kl[_kl_strategy], ell_min=ell_min)
+    __dcg = solver(n=smp["mc"].n, solver_type="dcg")
+    dcg[(__smp, which_op)] = __dcg
+    dcgmo[(__smp, which_op)] = recycler(smp[__smp], __dcg, "dcgmo", kl=kl, kl_strategy=kl_strategy, ell_min=ell_min,
+                                        t_end_def=t_end_def, t_end_kl=t_end_kl, ini_W=ini_W, which_op=which_op,
+                                        eigres_thresh=eigres_thresh)
 
 cgmo_it = {"mc":[], "mcmc":[]}
 dcgmo_it, dcgmo_kdim, dcgmo_ell = {}, {}, {}
+dcgmo_ritz_quotient, dcgmo_eigres = {}, {}
 smp_SpA, dcgmo_SpHtA = {"mc":[], "mcmc":[]}, {}
+
+# Possibly not needed:
+dcgmo_sin_theta = {}
+dcgmo_approx_eigvals = {}
+#dcgmo_ave_gap_bound = {}
+
 
 for i_smp in range(nsmp):
   smp["mc"].draw_realization()
@@ -558,31 +654,57 @@ for i_smp in range(nsmp):
   cg.presolve(smp["mc"].A, smp["mc"].b)
   cg.solve(x0=np.zeros(smp["mc"].n))
   cgmo_it["mc"] += [cg.it]
+
+  _, U = sparse.linalg.eigsh(smp["mc"].A.tocsc(), k=kl, sigma=0, mode='normal')
+
   for which_op in ("previous", "current"):
-    for _kl_strategy in range(n_kl_strategies):
-      _dcgmo = ("mc", which_op, _kl_strategy)
+    _dcgmo = ("mc", which_op)
 
-      if not (dcgmo_SpHtA.has_key(_dcgmo)):
-        dcgmo_SpHtA[_dcgmo] = []
-        dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo] = [], []
-        dcgmo_it[_dcgmo] = []
+    if not (dcgmo_SpHtA.has_key(_dcgmo)):
+      dcgmo_SpHtA[_dcgmo] = []
+      dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo], dcgmo_approx_eigvals[_dcgmo] = [], [], []
+      dcgmo_ritz_quotient[_dcgmo], dcgmo_eigres[_dcgmo] = [], []
+      ##dcgmo_ave_gap_bound[_dcgmo] = []
+      dcgmo_it[_dcgmo] = []
+      dcgmo_sin_theta[_dcgmo] = []
 
-      dcgmo[_dcgmo].do_assembly()
-      dcgmo[_dcgmo].prepare()
+    dcgmo[_dcgmo].do_assembly()
+    dcgmo[_dcgmo].prepare()
 
-      dcgmo_kdim[_dcgmo] += [dcgmo[_dcgmo].solver.kdim]
-      dcgmo_ell[_dcgmo] += [dcgmo[_dcgmo].solver.ell]
+    if (dcgmo[_dcgmo].solver.kdim > 0):
+      QW,_ = np.linalg.qr(dcgmo[_dcgmo].solver.W, mode='reduced')
+      C = QW.T.dot(U[:,:dcgmo[_dcgmo].solver.kdim])
+      cos_theta = np.linalg.svd(C, compute_uv=False)
+      sin_theta = np.sqrt(1.-cos_theta**2)
+      dcgmo_sin_theta[_dcgmo] += [sin_theta]
+    else:
+      dcgmo_sin_theta[_dcgmo] += [None]
 
-      if (dcgmo_kdim[_dcgmo][-1] > 0):
-        HtA = dcgmo[_dcgmo].solver.get_deflated_op()
-        dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
-      else:
-        dcgmo_SpHtA[_dcgmo] += [np.array(smp["mc"].n*[None])]
 
-      dcgmo[_dcgmo].solve()
-      dcgmo_it[_dcgmo] = [dcgmo[_dcgmo].solver.it]
+    print dcgmo[_dcgmo].solver.kdim
+    dcgmo_kdim[_dcgmo] += [dcgmo[_dcgmo].solver.kdim]
+    dcgmo_ell[_dcgmo] += [dcgmo[_dcgmo].solver.ell]
+
+    if (dcgmo_kdim[_dcgmo][-1] > 0):
+      HtA = dcgmo[_dcgmo].solver.get_deflated_op()
+      dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
+      dcgmo_approx_eigvals[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigvals)]
+      dcgmo_ritz_quotient[_dcgmo] += [np.copy(dcgmo[_dcgmo].ritz_quotient)]
+      dcgmo_eigres[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigres)]
+      #dcgmo_ave_gap_bound[_dcgmo] += [np.copy(dcgmo[_dcgmo].ave_gap_bound)]
+
+    else:
+      dcgmo_SpHtA[_dcgmo] += [np.array(smp["mc"].n*[None])]
+      dcgmo_approx_eigvals[_dcgmo] += [None]
+      dcgmo_ritz_quotient[_dcgmo] += [None]
+      dcgmo_eigres[_dcgmo] += [None]
+      #dcgmo_ave_gap_bound[_dcgmo] += [None]
+
+    dcgmo[_dcgmo].solve()
+    dcgmo_it[_dcgmo] += [dcgmo[_dcgmo].solver.it]
 
   print("%d/%d" %(i_smp+1, nsmp))
+
 
 while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()
@@ -591,77 +713,298 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
     cg.presolve(smp["mcmc"].A, smp["mcmc"].b)
     cg.solve(x0=np.zeros(smp["mcmc"].n))
     cgmo_it["mcmc"] += [cg.it]
+
+    _, U = sparse.linalg.eigsh(smp["mc"].A.tocsc(), k=kl, sigma=0, mode='normal')
+
     for which_op in ("previous", "current"):
-      for _kl_strategy in range(n_kl_strategies):
-        _dcgmo = ("mcmc", which_op, _kl_strategy)
+      _dcgmo = ("mcmc", which_op)
 
-        if not (dcgmo_SpHtA.has_key(_dcgmo)):
-          dcgmo_SpHtA[_dcgmo] = []
-          dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo] = [], []
-          dcgmo_it[_dcgmo] = []
+      if not (dcgmo_SpHtA.has_key(_dcgmo)):
+        dcgmo_SpHtA[_dcgmo] = []
+        dcgmo_kdim[_dcgmo], dcgmo_ell[_dcgmo], dcgmo_approx_eigvals[_dcgmo] = [], [], []
+        dcgmo_ritz_quotient[_dcgmo], dcgmo_eigres[_dcgmo] = [], []
+        #dcgmo_ave_gap_bound[_dcgmo] = []
+        dcgmo_it[_dcgmo] = []
+        dcgmo_sin_theta[_dcgmo] = []
 
-        dcgmo[_dcgmo].do_assembly()
-        dcgmo[_dcgmo].prepare()
+      dcgmo[_dcgmo].do_assembly()
+      dcgmo[_dcgmo].prepare()
 
-        dcgmo_kdim[_dcgmo] += [dcgmo[_dcgmo].solver.kdim]
-        dcgmo_ell[_dcgmo] += [dcgmo[_dcgmo].solver.ell]
+      if (dcgmo[_dcgmo].solver.kdim > 0):
+        QW,_ = np.linalg.qr(dcgmo[_dcgmo].solver.W, mode='reduced')
+        C = QW.T.dot(U[:,:dcgmo[_dcgmo].solver.kdim])
+        cos_theta = np.linalg.svd(C, compute_uv=False)
+        sin_theta = np.sqrt(1.-cos_theta**2)
+        dcgmo_sin_theta[_dcgmo] += [sin_theta]
+      else:
+        dcgmo_sin_theta[_dcgmo] += [None]
 
-        dcgmo[_dcgmo].solve()
-        dcgmo_it[_dcgmo] += [dcgmo[_dcgmo].solver.it]
+      print dcgmo[_dcgmo].solver.kdim
+      dcgmo_kdim[_dcgmo] += [dcgmo[_dcgmo].solver.kdim]
+      dcgmo_ell[_dcgmo] += [dcgmo[_dcgmo].solver.ell]
 
-        if (dcgmo_kdim[_dcgmo][-1] > 0):
-          HtA = dcgmo[_dcgmo].solver.get_deflated_op()
-          dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
-        else:
-          dcgmo_SpHtA[_dcgmo] += [np.array(smp["mcmc"].n*[None])]
+      dcgmo[_dcgmo].solve()
+      dcgmo_it[_dcgmo] += [dcgmo[_dcgmo].solver.it]
+
+      if (dcgmo_kdim[_dcgmo][-1] > 0):
+        HtA = dcgmo[_dcgmo].solver.get_deflated_op()
+        dcgmo_SpHtA[_dcgmo] += [np.linalg.eigvalsh(HtA.A)]
+        dcgmo_approx_eigvals[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigvals)]
+        dcgmo_ritz_quotient[_dcgmo] += [np.copy(dcgmo[_dcgmo].ritz_quotient)]
+        dcgmo_eigres[_dcgmo] += [np.copy(dcgmo[_dcgmo].eigres)]
+        #dcgmo_ave_gap_bound[_dcgmo] += [np.copy(dcgmo[_dcgmo].ave_gap_bound)]
+      else:
+        dcgmo_SpHtA[_dcgmo] += [np.array(smp["mcmc"].n*[None])]
+        dcgmo_approx_eigvals[_dcgmo] += [None]
+        dcgmo_ritz_quotient[_dcgmo] += [None]
+        dcgmo_eigres[_dcgmo] += [None]
+        #dcgmo_ave_gap_bound[_dcgmo] += [None]
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
- 
-save_data(smp, smp_SpA, dcgmo_SpHtA, dcgmo_kdim, case)
-plot(case=case)
+
+save_data(smp, cgmo_it, dcgmo_it, smp_SpA, dcgmo_SpHtA, dcgmo_ell, dcgmo_kdim, dcgmo_approx_eigvals, dcgmo_ritz_quotient, dcgmo_eigres, dcgmo_sin_theta, case)
+plot(_smp="mc", case_id=case)
+plot(_smp="mcmc", case_id=case)
 ```
 
-Output :
 
-![example05_recycler_a](./figures/example05_recycler_a.png)
 
-![example05_recycler_c](./figures/example05_recycler_err_a.png)
+__List of examples:__
 
-![example05_recycler_b](./figures/example05_recycler_b.png)
+| case_id   | parameters                                                   |
+| --------- | ------------------------------------------------------------ |
+| `"04_a"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`10000`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_b"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`3*kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_c"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_d"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/2`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_e"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_f"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`3*kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_e5"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`15000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`7000`; `ini_W`=`False` |
+| `"04_e7"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`15000`;`t_end_def`=`0`; `t_end_kl`=`1000`; `t_switch_to_mc`=`7000`; `ini_W`=`False` |
+| `"04_a3"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`10000`;`t_end_def`=`nsmp`; `t_end_kl`=`0`; `t_switch_to_mc`=`7000`; `ini_W`=`True` |
+| `"04_a2"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`15000`;`t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False` |
+| `"04_e6"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`7000`; `ini_W`=`False` |
+| `"04_a4"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`10000`;`t_end_def`=`nsmp`; `t_end_kl`=`5000`; `t_switch_to_mc`=`7000`; `ini_W`=`True` |
+| `"04_a5"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`True` |
 
-![example05_recycler_c](./figures/example05_recycler_err_b.png)
 
-![example05_recycler_c](./figures/example05_recycler_c.png)
 
-![example05_recycler_c](./figures/example05_recycler_err_c.png)
+__Results:__
 
-![example05_recycler_d](./figures/example05_recycler_d.png)
+_Example04_a_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`10000`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
 
-![example05_recycler_d](./figures/example05_recycler_err_d.png)
+![](./figures/recycler_dcgmo_example04_a_mc1.png)
 
-Observations :
+![](./figures/recycler_dcgmo_example04_a_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_a_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_a_mcmc2.png)
+
+
+
+_Example04_b_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`3*kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_b_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_b_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_b_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_b_mcmc2.png)
+
+
+
+_Example04_c_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_c_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_c_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_c_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_c_mcmc2.png)
+
+
+
+_Example04_d_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/2`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_d_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_d_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_d_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_d_mcmc2.png)
+
+
+
+_Example04_e_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_e_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_e_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_e_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_e_mcmc2.png)
+
+
+
+_Example04_f_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`3*kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_f_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_f_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_f_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_f_mcmc2.png)
+
+
+
+_Example04_e5_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`15000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`7000`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_e5_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_e5_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_e5_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_e5_mcmc2.png)
+
+
+
+_Example04_e7_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`15000`;`t_end_def`=`0`; `t_end_kl`=`1000`; `t_switch_to_mc`=`7000`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_e7_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_e7_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_e7_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_e7_mcmc2.png)
+
+
+
+_Example04_a3_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`10000`;`t_end_def`=`nsmp`; `t_end_kl`=`0`; `t_switch_to_mc`=`7000`; `ini_W`=`True`) :
+
+Starting deflation subspace spanned by eigenvectors of $\hat{\mathbf{A}}$.
+
+![](./figures/recycler_dcgmo_example04_a3_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_a3_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_a3_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_a3_mcmc2.png)
+
+
+
+_Example04_a2_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`15000`;`t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_a2_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_a2_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_a2_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_a2_mcmc2.png)
+
+
+
+_Example04_e6_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`10000`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`7000`; `ini_W`=`False`) :
+
+![](./figures/recycler_dcgmo_example04_e6_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_e6_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_e6_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_e6_mcmc2.png)
+
+
+
+_Example04_a4_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`10000`;`t_end_def`=`nsmp`; `t_end_kl`=`5000`; `t_switch_to_mc`=`7000`; `ini_W`=`True`) :
+
+Starting deflation subspace spanned by eigenvectors of $\hat{\mathbf{A}}$:
+
+![](./figures/recycler_dcgmo_example04_a4_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_a4_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_a4_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_a4_mcmc2.png)
+
+
+
+_Example04_a5_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`;`t_end_def`=`0`; `t_end_kl`=`5000`; `t_switch_to_mc`=`0`; `ini_W`=`True`) :
+
+Deflation subspace is and remains (i.e. no update) spanned by eigenvectors of $\hat{\mathbf{A}}$.
+
+![](./figures/recycler_dcgmo_example04_a5_mc1.png)
+
+![](./figures/recycler_dcgmo_example04_a5_mc2.png)
+
+![](./figures/recycler_dcgmo_example04_a5_mcmc1.png)
+
+![](./figures/recycler_dcgmo_example04_a5_mcmc2.png)
+
+
+
+__Observations:__
+
+First, strategy is important for MCMC, not really for MC. Second, which_op has an effect with MC. Third, for MCMC, no strong effect of `which_op`. This suggests *. This makes sense from a backward error perspective.
 
 First, the strictly positive envelopes, and conditioning number, of the sampled spectra deflated with exact eigenvectors do not significantly vary from realization to realization. Second, the cases for which higher gains of iterations were observed in Example #4, namely strategies #2 and #3, are associated with smaller relative conditioning numbers of deflated operators, here by about half an order of magnitude for MCMC sampling in comparison to strategy #1, and less in case of MC sampling. Third, absence of significant effect of `which_op` observed in Example #4 is similarly observed on the deflated spectra, particularly so in case of MCMC sampling. 
 
-#### Example #6: example06_recycler.py
+
+
+___
+
+#### Series of example #5: example05_recycler_dpcgmo.py
 
 Solves the sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO for sequences $\{\kappa(x;\theta_t)\}_{t=1}^M$ sampled by MC and by MCMC. In both cases, three different constant preconditioners are used : (1) median-bJ10, (2) median and (3) median-AMG. The effect of `dp_seq` and `which_op` are investigated on the number of solver iterations in comparison to those obtained by PCG resolution.
 
 ```python
-import sys; sys.path += ["../"] 
+import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 from recyclers import recycler
 import numpy as np
-from example06_recycler_plot import *
+import scipy
+from example05_recycler_dpcgmo_plot import *
+import scipy.sparse as sparse
 
 nEl = 1000
-nsmp = 5000
-sig2, L = .357, 0.05
-model = "Exp"
+# nsmp       in {200, 10000, 15000}
+# (sig2, L)  in {0.05, 0.50}x{0.02, 0.10, 0.50}
+# model      in {"Exp", "SExp"}
+# kl         in {20, 50}
+# nsmp       in {200}
+# precond_id in {1, 2, 3}
 
-kl = 20
-case = "b" # {"a", "b", "c"}
+case = "b2" # {"a", "b", "c"}
+eigres_thresh = 1e0
+
+if (case == "a"):
+  precond_id = 3
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+elif (case == "b"):
+  precond_id = 1
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
+  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
+elif (case == "b2"):
+  precond_id = 1
+  sig2 = 0.05; L = 0.02; model = "Exp"
+  kl = 20; kl_strategy = 1; ell_min = kl/2; nsmp = 2000
+  t_end_def = 0; t_end_kl = 500; t_switch_to_mc = 1000; ini_W = False
+
+case = "example05_"+case
 
 smp, dpcg, dpcgmo = {}, {}, {}
 
@@ -673,90 +1016,290 @@ for _smp in ("mc", "mcmc"):
   smp[_smp] = __smp
 
 pcg = solver(n=smp["mc"].n, solver_type="pcg")
-if (case == "a"):
+if (precond_id == 3):
   pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
-elif (case == "b"):
+elif (precond_id == 1):
   pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
-elif (case == "c"):
+elif (precond_id == 2):
   pcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=2)
+
+pcg.get_chol_M()
+L = pcg.L_M
+inv_L = pcg.invL_M
 
 for __smp in ("mc", "mcmc"):
   for dp_seq in ("dp", "pd"):
     for which_op in ("previous", "current"):
       __dpcg = solver(n=smp["mc"].n, solver_type="dpcg")
-      if (case == "a"):
+      if (precond_id == 3):
         __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=3, nb=10)
-      elif (case == "b"):
+      elif (precond_id == 1):
         __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=1)
-      elif (case == "c"):
+      elif (precond_id ==2):
         __dpcg.set_precond(Mat=smp["mc"].get_median_A(), precond_id=2)
+      __dpcg.get_chol_M()
       dpcg[(__smp, dp_seq, which_op)] = __dpcg
-      dpcgmo[(__smp, dp_seq, which_op)] = recycler(smp[__smp], __dpcg, "dpcgmo", kl=kl, dp_seq=dp_seq, which_op=which_op)
+      dpcgmo[(__smp, dp_seq, which_op)] = recycler(smp[__smp], __dpcg, "dpcgmo", kl=kl, kl_strategy=kl_strategy, 
+                                                   ell_min=ell_min, dp_seq=dp_seq, t_end_def=t_end_def, t_end_kl=t_end_kl, 
+                                                   ini_W=ini_W, which_op=which_op, eigres_thresh=eigres_thresh)
 
 pcgmo_it = {"mc":[], "mcmc":[]}
 dpcgmo_it = {}
 
+dpcgmo_it, dpcgmo_kdim, dpcgmo_ell = {}, {}, {}
+dpcgmo_ritz_quotient, dpcgmo_eigres = {}, {}
+smp_SpdA, dpcgmo_SpdHtdA = {"mc":[], "mcmc":[]}, {}
+smp_SpA, dpcgmo_SpHtA = {"mc":[], "mcmc":[]}, {}
+dpcgmo_SpdHtdA2 = {}
+
+# Possibly not needed:
+dpcgmo_sin_theta = {}
+dpcgmo_approx_eigvals = {}
+
 for i_smp in range(nsmp):
-  smp["mc"].draw_realization()
+  smp["mc"].draw_realization()  
+
+  smp_SpdA["mc"] += [np.linalg.eigvalsh((inv_L.dot(smp["mc"].A.dot(inv_L.T))).A)]
+  smp_SpA["mc"] += [np.linalg.eigvalsh(smp["mc"].A.A)]
+
   pcg.presolve(smp["mc"].A, smp["mc"].b)
   pcg.solve(x0=np.zeros(smp["mc"].n))
-  pcgmo_it["mc"] += [pcg.it]
+  pcgmo_it["mc"] += [pcg.it]  
+
+  _, U = sparse.linalg.eigsh(smp["mc"].A.tocsc(), k=kl, sigma=0, mode='normal')
+  _, dU = sparse.linalg.eigsh(inv_L.T.dot(smp["mc"].A.dot(inv_L.T)).tocsc(), k=kl, sigma=0, mode='normal')
+
   for dp_seq in ("dp", "pd"):
     for which_op in ("previous", "current"):
       _dpcgmo = ("mc", dp_seq, which_op)
-  
+
+      if not (dpcgmo_SpdHtdA.has_key(_dpcgmo)):
+        dpcgmo_SpdHtdA[_dpcgmo] = []
+        dpcgmo_SpHtA[_dpcgmo] = []
+        if (dp_seq == "pd"):
+          dpcgmo_SpdHtdA2[_dpcgmo] = []
+        dpcgmo_kdim[_dpcgmo], dpcgmo_ell[_dpcgmo], dpcgmo_approx_eigvals[_dpcgmo] = [], [], []
+        dpcgmo_ritz_quotient[_dpcgmo], dpcgmo_eigres[_dpcgmo] = [], []
+        dpcgmo_it[_dpcgmo] = []
+        dpcgmo_sin_theta[_dpcgmo] = []  
+
       dpcgmo[_dpcgmo].do_assembly()
       dpcgmo[_dpcgmo].prepare()
 
-      dpcgmo[_dpcgmo].solve()
-      if dpcgmo_it.has_key(_dpcgmo):
-        dpcgmo_it[_dpcgmo] += [dpcgmo[_dpcgmo].solver.it]
+      if (dpcgmo[_dpcgmo].solver.kdim > 0):
+        if (dp_seq == "pd"):
+          QW,_ = np.linalg.qr(dpcgmo[_dpcgmo].solver.W, mode='reduced')
+          C = QW.T.dot(U[:,:dpcgmo[_dpcgmo].solver.kdim])
+        elif (dp_seq == "dp"):
+          QW,_ = np.linalg.qr(L.T.dot(dpcgmo[_dpcgmo].solver.W), mode='reduced')
+          C = QW.T.dot(dU[:,:dpcgmo[_dpcgmo].solver.kdim])
+        cos_theta = np.linalg.svd(C, compute_uv=False)
+        sin_theta = np.sqrt(1.-cos_theta**2)
+        dpcgmo_sin_theta[_dpcgmo] += [sin_theta]
       else:
-        dpcgmo_it[_dpcgmo] = [dpcgmo[_dpcgmo].solver.it]
+        dpcgmo_sin_theta[_dpcgmo] += [None]
 
-  print("%d/%d" %(i_smp+1, nsmp))
+      print dpcgmo[_dpcgmo].solver.kdim
+      dpcgmo_kdim[_dpcgmo] += [dpcgmo[_dpcgmo].solver.kdim]
+      dpcgmo_ell[_dpcgmo] += [dpcgmo[_dpcgmo].solver.ell]  
+
+      if (dpcgmo_kdim[_dpcgmo][-1] > 0):
+        HtA = dpcgmo[_dpcgmo].solver.get_deflated_op()
+        dHtdA = inv_L.A.dot(HtA.dot(inv_L.A.T))
+        dpcgmo_SpdHtdA[_dpcgmo] += [np.linalg.eigvalsh(dHtdA.A)]
+        dpcgmo_SpHtA[_dpcgmo] += [np.linalg.eigvalsh(HtA.A)]
+
+        if (dp_seq == "pd"):
+          AU = smp["mc"].A.dot(U[:,:dpcgmo[_dpcgmo].solver.kdim])
+          UtAU = U[:,:dpcgmo[_dpcgmo].solver.kdim].T.dot(AU)
+          HtA2 = smp["mc"].A-AU.dot(scipy.linalg.inv(UtAU).dot(AU.T))
+          dHtdA2 = inv_L.A.dot(HtA2.dot(inv_L.A.T))
+          dpcgmo_SpdHtdA2[_dpcgmo] += [np.linalg.eigvalsh(dHtdA2)]  
+
+        dpcgmo_approx_eigvals[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].eigvals)]
+        dpcgmo_ritz_quotient[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].ritz_quotient)]
+        dpcgmo_eigres[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].eigres)]
+      else:
+        dpcgmo_SpdHtdA[_dpcgmo] += [np.array(smp["mc"].n*[None])]
+        dpcgmo_SpHtA[_dpcgmo] += [np.array(smp["mc"].n*[None])]
+        if (dp_seq == "pd"):
+          dpcgmo_SpdHtdA2[_dpcgmo] += [np.array(smp["mc"].n*[None])]
+        dpcgmo_approx_eigvals[_dpcgmo] += [None]
+        dpcgmo_ritz_quotient[_dpcgmo] += [None]
+        dpcgmo_eigres[_dpcgmo] += [None]  
+
+      dpcgmo[_dpcgmo].solve()
+      dpcgmo_it[_dpcgmo] += [dpcgmo[_dpcgmo].solver.it]  
+
+    print("%d/%d" %(i_smp+1, nsmp))
 
 while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()
+
   if (smp["mcmc"].proposal_accepted):
+    smp_SpdA["mcmc"] += [np.linalg.eigvalsh((inv_L.dot(smp["mc"].A.dot(inv_L.T))).A)]
+    smp_SpA["mcmc"] += [np.linalg.eigvalsh(smp["mc"].A.A)]
+    
     pcg.presolve(smp["mcmc"].A, smp["mcmc"].b)
     pcg.solve(x0=np.zeros(smp["mcmc"].n))
     pcgmo_it["mcmc"] += [pcg.it]
+
+    _, U = sparse.linalg.eigsh(smp["mc"].A.tocsc(), k=kl, sigma=0, mode='normal')
+    _, dU = sparse.linalg.eigsh(inv_L.T.dot(smp["mc"].A.dot(inv_L.T)).tocsc(), k=kl, sigma=0, mode='normal')
+
     for dp_seq in ("dp", "pd"):
       for which_op in ("previous", "current"):
         _dpcgmo = ("mcmc", dp_seq, which_op)
 
+        if not (dpcgmo_SpdHtdA.has_key(_dpcgmo)):
+          dpcgmo_SpdHtdA[_dpcgmo] = []
+          dpcgmo_SpHtA[_dpcgmo] = []
+          if (dp_seq == "pd"):
+            dpcgmo_SpdHtdA2[_dpcgmo] = []
+          dpcgmo_kdim[_dpcgmo], dpcgmo_ell[_dpcgmo], dpcgmo_approx_eigvals[_dpcgmo] = [], [], []
+          dpcgmo_ritz_quotient[_dpcgmo], dpcgmo_eigres[_dpcgmo] = [], []
+          dpcgmo_it[_dpcgmo] = []
+          dpcgmo_sin_theta[_dpcgmo] = []  
+
         dpcgmo[_dpcgmo].do_assembly()
         dpcgmo[_dpcgmo].prepare()
 
-        dpcgmo[_dpcgmo].solve()
-        if dpcgmo_it.has_key(_dpcgmo):
-          dpcgmo_it[_dpcgmo] += [dpcgmo[_dpcgmo].solver.it]
+        if (dpcgmo[_dpcgmo].solver.kdim > 0):
+          if (dp_seq == "pd"):
+            QW,_ = np.linalg.qr(dpcgmo[_dpcgmo].solver.W, mode='reduced')
+            C = QW.T.dot(U[:,:dpcgmo[_dpcgmo].solver.kdim])
+          elif (dp_seq == "dp"):
+            QW,_ = np.linalg.qr(L.T.dot(dpcgmo[_dpcgmo].solver.W), mode='reduced')
+            C = QW.T.dot(dU[:,:dpcgmo[_dpcgmo].solver.kdim])
+          cos_theta = np.linalg.svd(C, compute_uv=False)
+          sin_theta = np.sqrt(1.-cos_theta**2)
+          dpcgmo_sin_theta[_dpcgmo] += [sin_theta]
         else:
-          dpcgmo_it[_dpcgmo] = [dpcgmo[_dpcgmo].solver.it]
+          dpcgmo_sin_theta[_dpcgmo] += [None]
+
+        print dpcgmo[_dpcgmo].solver.kdim
+        dpcgmo_kdim[_dpcgmo] += [dpcgmo[_dpcgmo].solver.kdim]
+        dpcgmo_ell[_dpcgmo] += [dpcgmo[_dpcgmo].solver.ell]  
+
+        if (dpcgmo_kdim[_dpcgmo][-1] > 0):
+          HtA = dpcgmo[_dpcgmo].solver.get_deflated_op()
+          dHtdA = inv_L.A.dot(HtA.dot(inv_L.A.T))
+          dpcgmo_SpdHtdA[_dpcgmo] += [np.linalg.eigvalsh(dHtdA.A)]
+          dpcgmo_SpHtA[_dpcgmo] += [np.linalg.eigvalsh(HtA.A)]
+
+          if (dp_seq == "pd"):
+            AU = smp["mc"].A.dot(U[:,:dpcgmo[_dpcgmo].solver.kdim])
+            UtAU = U[:,:dpcgmo[_dpcgmo].solver.kdim].T.dot(AU)
+            HtA2 = smp["mc"].A-AU.dot(scipy.linalg.inv(UtAU).dot(AU.T))
+            dHtdA2 = inv_L.A.dot(HtA2.dot(inv_L.A.T))
+            dpcgmo_SpdHtdA2[_dpcgmo] += [np.linalg.eigvalsh(dHtdA2)]  
+
+          dpcgmo_approx_eigvals[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].eigvals)]
+          dpcgmo_ritz_quotient[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].ritz_quotient)]
+          dpcgmo_eigres[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].eigres)]
+        else:
+          dpcgmo_SpdHtdA[_dpcgmo] += [np.array(smp["mc"].n*[None])]
+          dpcgmo_SpHtA[_dpcgmo] += [np.array(smp["mc"].n*[None])]          
+          if (dp_seq == "pd"):
+            dpcgmo_SpdHtdA2[_dpcgmo] += [np.array(smp["mc"].n*[None])]
+          dpcgmo_approx_eigvals[_dpcgmo] += [None]
+          dpcgmo_ritz_quotient[_dpcgmo] += [None]
+          dpcgmo_eigres[_dpcgmo] += [None]  
+
+        dpcgmo[_dpcgmo].solve()
+        dpcgmo_it[_dpcgmo] += [dpcgmo[_dpcgmo].solver.it]
 
     print("%d/%d" %(smp["mcmc"].cnt_accepted_proposals+1, nsmp))
 
-save_data(dpcgmo_it, pcgmo_it, case)
-plot(case=case)
+save_data(smp, pcgmo_it, dpcgmo_it, smp_SpdA, smp_SpA, dpcgmo_SpdHtdA, dpcgmo_SpdHtdA2, dpcgmo_SpHtA, dpcgmo_ell, dpcgmo_kdim, dpcgmo_approx_eigvals, dpcgmo_ritz_quotient, dpcgmo_eigres, dpcgmo_sin_theta, case)
+
+plot(_smp="mc", precond_id=precond_id, case_id=case)
+plot(_smp="mcmc", precond_id=precond_id, case_id=case)
 ```
 
-Output :
 
-![example06_recycler_a](./figures/example06_recycler_a.png)
 
-![example06_recycler_b](./figures/example06_recycler_b.png)
+__List of examples:__
 
-![example06_recycler_c](./figures/example06_recycler_c.png)
+| case_id   | parameters                                                   |
+| --------- | ------------------------------------------------------------ |
+| `"05_a"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`3` |
+| `"05_b"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`1` |
+| `"05_b2"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/2`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`1000`; `ini_W`=`False`, `precond_id`=`1` |
+|           |                                                              |
 
-Observations :
+
+
+__Results:__
+
+_Example05_a_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`3`):
+
+![](./figures/recycler_dpcgmo_example05_a_mc1.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mc2.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_a_mcmc4.png)
+
+
+
+_Example05_b_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`1`):
+
+![](./figures/recycler_dpcgmo_example05_b_mc1.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mc2.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_b_mcmc4.png)
+
+
+
+_Example05_b2_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/2`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`1000`; `ini_W`=`False`, `precond_id`=`1`):
+
+![](./figures/recycler_dpcgmo_example05_b2_mc1.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mc2.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_b2_mcmc4.png)
+
+
+
+_Example05_*_ ():
+
+
+
+__Observations:__ 
 
 First, in comparison to a resolution by PCG, `which_op` does not significantly impact the numbers of iterations gained by strategies combining deflation with preconditioning---this is true independently of `dp_seq`, the preconditioner used, and the sampling strategy. Second, MCMC sampled chains allow for more iteration gains per realization than their MC counterpart. 
 
 In cases where median and median-AMG are used as preconditioners, the iterations gains vary from close to none to relatively low. In particular, no improvement is observed when sampling by MC, while MCMC sampled chains lead to better iteration gains when the preconditioner is applied to an already deflated operator, i.e. when `seq_dp`=`"dpcgmo-pd"` as opposed to `"dpcgmo-dp"`. 
 
 When median-bJ10 is used, the observed iteration gains are far more substantial owing to the trail of isolated eigenvalues left in the lower of part of the spectrum by the action of the preconditioner. In this case, a MC sampled sequence does result in some iteration gains; and the relative gain obtained with `seq_dp`=`"dpcgmo-dp"` is by far more realization dependent than the rather stable gains obtained with `seq_dp`=`"dpcgmo-pd"`. The effect of deflation is, again, more significant when applied to MCMC sampled sequences. The relative gains obtained are more important and less realization dependent. However, the difference between deflating before preconditioning versus the opposite is not as clear in the case of this MCMC sampled sequence.
-
-#### Example #7: example07_recycler.py
-
-Solves the same sequence $\{u(x;\theta_t)\}_{t=1}^M$ by DPCGMO as in Example #6. Additionally, envelopes of strictly positive spectra and full spectra of the sampled operators and corresponding deflated operators are investigated.

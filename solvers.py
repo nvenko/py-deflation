@@ -69,6 +69,10 @@ class solver:
       else:
         ml = smoothed_aggregation_solver(Mat)
       self.amg_op = ml.aspreconditioner(cycle='V')     # Inverse preconditioner, AMG operator
+      self.inv_M = self.amg_op.matmat(np.eye(self.n))
+      self.inv_M = (self.inv_M+self.inv_M.T)/2
+      self.M = scipy.linalg.inv(self.inv_M)
+      self.M = (self.M+self.M.T)/2
     elif (precond_id == 3):
       self.nb = int(nb)
       if (self.nb < 1) | (self.nb > self.n):
@@ -158,6 +162,21 @@ class solver:
     elif (self.invWtAW_application_type == 2):
       HtA = self.A-self.AW.dot(self.inv_WtAW.dot(self.AW.T))
     return HtA
+
+  def get_chol_M(self):
+    if (self.precond_id == 2):
+      self.L_M = scipy.linalg.cholesky(self.M).T
+    elif (self.precond_id == 1) | (self.precond_id == 3):
+      if (len(self.M.todia().offsets) == 3):
+        Mb = [[0]+list(self.M.diagonal(1)), list(self.M.diagonal(0))]
+        _diags = scipy.linalg.cholesky_banded(Mb)
+        self.L_M = sparse.diags([_diags[0,1:], _diags[1,:]], (-1,0))
+      else:
+        raise ValueError("Preconditioner expected to be tridiagonal.")
+    if (sparse.issparse(self.L_M)):
+      self.invL_M = sparse.linalg.inv(sparse.csc_matrix(self.L_M))
+    else:
+      self.invL_M = scipy.linalg.inv(self.L_M)
 
   def __apply_invWtAW(self, x):
     if (self.invWtAW_application_type == 0):

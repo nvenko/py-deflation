@@ -37,7 +37,6 @@ ax[0,0].set_ylabel("MC sampler")
 while (mcmc.cnt_accepted_proposals <= nsmp):
   mcmc.draw_realization()
   if (mcmc.proposal_accepted):
-    #mcmc.do_assembly()
     pcg.presolve(A=mcmc.A, b=mcmc.b)
     pcg.solve(x0=np.zeros(mcmc.n))
     ax[1,0].plot(mcmc.get_kappa(), lw=.1)

@@ -1,5 +1,7 @@
 def get_params(case):
+  
   eigres_thresh = 1e0
+
   if (case == "a"):
     sig2 = 0.05; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000

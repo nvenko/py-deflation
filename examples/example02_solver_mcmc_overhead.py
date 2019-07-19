@@ -43,8 +43,6 @@ if isinstance(u_xb_mcmc, type(False)):
   ratio = np.zeros(nchains)
   mcmc = sampler(nEl=nEl, smp_type="mcmc", model=model, sig2=sig2, L=L, u_xb=None, du_xb=0)
   mcmc.compute_KL()
-  #mcmc.draw_realization()
-  #mcmc.do_assembly()
   pcg = solver(n=mcmc.n, solver_type="pcg")
   pcg.set_precond(Mat=mcmc.get_median_A(), precond_id=1)  
   for ichain in range(nchains):
@@ -57,7 +55,6 @@ if isinstance(u_xb_mcmc, type(False)):
       if (mcmc.proposal_accepted) | (mcmc.reals == 1):
         pcg.presolve(A=mcmc.A, b=mcmc.b)
         pcg.solve(x0=np.zeros(mcmc.n))
-        #print ichain, mcmc.cnt_accepted_proposals
       u_xb_mcmc[ichain][i_smp] = pcg.x[-1]
     ratio[ichain] = mcmc.cnt_accepted_proposals/float(mcmc.reals)
   save_u_xb_mcmc(u_xb_mcmc, ratio, case, model)

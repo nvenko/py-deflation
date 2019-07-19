@@ -339,35 +339,9 @@ import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 import numpy as np
-import pylab as pl
-import glob
+from example02_solver_mcmc_overhead_plot import *
 
 figures_path = '../figures/'
-
-def save_u_xb_mc(u_smp, case, model):
-  np.save(".paper1D01_case%d_%s_u_xb_mc" %(case, model), u_smp)
-
-def load_u_xb_mc(case, model):
-  fname = ".paper1D01_case%d_%s_u_xb_mc.npy" %(case, model)
-  files = glob.glob(fname)
-  if (len(files) > 0):
-    u_xb_mc = np.load(files[0])
-    return u_xb_mc
-  return False
-
-def save_u_xb_mcmc(u_smp, ratio, case, model):
-  smp_dict = {"u_xb_mcmc":u_smp, "ratio":ratio}
-  np.save(".paper1D01_case%d_%s_u_xb_mcmc" %(case, model), smp_dict)
-
-def load_u_xb_mcmc(case, model):
-  fname = ".paper1D01_case%d_%s_u_xb_mcmc.npy" %(case, model)
-  files = glob.glob(fname)
-  if (len(files) > 0):
-    smp_dict = np.load(files[0]).item()
-    u_xb_mcmc = smp_dict["u_xb_mcmc"]
-    ratio = smp_dict["ratio"]
-    return u_xb_mcmc, ratio
-  return False, False
 
 nEl = 1000
 nsmp_mcmc = 10000
@@ -432,12 +406,8 @@ sig2f_xb[0] = np.var(u_xb_mcmc[:,0])
 for ismp in range(1, nsmp_mcmc):
   sig2f_xb[ismp] = sig2f_xb[ismp-1]+2.*np.cov(u_xb_mcmc[:,0], u_xb_mcmc[:,ismp])[0,1]
 
-ax = pl.subplot()
-ax.plot(sig2f_xb)
-ax.set_xlabel("Realization index, t")
-ax.set_ylabel(r"$\sigma_f^2(1)$")
-pl.savefig(figures_path+"solver_mcmc_overhead_%d_%s_sig2f.png" % (case, model))
 print np.mean(ratio)*sig2f_xb[-1]/var_u_xb
+plot(sig2f_xb, case, model)
 ```
 
 
@@ -543,7 +513,7 @@ from solvers import solver
 from recyclers import recycler
 import numpy as np
 from example04_recycler_dcgmo_plot import *
-
+from example04_recycler_dcgmo_cases import get_params
 import scipy.sparse as sparse
 import scipy.sparse.linalg
 
@@ -554,68 +524,7 @@ nEl = 1000
 # kl        in {20, 50}
 
 case = "e7"
-eigres_thresh = 1e0
-
-if (case == "a"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-elif (case == "b"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = 3*kl/4; nsmp = 10000
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-elif (case == "c"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 10000
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-elif (case == "d"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = kl/2; nsmp = 10000
-  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = False
-elif (case == "e"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 10000
-  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = False
-elif (case == "f"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = 3*kl/4; nsmp = 10000
-  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = False
-elif (case == "e5"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 15000
-  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 7000; ini_W = False
-elif (case == "e7"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 15000
-  t_end_def = 0; t_end_kl = 1000; t_switch_to_mc = 7000; ini_W = False
-elif (case == "a3"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000
-  t_end_def = nsmp; t_end_kl = 0; t_switch_to_mc = 7000; ini_W = True
-
-elif (case == "a2"):
-  sig2 = 0.50; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 15000
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-elif (case == "e6"):
-  sig2 = 0.50; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 10000
-  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 7000; ini_W = False
-elif (case == "a4"):
-  sig2 = 0.50; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000
-  t_end_def = nsmp; t_end_kl = 5000; t_switch_to_mc = 7000; ini_W = True
-elif (case == "a5"):
-  sig2 = 0.50; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
-  t_end_def = 0; t_end_kl = 5000; t_switch_to_mc = 0; ini_W = True
-
-elif (case == "g"):
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 2; ell_min = 0; nsmp = 200 # ell_min?
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-  eigres_thresh = 5e0
-
+sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh = get_params(case)
 case = "example04_"+case
 
 smp, dcg, dcgmo = {}, {}, {}
@@ -975,6 +884,7 @@ from recyclers import recycler
 import numpy as np
 import scipy
 from example05_recycler_dpcgmo_plot import *
+from example05_recycler_dpcgmo_cases import get_params
 import scipy.sparse as sparse
 
 nEl = 1000
@@ -986,24 +896,7 @@ nEl = 1000
 # precond_id in {1, 2, 3}
 
 case = "b2" # {"a", "b", "c"}
-eigres_thresh = 1e0
-
-if (case == "a"):
-  precond_id = 3
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-elif (case == "b"):
-  precond_id = 1
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
-  t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-elif (case == "b2"):
-  precond_id = 1
-  sig2 = 0.05; L = 0.02; model = "Exp"
-  kl = 20; kl_strategy = 1; ell_min = kl/2; nsmp = 2000
-  t_end_def = 0; t_end_kl = 500; t_switch_to_mc = 1000; ini_W = False
-
+precond_id, sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh = get_params(case)
 case = "example05_"+case
 
 smp, dpcg, dpcgmo = {}, {}, {}
@@ -1132,6 +1025,8 @@ for i_smp in range(nsmp):
       dpcgmo_it[_dpcgmo] += [dpcgmo[_dpcgmo].solver.it]  
 
     print("%d/%d" %(i_smp+1, nsmp))
+
+
 
 while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()

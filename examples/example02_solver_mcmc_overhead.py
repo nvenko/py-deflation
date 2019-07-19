@@ -2,35 +2,7 @@ import sys; sys.path += ["../"]
 from samplers import sampler
 from solvers import solver
 import numpy as np
-import pylab as pl
-import glob
-
-figures_path = '../figures/'
-
-def save_u_xb_mc(u_smp, case, model):
-  np.save(".paper1D01_case%d_%s_u_xb_mc" %(case, model), u_smp)
-
-def load_u_xb_mc(case, model):
-  fname = ".paper1D01_case%d_%s_u_xb_mc.npy" %(case, model)
-  files = glob.glob(fname)
-  if (len(files) > 0):
-    u_xb_mc = np.load(files[0])
-    return u_xb_mc
-  return False
-
-def save_u_xb_mcmc(u_smp, ratio, case, model):
-  smp_dict = {"u_xb_mcmc":u_smp, "ratio":ratio}
-  np.save(".paper1D01_case%d_%s_u_xb_mcmc" %(case, model), smp_dict)
-
-def load_u_xb_mcmc(case, model):
-  fname = ".paper1D01_case%d_%s_u_xb_mcmc.npy" %(case, model)
-  files = glob.glob(fname)
-  if (len(files) > 0):
-    smp_dict = np.load(files[0]).item()
-    u_xb_mcmc = smp_dict["u_xb_mcmc"]
-    ratio = smp_dict["ratio"]
-    return u_xb_mcmc, ratio
-  return False, False
+from example02_solver_mcmc_overhead_plot import *
 
 nEl = 1000
 nsmp_mcmc = 10000
@@ -64,8 +36,6 @@ if isinstance(u_xb_mc, type(False)):
   save_u_xb_mc(u_xb_mc, case, model)
 var_u_xb = np.var(u_xb_mc)
 
-
-
 u_xb_mcmc, ratio = load_u_xb_mcmc(case, model)
 
 if isinstance(u_xb_mcmc, type(False)):
@@ -97,10 +67,5 @@ sig2f_xb[0] = np.var(u_xb_mcmc[:,0])
 for ismp in range(1, nsmp_mcmc):
   sig2f_xb[ismp] = sig2f_xb[ismp-1]+2.*np.cov(u_xb_mcmc[:,0], u_xb_mcmc[:,ismp])[0,1]
 
-ax = pl.subplot()
-ax.plot(sig2f_xb)
-ax.set_xlabel("Realization index, t")
-ax.set_ylabel(r"$\sigma_f^2(1)$")
-pl.savefig(figures_path+"solver_mcmc_overhead_%d_%s_sig2f.png" % (case, model))
 print np.mean(ratio)*sig2f_xb[-1]/var_u_xb
-
+plot(sig2f_xb, case, model)

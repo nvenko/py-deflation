@@ -16,7 +16,7 @@ nEl = 1000
 # nsmp       in {200}
 # precond_id in {1, 2, 3}
 
-case = "b2" # {"a", "b", "c"}
+case = "c6" # {"a", "b", "c"}
 precond_id, sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh = get_params(case)
 case = "example05_"+case
 
@@ -73,7 +73,11 @@ dpcgmo_approx_eigvals = {}
 for i_smp in range(nsmp):
   smp["mc"].draw_realization()  
 
-  smp_SpdA["mc"] += [np.linalg.eigvalsh((inv_L.dot(smp["mc"].A.dot(inv_L.T))).A)]
+  dA = inv_L.dot(smp["mc"].A.dot(inv_L.T))
+  if sparse.issparse(dA):
+    smp_SpdA["mc"] += [np.linalg.eigvalsh(dA.A)]
+  else:
+    smp_SpdA["mc"] += [np.linalg.eigvalsh(dA)]
   smp_SpA["mc"] += [np.linalg.eigvalsh(smp["mc"].A.A)]
 
   pcg.presolve(smp["mc"].A, smp["mc"].b)
@@ -81,7 +85,10 @@ for i_smp in range(nsmp):
   pcgmo_it["mc"] += [pcg.it]  
 
   _, U = sparse.linalg.eigsh(smp["mc"].A.tocsc(), k=kl, sigma=0, mode='normal')
-  _, dU = sparse.linalg.eigsh(inv_L.T.dot(smp["mc"].A.dot(inv_L.T)).tocsc(), k=kl, sigma=0, mode='normal')
+  if sparse.issparse(dA):
+    _, dU = sparse.linalg.eigsh(dA.tocsc(), k=kl, sigma=0, mode='normal')
+  else:
+    _, dU = scipy.linalg.eigh(dA, eigvals=(0,kl-1))
 
   for dp_seq in ("dp", "pd"):
     for which_op in ("previous", "current"):
@@ -119,7 +126,10 @@ for i_smp in range(nsmp):
 
       if (dpcgmo_kdim[_dpcgmo][-1] > 0):
         HtA = dpcgmo[_dpcgmo].solver.get_deflated_op()
-        dHtdA = inv_L.A.dot(HtA.dot(inv_L.A.T))
+        if sparse.issparse(inv_L):
+          dHtdA = inv_L.A.dot(HtA.dot(inv_L.A.T))
+        else:
+          dHtdA = inv_L.dot(HtA.dot(inv_L.T))
         dpcgmo_SpdHtdA[_dpcgmo] += [np.linalg.eigvalsh(dHtdA.A)]
         dpcgmo_SpHtA[_dpcgmo] += [np.linalg.eigvalsh(HtA.A)]
 
@@ -127,7 +137,10 @@ for i_smp in range(nsmp):
           AU = smp["mc"].A.dot(U[:,:dpcgmo[_dpcgmo].solver.kdim])
           UtAU = U[:,:dpcgmo[_dpcgmo].solver.kdim].T.dot(AU)
           HtA2 = smp["mc"].A-AU.dot(scipy.linalg.inv(UtAU).dot(AU.T))
-          dHtdA2 = inv_L.A.dot(HtA2.dot(inv_L.A.T))
+          if sparse.issparse(inv_L):
+            dHtdA2 = inv_L.A.dot(HtA2.dot(inv_L.A.T))
+          else:
+            dHtdA2 = inv_L.dot(HtA2.dot(inv_L.T))
           dpcgmo_SpdHtdA2[_dpcgmo] += [np.linalg.eigvalsh(dHtdA2)]  
 
         dpcgmo_approx_eigvals[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].eigvals)]
@@ -153,7 +166,11 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
   smp["mcmc"].draw_realization()
 
   if (smp["mcmc"].proposal_accepted):
-    smp_SpdA["mcmc"] += [np.linalg.eigvalsh((inv_L.dot(smp["mc"].A.dot(inv_L.T))).A)]
+    dA = (inv_L.dot(smp["mc"].A.dot(inv_L.T)))
+    if sparse.issparse(dA):
+      smp_SpdA["mcmc"] += [np.linalg.eigvalsh(dA.A)]
+    else:
+      smp_SpdA["mcmc"] += [np.linalg.eigvalsh(dA)]
     smp_SpA["mcmc"] += [np.linalg.eigvalsh(smp["mc"].A.A)]
     
     pcg.presolve(smp["mcmc"].A, smp["mcmc"].b)
@@ -161,7 +178,10 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
     pcgmo_it["mcmc"] += [pcg.it]
 
     _, U = sparse.linalg.eigsh(smp["mc"].A.tocsc(), k=kl, sigma=0, mode='normal')
-    _, dU = sparse.linalg.eigsh(inv_L.T.dot(smp["mc"].A.dot(inv_L.T)).tocsc(), k=kl, sigma=0, mode='normal')
+    if sparse.issparse(dA):
+      _, dU = sparse.linalg.eigsh(dA.tocsc(), k=kl, sigma=0, mode='normal')
+    else:
+      _, dU = scipy.linalg.eigh(dA, eigvals=(0,kl-1))
 
     for dp_seq in ("dp", "pd"):
       for which_op in ("previous", "current"):
@@ -199,7 +219,10 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
 
         if (dpcgmo_kdim[_dpcgmo][-1] > 0):
           HtA = dpcgmo[_dpcgmo].solver.get_deflated_op()
-          dHtdA = inv_L.A.dot(HtA.dot(inv_L.A.T))
+          if sparse.issparse(inv_L):
+            dHtdA = inv_L.A.dot(HtA.dot(inv_L.A.T))
+          else:
+            dHtdA = inv_L.dot(HtA.dot(inv_L.T))
           dpcgmo_SpdHtdA[_dpcgmo] += [np.linalg.eigvalsh(dHtdA.A)]
           dpcgmo_SpHtA[_dpcgmo] += [np.linalg.eigvalsh(HtA.A)]
 
@@ -207,7 +230,10 @@ while (smp["mcmc"].cnt_accepted_proposals <= nsmp):
             AU = smp["mc"].A.dot(U[:,:dpcgmo[_dpcgmo].solver.kdim])
             UtAU = U[:,:dpcgmo[_dpcgmo].solver.kdim].T.dot(AU)
             HtA2 = smp["mc"].A-AU.dot(scipy.linalg.inv(UtAU).dot(AU.T))
-            dHtdA2 = inv_L.A.dot(HtA2.dot(inv_L.A.T))
+            if sparse.issparse(inv_L):
+              dHtdA2 = inv_L.A.dot(HtA2.dot(inv_L.A.T))
+            else:
+              dHtdA2 = inv_L.dot(HtA2.dot(inv_L.T))
             dpcgmo_SpdHtdA2[_dpcgmo] += [np.linalg.eigvalsh(dHtdA2)]  
 
           dpcgmo_approx_eigvals[_dpcgmo] += [np.copy(dpcgmo[_dpcgmo].eigvals)]

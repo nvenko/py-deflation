@@ -12,16 +12,26 @@ def get_params(case):
     sig2 = 0.05; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
     t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
-  if (case == "a3"):
+  elif (case == "a3"):
     precond_id = 3
     sig2 = 0.50; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 200
     t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = False
-  if (case == "a4"):
+  elif (case == "a4"):
     precond_id = 3
     sig2 = 0.50; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 2000
     t_end_def = 0; t_end_kl = 500; t_switch_to_mc = 500; ini_W = False
+  elif (case == "a5"):
+    precond_id = 3
+    sig2 = 0.50; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 2000
+    t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 500; ini_W = False  
+  elif (case == "a6"):
+    precond_id = 3
+    sig2 = 0.50; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 2000
+    t_end_def = 1000; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
 
 
   elif (case == "b"):

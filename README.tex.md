@@ -1197,7 +1197,19 @@ _Example05_a4_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strat
 
 ![](./figures/recycler_dpcgmo_example05_a4_mc1.png)
 
+![](./figures/recycler_dpcgmo_example05_a4_mc2.png)
 
+![](./figures/recycler_dpcgmo_example05_a4_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_a4_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_a4_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_a4_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_a4_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_a4_mcmc4.png)
 
 
 

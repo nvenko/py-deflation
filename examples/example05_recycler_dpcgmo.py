@@ -16,7 +16,7 @@ nEl = 1000
 # nsmp       in {200}
 # precond_id in {1, 2, 3}
 
-case = "c9" # {"a", "b", "c"}
+case = "a4" # {"a", "b", "c"}
 precond_id, sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh = get_params(case)
 case = "example05_"+case
 

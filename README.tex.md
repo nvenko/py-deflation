@@ -1110,24 +1110,24 @@ plot(_smp="mcmc", precond_id=precond_id, case_id=case)
 
 __List of examples:__
 
-| case_id   | parameters                                                   |
-| --------- | ------------------------------------------------------------ |
-| `"05_a"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`3` |
-| `"05_a2"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`True`, `precond_id`=`3` |
-| `"05_b"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`1` |
-| `"05_b2"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/2`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`1000`; `ini_W`=`False`, `precond_id`=`1` |
-| `"05_c"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c2"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c3"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c4"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`3*kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c5"` | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`3*kl/4`; `nsmp`=`2000`; `t_end_def`=`500`; `t_end_kl`=`0`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c5"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c6"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c7"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c8"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`2` |
-| `"05_c9"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`500`; `t_end_kl`=`500`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`2` |
-|           |                                                              |
-|           |                                                              |
+| case_id    | parameters                                                   |
+| ---------- | ------------------------------------------------------------ |
+| `"05_a"`   | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`3` |
+| `"05_a2"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`True`, `precond_id`=`3` |
+| `"05_b"`   | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`1` |
+| `"05_b2"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/2`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`1000`; `ini_W`=`False`, `precond_id`=`1` |
+| `"05_c"`   | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c2"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`1000`; `t_switch_to_mc`=`1200`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c3"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c4"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`3*kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c5"`  | `sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`3*kl/4`; `nsmp`=`2000`; `t_end_def`=`500`; `t_end_kl`=`0`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c5"`  | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c6"`  | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c7"`  | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c8"`  | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c9"`  | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`500`; `t_end_kl`=`500`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`2` |
+| `"05_c10"` | `sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`1000`; `t_switch_to_mc`=`1200`; `ini_W`=`False`, `precond_id`=`2` |
+|            |                                                              |
 
 
 
@@ -1170,6 +1170,34 @@ _Example05_a2_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strat
 ![](./figures/recycler_dpcgmo_example05_a2_mcmc3.png)
 
 ![](./figures/recycler_dpcgmo_example05_a2_mcmc4.png)
+
+
+
+_Example05_a3_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`3`):
+
+![](./figures/recycler_dpcgmo_example05_a3_mc1.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mc2.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_a3_mcmc4.png)
+
+
+
+_Example05_a4_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`2000`; `t_end_def`=`0`; `t_end_kl`=`500`; `t_switch_to_mc`=`500`; `ini_W`=`False`, `precond_id`=`3`):
+
+![](./figures/recycler_dpcgmo_example05_a4_mc1.png)
+
+
 
 
 
@@ -1233,7 +1261,7 @@ _Example05_c_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strate
 
 
 
-_Example05_c2_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2`):
+_Example05_c2_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`1`; `ell_min`=`kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`1000`; `t_switch_to_mc`=`1200`; `ini_W`=`False`, `precond_id`=`2`):
 
 ![](./figures/recycler_dpcgmo_example05_c2_mc1.png)
 
@@ -1388,6 +1416,26 @@ _Example05_c9_  (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_stra
 ![](./figures/recycler_dpcgmo_example05_c9_mcmc3.png)
 
 ![](./figures/recycler_dpcgmo_example05_c9_mcmc4.png)
+
+_Example05_c10_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2`):
+
+![](./figures/recycler_dpcgmo_example05_c10_mc1.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mc2.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_c10_mcmc4.png)
+
+
 
 
 

@@ -27,11 +27,37 @@ def get_params(case):
     sig2 = 0.50; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 2000
     t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 500; ini_W = False  
+
   elif (case == "a6"):
     precond_id = 3
     sig2 = 0.50; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 200
+    t_end_def = nsmp; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
+
+
+  elif (case == "a7"):
+    precond_id = 3
+    sig2 = 0.05; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 2000
-    t_end_def = 1000; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
+    t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 500; ini_W = False  
+  elif (case == "a8"):
+    precond_id = 3
+    sig2 = 0.50; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 2000
+    t_end_def = 500; t_end_kl = 0; t_switch_to_mc = 500; ini_W = False  
+
+
+  elif (case == "a9"):
+    precond_id = 3
+    sig2 = 0.50; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 200
+    t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
+  elif (case == "a10"):
+    precond_id = 3
+    sig2 = 0.05; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 200
+    t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
+
 
 
   elif (case == "b"):

@@ -107,7 +107,7 @@ def plot(_smp="mc", precond_id=1, smp=None, smp_SpA=None, dcgmo_SpHtA=None, dcgm
   Sp_bnd = (1e-4, 1e5)
 
   #snapshot = (3000, 9000)
-  snapshot = (500,)
+  snapshot = (50,)
   #snapshot = (500, 3000)
   #snapshot = (5000, 8000)
   #snapshot = (5000, 10000)

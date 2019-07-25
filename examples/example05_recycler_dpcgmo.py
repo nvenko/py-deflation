@@ -16,14 +16,14 @@ nEl = 1000
 # nsmp       in {200}
 # precond_id in {1, 2, 3}
 
-case = "a5" # {"a", "b", "c"}
+case = "a10" # {"a", "b", "c"}
 precond_id, sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh = get_params(case)
 case = "example05_"+case
 
 smp, dpcg, dpcgmo = {}, {}, {}
 
 for _smp in ("mc", "mcmc"):
-  __smp = sampler(nEl=nEl, smp_type=_smp, model=model, sig2=sig2, L=L)
+  __smp = sampler(nEl=nEl, smp_type=_smp, model=model, sig2=sig2, L=L, t_switch_to_mc=t_switch_to_mc)
   __smp.compute_KL()
   __smp.draw_realization()
   __smp.do_assembly()

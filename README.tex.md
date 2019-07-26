@@ -406,7 +406,7 @@ __Results:__
 
 ![](./figures/solver_mcmc_overhead_ergodic_SExp.png)
 
-
+![](./figures/solver_mcmc_overhead_ergodic_Exp.png)
 
 __Obervations:__
 

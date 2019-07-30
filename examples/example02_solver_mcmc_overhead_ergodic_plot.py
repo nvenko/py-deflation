@@ -43,23 +43,36 @@ def load_u_xb(sig2, L, model, smp_type):
       return False, False
 
 
-def plot(cov_u_xb_mcmc, cov_u_xb_mc, model):
-  fig, ax = pl.subplots(1, 2, figsize=(7, 3.7), sharey=True)
-  fig.suptitle("Correlation decay of MCMC sampled states and overhead / %s model" %model)
+def plot(cov_u_xb_mcmc, cov_u_xb_mc, ratio, model, fig_ext=".png"):
+  fig, ax = pl.subplots(1, 2, figsize=(7, 3.), sharey=True)
+  fig.suptitle("%s model" %model)
+
   ax[0].set_title("L = 0.20")
-  gamma = .23*(cov_u_xb_mcmc[(0.5, 0.20)][0]+2*np.sum(cov_u_xb_mcmc[(0.5, 0.20)][1:200]))/cov_u_xb_mc[(0.5, 0.20)][0]
-  ax[0].plot(cov_u_xb_mcmc[(0.5, 0.20)][:200]/cov_u_xb_mc[(0.5, 0.20)][0], label=r"$\sigma^2 = 0.50, \gamma\approx %d$" %gamma)
-  gamma = .23*(cov_u_xb_mcmc[(0.05, 0.20)][0]+2*np.sum(cov_u_xb_mcmc[(0.05, 0.20)][1:200]))/cov_u_xb_mc[(0.05, 0.20)][0]
-  ax[0].plot(cov_u_xb_mcmc[(0.05, 0.20)][:200]/cov_u_xb_mc[(0.05, 0.20)][0], label=r"$\sigma^2 = 0.05, \gamma\approx %d$" %gamma)
+  s0 = 50000
+  _case = (0.5, 0.20)
+  gamma = ratio[_case]*(cov_u_xb_mcmc[_case][0]+2*np.sum(cov_u_xb_mcmc[_case][1:s0]))/cov_u_xb_mc[_case][0]
+  ax[0].semilogx(cov_u_xb_mcmc[_case][:s0]/cov_u_xb_mc[_case][0], "r", label=r"$\sigma^2 = 0.50, \gamma\approx %d$" %gamma)
+  _case = (0.05, 0.20)
+  gamma = ratio[_case]*(cov_u_xb_mcmc[_case][0]+2*np.sum(cov_u_xb_mcmc[_case][1:s0]))/cov_u_xb_mc[_case][0]
+  ax[0].semilogx(cov_u_xb_mcmc[_case][:s0]/cov_u_xb_mc[_case][0], "g", label=r"$\sigma^2 = 0.05, \gamma\approx %d$" %gamma)
 
   ax[1].set_title("L = 0.02")
-  gamma = .23*(cov_u_xb_mcmc[(0.5, 0.02)][0]+2*np.sum(cov_u_xb_mcmc[(0.5, 0.02)][1:2000]))/cov_u_xb_mc[(0.5, 0.02)][0]
-  ax[1].plot(cov_u_xb_mcmc[(0.5, 0.02)][:2000]/cov_u_xb_mc[(0.5, 0.02)][0], label=r"$\sigma^2 = 0.50, \gamma\approx %d$" %gamma)
-  gamma = .23*(cov_u_xb_mcmc[(0.05, 0.02)][0]+2*np.sum(cov_u_xb_mcmc[(0.05, 0.02)][1:2000]))/cov_u_xb_mc[(0.05, 0.02)][0]
-  ax[1].plot(cov_u_xb_mcmc[(0.05, 0.02)][:2000]/cov_u_xb_mc[(0.05, 0.02)][0], label=r"$\sigma^2 = 0.05, \gamma\approx %d$" %gamma)
-  ax[0].legend(), ax[1].legend()
-  
-  ax[0].set_ylabel(r"$Cov[u(x_b;\boldsymbol{\xi}_t), u(x_b;\boldsymbol{\xi}_{t+s})]/\mathbb{V}[u(x_b)]$")
-  ax[0].set_xlabel("Lag of realization indexes, s"); ax[1].set_xlabel("Lag of realization indexes, s")
-  pl.savefig(figures_path+"solver_mcmc_overhead_ergodic_%s.png" %model, bbox_inches='tight')
+  s0 = 50000
+  _case = (0.5, 0.02)
+  gamma = ratio[_case]*(cov_u_xb_mcmc[_case][0]+2*np.sum(cov_u_xb_mcmc[_case][1:s0]))/cov_u_xb_mc[_case][0]
+  ax[1].semilogx(cov_u_xb_mcmc[_case][:s0]/cov_u_xb_mc[_case][0], "r", label=r"$\sigma^2 = 0.50, \gamma\approx %d$" %gamma)
+  _case = (0.05, 0.02)
+  gamma = ratio[_case]*(cov_u_xb_mcmc[_case][0]+2*np.sum(cov_u_xb_mcmc[_case][1:s0]))/cov_u_xb_mc[_case][0]
+  ax[1].semilogx(cov_u_xb_mcmc[_case][:s0]/cov_u_xb_mc[_case][0], "g", label=r"$\sigma^2 = 0.05, \gamma\approx %d$" %gamma)
 
+  ax[0].legend(frameon=False), ax[1].legend(frameon=False)
+  ax[0].grid(), ax[1].grid()
+  if (model == "SExp"):
+    #ax[0].set_ylabel(r"$Cov[u(x_b;\boldsymbol{\xi}_t), u(x_b;\boldsymbol{\xi}_{t+s})]/\mathbb{V}[u(x_b)]$")
+    ax[0].set_ylabel(r"$Cov[u(1;\boldsymbol{\xi}_t), u(1;\boldsymbol{\xi}_{t+s})]/\mathbb{V}[u(1)]$")
+  else:
+    for ticklabel in ax[0].get_ymajorticklabels():
+      ticklabel.set_visible(False)
+      ticklabel.set_fontsize(0.0)
+  ax[0].set_xlabel("Lag of realization indexes, s"); ax[1].set_xlabel("Lag of realization indexes, s")
+  pl.savefig(figures_path+"solver_mcmc_overhead_ergodic_%s%s" %(model, fig_ext), bbox_inches='tight')

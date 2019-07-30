@@ -410,7 +410,7 @@ __Results:__
 
 __Obervations:__
 
-~~We have $\mathbb{V}[u(1)]\approx0.0038$ which leads to a significant overhead of around 563.~~ (<= for Exp model).
+We have ***.
 
 
 

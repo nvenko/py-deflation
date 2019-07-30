@@ -393,7 +393,7 @@ for case in range(4):
   fft_u_xb = np.fft.fft(u_xb_mcmc[_case]-u_xb_mcmc[_case].mean())
   cov_u_xb_mcmc[_case] = np.real(np.fft.ifft(fft_u_xb*np.conjugate(fft_u_xb))/nsmp_mcmc)
 
-plot(cov_u_xb_mcmc, cov_u_xb_mc, ratio, model, fig_ext=".eps") 
+plot(cov_u_xb_mcmc, cov_u_xb_mc, ratio, model, fig_ext=".eps")
 ```
 
 

@@ -5,17 +5,13 @@ import numpy as np
 from example02_solver_mcmc_overhead_ergodic_plot import *
 
 nEl = 1000
-nsmp_mcmc = 10000000
-nsmp_mc = 100000
+nsmp_mcmc = 1e7
+nsmp_mc = 1e5
 
-case = 2
-model = "Exp"
+model = "SExp"
 
 prms = [{"sig2":0.05, "L":0.02}, {"sig2":0.50, "L":0.02}, 
         {"sig2":0.05, "L":0.20}, {"sig2":0.50, "L":0.20}]
-
-sig2, L = prms[case]["sig2"], prms[case]["L"]
-
 
 u_xb_mc, u_xb_mcmc, ratio = {}, {}, {}
 cov_u_xb_mc, cov_u_xb_mcmc = {}, {}

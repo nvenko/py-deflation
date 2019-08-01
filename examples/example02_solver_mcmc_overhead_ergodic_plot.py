@@ -5,10 +5,11 @@ import glob
 pl.rcParams['text.usetex'] = True
 params={'text.latex.preamble':[r'\usepackage{amssymb}',r'\usepackage{amsmath}']}
 pl.rcParams.update(params)
-pl.rcParams['axes.labelsize']=14#19.
-pl.rcParams['legend.fontsize']=12.#16.
-pl.rcParams['xtick.labelsize']=10.
-pl.rcParams['ytick.labelsize']=10.
+pl.rcParams['axes.labelsize']=16#19.
+pl.rcParams['axes.titlesize']=16#19.
+pl.rcParams['legend.fontsize']=14.#16.
+pl.rcParams['xtick.labelsize']=13.
+pl.rcParams['ytick.labelsize']=13.
 pl.rcParams['legend.numpoints']=1
 
 figures_path = '../figures/'
@@ -45,7 +46,7 @@ def load_u_xb(sig2, L, model, smp_type):
 
 def plot(cov_u_xb_mcmc, cov_u_xb_mc, ratio, model, fig_ext=".png"):
   fig, ax = pl.subplots(1, 2, figsize=(7, 3.), sharey=True)
-  fig.suptitle("%s model" %model)
+  fig.suptitle("%s model" %model, fontsize=16)
 
   ax[0].set_title("L = 0.20")
   s0 = 50000
@@ -69,10 +70,16 @@ def plot(cov_u_xb_mcmc, cov_u_xb_mc, ratio, model, fig_ext=".png"):
   ax[0].grid(), ax[1].grid()
   if (model == "SExp"):
     #ax[0].set_ylabel(r"$Cov[u(x_b;\boldsymbol{\xi}_t), u(x_b;\boldsymbol{\xi}_{t+s})]/\mathbb{V}[u(x_b)]$")
-    ax[0].set_ylabel(r"$Cov[u(1;\boldsymbol{\xi}_t), u(1;\boldsymbol{\xi}_{t+s})]/\mathbb{V}[u(1)]$")
+    ax[0].set_ylabel(r"$\mathrm{Cov}[u(1;\boldsymbol{\xi}_t), u(1;\boldsymbol{\xi}_{t+s})]/\mathbb{V}[u(1)]$")
   else:
     for ticklabel in ax[0].get_ymajorticklabels():
       ticklabel.set_visible(False)
       ticklabel.set_fontsize(0.0)
-  ax[0].set_xlabel("Lag of realization indexes, s"); ax[1].set_xlabel("Lag of realization indexes, s")
+  ax[0].set_xlabel("States lag, s"); ax[1].set_xlabel("States lag, s")
+  major_ticks = [10**j for j in range(5)]
+  minor_ticks = []
+  for maj_t in major_ticks:
+    minor_ticks += [k*maj_t for k in range(2,10)]
+  ax[0].set_xticks(major_ticks); ax[1].set_xticks(major_ticks)
+  ax[0].set_xticks(minor_ticks, minor=True); ax[1].set_xticks(minor_ticks, minor=True)
   pl.savefig(figures_path+"solver_mcmc_overhead_ergodic_%s%s" %(model, fig_ext), bbox_inches='tight')

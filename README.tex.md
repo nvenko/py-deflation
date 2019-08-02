@@ -1464,9 +1464,11 @@ _Example05_c5_ (`sig2`=`0.05`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strat
 
 ![](./figures/recycler_dpcgmo_example05_c5_mcmc1.png)
 
-![](./figures/recycler_dpcgmo_example05_c5_mc1.png)
+![](./figures/recycler_dpcgmo_example05_c5_mcmc2.png)
 
+![](./figures/recycler_dpcgmo_example05_c5_mcmc3.png)
 
+![](./figures/recycler_dpcgmo_example05_c5_mcmc4.png)
 
 _Example05_c6_  (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/2`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`False`, `precond_id`=`2`):
 

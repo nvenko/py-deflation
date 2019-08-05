@@ -1568,9 +1568,23 @@ _Example05_c10_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_stra
 
 
 
+_Example05_c11_ (`sig2`=`0.50`; `L`=`0.02`; `model`=`"Exp"`; `kl`=`20`; `kl_strategy`=`0`; `ell_min`=`kl/4`; `nsmp`=`200`; `t_end_def`=`0`; `t_end_kl`=`0`; `t_switch_to_mc`=`0`; `ini_W`=`True`, `precond_id`=`2`):
 
+![](./figures/recycler_dpcgmo_example05_c11_mc1.png)
 
+![](./figures/recycler_dpcgmo_example05_c11_mc2.png)
 
+![](./figures/recycler_dpcgmo_example05_c11_mc3.png)
+
+![](./figures/recycler_dpcgmo_example05_c11_mc4.png)
+
+![](./figures/recycler_dpcgmo_example05_c11_mcmc1.png)
+
+![](./figures/recycler_dpcgmo_example05_c11_mcmc2.png)
+
+![](./figures/recycler_dpcgmo_example05_c11_mcmc3.png)
+
+![](./figures/recycler_dpcgmo_example05_c11_mcmc4.png)
 
 __Observations:__ 
 

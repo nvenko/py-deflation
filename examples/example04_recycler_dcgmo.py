@@ -14,7 +14,7 @@ nEl = 1000
 # model     in {"Exp", "SExp"}
 # kl        in {20, 50}
 
-case = "e7"
+case = "medW-k1"
 sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh = get_params(case)
 case = "example04_"+case
 

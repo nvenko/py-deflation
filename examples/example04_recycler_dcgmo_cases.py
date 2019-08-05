@@ -2,6 +2,19 @@ def get_params(case):
   
   eigres_thresh = 1e0
 
+
+
+  if (len(case) > 6):
+    if (case[:6] == "medW-k"):
+      kdim = int(case[6:])
+
+      sig2 = 0.05; L = 0.02; model = "Exp"
+      kl = 20; kl_strategy = 0; ell_min = kl-kdim; nsmp = 200
+      t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
+
+
+
+
   if (case == "a"):
     sig2 = 0.05; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 0; ell_min = kl/2; nsmp = 10000

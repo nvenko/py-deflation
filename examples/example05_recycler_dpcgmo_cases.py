@@ -127,6 +127,11 @@ def get_params(case):
     sig2 = 0.50; L = 0.02; model = "Exp"
     kl = 20; kl_strategy = 1; ell_min = kl/4; nsmp = 2000
     t_end_def = 0; t_end_kl = 1000; t_switch_to_mc = 1000; ini_W = False
+  elif (case == "c11"):
+    precond_id = 2
+    sig2 = 0.50; L = 0.02; model = "Exp"
+    kl = 20; kl_strategy = 0; ell_min = kl/4; nsmp = 200
+    t_end_def = 0; t_end_kl = 0; t_switch_to_mc = 0; ini_W = True
 
 
   return precond_id, sig2, L, model, kl, kl_strategy, ell_min, nsmp, t_end_def, t_end_kl, t_switch_to_mc, ini_W, eigres_thresh
